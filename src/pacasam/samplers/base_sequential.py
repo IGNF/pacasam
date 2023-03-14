@@ -6,24 +6,24 @@ No spatial sampling nor any optimization.
 
 """
 
-import logging
-from pathlib import Path
-from typing import Dict
-import pandas as pd
-import yaml
-from pathlib import Path
 import sys
-
+from pathlib import Path
 
 directory = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(directory))
 
-from pacasam.connectors.synthetic import Connector, SyntheticConnector
-from pacasam.utils import setup_custom_logger
+from typing import Dict
+import pandas as pd
+import geopandas as gpd
+import yaml
+from pathlib import Path
 
-outdir = Path("./outputs/synthetic/")
-log = setup_custom_logger(outdir=outdir)
-#  = logging.getLogger(__name__)
+
+from pacasam.connectors.postgresql import PostgreSQLConnector
+from pacasam.connectors.synthetic import Connector, SyntheticConnector
+from pacasam.utils import set_log_text_handler, setup_custom_logger
+
+log = setup_custom_logger()
 
 
 # TODO: create an interface object
@@ -65,19 +65,24 @@ class BaseSequential:
 # This is where we developp the workflow : checks, messages...
 
 
-def with_synthetic() --> pd.GeoDataFrale:
-    config_file = Path("configs/synthetic-optimization-config.yml")
-
+def run_base_sequential_sampling(connector_class, config_file: Path) -> gpd.GeoDataFrame:
     with open(config_file, "r") as file:
         optimization_config = yaml.safe_load(file)
 
-    connector = SyntheticConnector(**optimization_config["kwargs"])
+    connector: Connector = connector_class(**optimization_config["kwargs"])
     sampler = BaseSequential()
     ids: pd.Series = sampler.sample(connector, optimization_config)
     return connector.extract_using_ids(ids)
 
 
 if __name__ == "__main__":
-    gpd = with_synthetic()
-    desc = gpd.mean(numeric_only=True)
+    # outdir = Path("outputs/synthetic/")
+    # set_log_text_handler(log, outdir)
+    # gdf = run_base_sequential_sampling(SyntheticConnector, Path("configs/synthetic-optimization-config.yml"))
+
+    outdir = Path("outputs/postgresql/")
+    set_log_text_handler(log, outdir)
+    gdf = run_base_sequential_sampling(PostgreSQLConnector, Path("configs/toy-lipac-optimization-config.yml"))
+
+    desc = gdf.mean(numeric_only=True)
     desc.to_csv(outdir / "base_sequential_means.csv", sep=";", index=True)

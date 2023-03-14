@@ -65,7 +65,7 @@ class BaseSequential:
 # This is where we developp the workflow : checks, messages...
 
 
-def with_synthetic() --> pd.GeoDataFrale:
+def with_synthetic() -> pd.GeoDataFrale:
     config_file = Path("configs/synthetic-optimization-config.yml")
 
     with open(config_file, "r") as file:

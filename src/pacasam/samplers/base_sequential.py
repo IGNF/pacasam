@@ -78,6 +78,6 @@ def with_synthetic() --> pd.GeoDataFrale:
 
 
 if __name__ == "__main__":
-    extract = with_synthetic()
-    desc = extract.mean(numeric_only=True)
+    gpd = with_synthetic()
+    desc = gpd.mean(numeric_only=True)
     desc.to_csv(outdir / "base_sequential_means.csv", sep=";", index=True)

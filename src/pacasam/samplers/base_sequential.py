@@ -68,12 +68,12 @@ def with_synthetic(BaseSequential):
     connector = SyntheticConnector(**optimization_config["kwargs"])
     sampler = BaseSequential()
     ids: pd.Series = sampler.sample(connector, optimization_config)
-    extract = connector.extract_using_ids(ids)
+    return connector.extract_using_ids(ids)
+
+
+if __name__ == "__main__":
+    extract = with_synthetic(BaseSequential)
     desc = extract.mean(numeric_only=True)
     save_path = Path("./outputs/synthetic/base_sequential.csv")
     save_path.parent.mkdir(parents=True, exist_ok=True)
     desc.to_csv(save_path, sep=";", index=True)
-
-
-if __name__ == "__main__":
-    with_synthetic(BaseSequential)

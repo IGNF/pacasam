@@ -19,7 +19,7 @@ import yaml
 from pathlib import Path
 
 
-from pacasam.connectors.postgresql import PostgreSQLConnector
+from pacasam.connectors.lipac import LiPaCConnector, load_LiPaCConnector
 from pacasam.connectors.synthetic import Connector, SyntheticConnector
 from pacasam.utils import set_log_text_handler, setup_custom_logger
 
@@ -28,7 +28,7 @@ log = setup_custom_logger()
 
 # TODO: create an interface object
 class BaseSequential:
-    # def __init__(self) -> None:
+    name: str = "BaseSequential"
 
     def sample(self, connector: Connector, optimization_config: Dict):
         cf = optimization_config
@@ -61,28 +61,31 @@ class BaseSequential:
         return ids
 
 
-# All samplers can be run with the synthetic dataset.
-# This is where we developp the workflow : checks, messages...
-
-
-def run_base_sequential_sampling(connector_class, config_file: Path) -> gpd.GeoDataFrame:
-    with open(config_file, "r") as file:
-        optimization_config = yaml.safe_load(file)
-
-    connector: Connector = connector_class(**optimization_config["kwargs"])
-    sampler = BaseSequential()
-    ids: pd.Series = sampler.sample(connector, optimization_config)
-    return connector.extract_using_ids(ids)
-
-
 if __name__ == "__main__":
-    # outdir = Path("outputs/synthetic/")
-    # set_log_text_handler(log, outdir)
-    # gdf = run_base_sequential_sampling(SyntheticConnector, Path("configs/synthetic-optimization-config.yml"))
+    sampler = BaseSequential()
+    # Choose database to use:
+    # DATABASE_NAME = "synthetic"
+    DATABASE_NAME = "lipac"
 
-    outdir = Path("outputs/postgresql/")
-    set_log_text_handler(log, outdir)
-    gdf = run_base_sequential_sampling(PostgreSQLConnector, Path("configs/toy-lipac-optimization-config.yml"))
+    if DATABASE_NAME == "synthetic":
+        config_file = Path("configs/synthetic-optimization-config.yml")
+        with open(config_file, "r") as file:
+            optimization_config = yaml.safe_load(file)
+        outdir = Path("outputs/synthetic/")
+        set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
+        connector = SyntheticConnector(**optimization_config["kwargs"])
+    else:
+        config_file = Path("configs/toy-lipac-optimization-config.yml")
+        with open(config_file, "r") as file:
+            optimization_config = yaml.safe_load(file)
 
+        outdir = Path("outputs/lipac/")
+        set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
+        connector = load_LiPaCConnector()
+
+    ids: pd.Series = sampler.sample(connector, optimization_config)
+    gdf = connector.extract_using_ids(ids)
+
+    # Output dataset description
     desc = gdf.mean(numeric_only=True)
-    desc.to_csv(outdir / "base_sequential_means.csv", sep=";", index=True)
+    desc.to_csv(outdir / f"{sampler.name}-means.csv", sep=";", index=True)

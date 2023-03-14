@@ -16,9 +16,12 @@ def setup_custom_logger():
     return log
 
 
-def set_log_text_handler(log: logging.Logger, outdir: Path):
+def set_log_text_handler(log: logging.Logger, outdir: Path, log_file_name: str ="log.txt"):
     outdir.mkdir(parents=True, exist_ok=True)
-    handler = logging.FileHandler(outdir / "log.txt", mode="w")
+    handler = logging.FileHandler(outdir / log_file_name, mode="w")
     handler.setFormatter(LOGGING_FORMATTER)
     log.addHandler(handler)
     return log
+
+def get_class_name(instance):
+    return str(instance.__class__.__name__)

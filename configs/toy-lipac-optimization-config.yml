@@ -9,3 +9,7 @@ criteria:
   nb_points_bati:
     where: "nb_points_bati > 0"
     target_min_samples_proportion: 0.10
+
+# kwargs for postgresql database
+# TODO : move constants here
+kwargs:

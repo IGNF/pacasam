@@ -1,10 +1,11 @@
-import configparser
 import geopandas as gpd
-from pacasam.connectors.postgresql import Connector
+from pacasam.connectors.lipac import Connector
 import pacasam.connectors.lipac_constants as c
 
 from sqlalchemy.sql import text  # https://stackoverflow.com/a/75309321/8086033
 
+
+import configparser
 
 config = configparser.ConfigParser()
 config.read(c.CONFIG_FILE_NAME)

@@ -6,6 +6,7 @@ No spatial sampling nor any optimization.
 
 """
 
+import logging
 from pathlib import Path
 from typing import Dict
 import pandas as pd
@@ -13,13 +14,16 @@ import yaml
 from pathlib import Path
 import sys
 
+
 directory = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(directory))
 
 from pacasam.connectors.synthetic import Connector, SyntheticConnector
-from pacasam.utils import get_logger
+from pacasam.utils import setup_custom_logger
 
-log = get_logger(__name__)
+outdir = Path("./outputs/synthetic/")
+log = setup_custom_logger(outdir=outdir)
+#  = logging.getLogger(__name__)
 
 
 # TODO: create an interface object
@@ -74,6 +78,4 @@ def with_synthetic(BaseSequential):
 if __name__ == "__main__":
     extract = with_synthetic(BaseSequential)
     desc = extract.mean(numeric_only=True)
-    save_path = Path("./outputs/synthetic/base_sequential.csv")
-    save_path.parent.mkdir(parents=True, exist_ok=True)
-    desc.to_csv(save_path, sep=";", index=True)
+    desc.to_csv(outdir / "base_sequential.csv", sep=";", index=True)

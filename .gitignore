@@ -1,8 +1,10 @@
+credentials.ini
+
 # Byte-compiled / optimized / DLL files
+outputs/
 __pycache__/
 *.py[cod]
 *$py.class
-
 # C extensions
 *.so
 

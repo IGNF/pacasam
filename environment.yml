@@ -1,0 +1,25 @@
+# conda install mamba --yes -n base -c conda-forge
+# mamba env create -f environment.yml
+name: pacasam
+channels:
+  - conda-forge
+dependencies:
+  - python==3.9.*
+  - pip
+
+  # --------- linters --------- #
+  - pre-commit # hooks for applying linters on commit
+  - black # code formatting
+  - isort # import sorting
+  - flake8 # code analysis
+  # --------- BDs & Geo --------- #
+  - sqlalchemy==2.0.4
+  - psycopg2
+  - shapely
+  - geoalchemy2
+  - s3fs
+  - geopandas
+
+  - jupyterlab # better jupyter notebooks
+  - numpy
+  # - scikit-learn

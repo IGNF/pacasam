@@ -1,0 +1,11 @@
+# Configuration pour l'optimisation de l'échantillonnage de patches.
+# Idées : liste de champs de la BD et des critères permettant de les requêter. Directement sous la forme SQL si plus simple :
+# Nota: on pourra passer à un format csv si plus simple à inspecter / manipuler, mais attention à la forme des requêtes sql!
+criteria:
+  nb_points_eau:
+    where: "nb_points_eau > 0"
+    target_min_samples_proportion: 0.01
+
+  nb_points_bati:
+    where: "nb_points_bati > 0"
+    target_min_samples_proportion: 0.10

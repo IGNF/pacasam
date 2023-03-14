@@ -1,0 +1,24 @@
+# Configuration pour l'optimisation de l'échantillonnage de patches.
+# Idées : liste de champs de la BD et des critères permettant de les requêter. Directement sous la forme SQL si plus simple :
+# Nota: on pourra passer à un format csv si plus simple à inspecter / manipuler, mais attention à la forme des requêtes sql!
+target_size_num_samples: 10000
+
+criteria:
+  C0:
+    target_min_samples_proportion: 0.01
+  C1:
+    target_min_samples_proportion: 0.05
+  C2:
+    target_min_samples_proportion: 0.05
+  C3:
+    target_min_samples_proportion: 0.1
+  C4:
+    target_min_samples_proportion: 0.3
+
+
+
+# kwargs for synthetic connector
+kwargs:
+  # Lower
+  binary_descriptors_prevalence: [0.005, 0.005, 0.005, 0.7, 0.7]
+  db_size: 100000

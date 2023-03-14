@@ -65,7 +65,7 @@ class BaseSequential:
 # This is where we developp the workflow : checks, messages...
 
 
-def with_synthetic():
+def with_synthetic() --> pd.GeoDataFrale:
     config_file = Path("configs/synthetic-optimization-config.yml")
 
     with open(config_file, "r") as file:
@@ -80,4 +80,4 @@ def with_synthetic():
 if __name__ == "__main__":
     extract = with_synthetic()
     desc = extract.mean(numeric_only=True)
-    desc.to_csv(outdir / "base_sequential.csv", sep=";", index=True)
+    desc.to_csv(outdir / "base_sequential_means.csv", sep=";", index=True)

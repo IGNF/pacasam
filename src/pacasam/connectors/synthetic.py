@@ -23,8 +23,8 @@ class Connector:
     def select_randomly_without_repetition(self, num_to_add_randomly: int, already_sampled_ids: pd.Series):
         raise NotImplementedError()
 
-    def extract_using_ids(self, ids: pd.Series):
-        """Extract geometries using ids, saving to a gpkg."""
+    def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
+        """Extract using ids."""
         raise NotImplementedError()
 
 
@@ -62,7 +62,7 @@ class SyntheticConnector(Connector):
         choice = candidates.sample(n=num_to_add_randomly, replace=False, random_state=0)
         return choice
 
-    def extract_using_ids(self, ids: pd.Series):
+    def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
         extract = self.synthetic_df.merge(
             ids,

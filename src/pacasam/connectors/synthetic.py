@@ -20,8 +20,16 @@ class Connector:
     def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
         raise NotImplementedError()
 
+    # def select_randomly_without_repetition(self, num_to_add_randomly: int, already_sampled_ids: pd.Series):
+    #     raise NotImplementedError()
+
     def select_randomly_without_repetition(self, num_to_add_randomly: int, already_sampled_ids: pd.Series):
-        raise NotImplementedError()
+        candidates = set(range(self.db_size)) - set(i for i in already_sampled_ids)
+        candidates = pd.Series(list(candidates), name="id")
+        if num_to_add_randomly >= len(candidates):
+            return candidates
+        choice = candidates.sample(n=num_to_add_randomly, replace=False, random_state=0)
+        return choice
 
     def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract using ids."""
@@ -50,17 +58,15 @@ class SyntheticConnector(Connector):
         self.synthetic_df["geometry"] = None
 
     def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
-        return self.synthetic_df[self.synthetic_df[descriptor_name] > 0]["id"]
+        return self.synthetic_df[self.synthetic_df[descriptor_name] > 0][["id", "geometry"]]
 
-    def select_randomly_without_repetition(self, num_to_add_randomly: int, already_sampled_ids: pd.Series):
-        # TODO: could be done with Series instead.
-        candidates = set(range(self.db_size)) - set(i for i in already_sampled_ids)
-        candidates = pd.Series(list(candidates), name="id")
-        if num_to_add_randomly >= len(candidates):
-            return candidates
-
-        choice = candidates.sample(n=num_to_add_randomly, replace=False, random_state=0)
-        return choice
+    # def select_randomly_without_repetition(self, num_to_add_randomly: int, already_sampled_ids: pd.Series):
+    #     candidates = set(range(self.db_size)) - set(i for i in already_sampled_ids)
+    #     candidates = pd.Series(list(candidates), name="id")
+    #     if num_to_add_randomly >= len(candidates):
+    #         return candidates
+    #     choice = candidates.sample(n=num_to_add_randomly, replace=False, random_state=0)
+    #     return choice
 
     def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract everything using ids."""

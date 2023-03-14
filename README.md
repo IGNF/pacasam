@@ -27,3 +27,7 @@ Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) 
         - correction de "nb points artefats"
         - Documentation des noms de variables et de leur définition (altitude, dénivelés) dans un xslx (Databook)
         - 
+
+Panini - requests :
+    - Passer les booléens en int pour faciliter opérations ">0". (cf. https://stackoverflow.com/a/1465432/8086033)
+    

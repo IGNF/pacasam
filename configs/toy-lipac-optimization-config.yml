@@ -1,14 +1,28 @@
 # Configuration pour l'optimisation de l'échantillonnage de patches.
 # Idées : liste de champs de la BD et des critères permettant de les requêter. Directement sous la forme SQL si plus simple :
 # Nota: on pourra passer à un format csv si plus simple à inspecter / manipuler, mais attention à la forme des requêtes sql!
+num_tiles_in_sampled_dataset: 5000  # 250km² = 100000 samples, 20x reduction.
+
+# TODO: sort in code to be flexible in tagets
+# TODO: enable to **override** the "> 0" base query, by a custom, more complex SQL request! If does not exist, the query is "">0"
+
 criteria:
+  presence_de_pylones:
+    where: "presence_de_pylones > 0"
+    target_min_samples_proportion: 0.01
+
   nb_points_eau:
     where: "nb_points_eau > 0"
-    target_min_samples_proportion: 0.01
+    target_min_samples_proportion: 0.02
+
+  nb_points_sursol_perenne:
+    where: "nb_points_sursol_perenne > 0"
+    target_min_samples_proportion: 0.02
 
   nb_points_bati:
     where: "nb_points_bati > 0"
     target_min_samples_proportion: 0.10
+
 
 # kwargs for postgresql database
 # TODO : move constants here

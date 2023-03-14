@@ -14,6 +14,8 @@ sys.path.append(str(directory))
 
 from typing import Dict
 import pandas as pd
+import numpy as np
+
 import geopandas as gpd
 import yaml
 from pathlib import Path
@@ -38,10 +40,14 @@ class BaseSequential:
         for descriptor_name, descriptor_objectives in cf["criteria"].items():
             # direct addition to start with
             matching_ids = connector.request_ids_where_above_zero(descriptor_name)
-            num_samples = int(descriptor_objectives["target_min_samples_proportion"] * cf["target_size_num_samples"])
-            num_samples = min(num_samples, len(matching_ids))  # cannot take more that there is.
+            num_samples = int(descriptor_objectives["target_min_samples_proportion"] * cf["num_tiles_in_sampled_dataset"])
+            num_samples_possibles = min(num_samples, len(matching_ids))  # cannot take more that there is.
             # random sampling independant of previous selection, with duplicates dropped later.
-            matching_ids = matching_ids.sample(num_samples, random_state=1)
+            matching_ids = matching_ids.sample(num_samples_possibles, random_state=1)
+            log.info(
+                f'Descriptor: {descriptor_name}. Target: {(descriptor_objectives["target_min_samples_proportion"]):.02f} (n={num_samples}).'
+                f'Found: {(num_samples_possibles/cf["num_tiles_in_sampled_dataset"]):.02f} (n={num_samples_possibles})'
+            )
             ids += [matching_ids]
         ids = pd.concat(ids)
         n = len(ids)
@@ -51,7 +57,7 @@ class BaseSequential:
         log.info(f"Corresponds to {n_distinct} distinct ids (concentration ratio: {n_distinct/n})")
 
         # Complete with random sampling
-        num_to_add_randomly = cf["target_size_num_samples"] - len(ids)
+        num_to_add_randomly = cf["num_tiles_in_sampled_dataset"] - len(ids)
         log.info(f"Completing with {num_to_add_randomly} samples.")
         randomly_sampled_ids = connector.select_randomly_without_repetition(
             num_to_add_randomly=num_to_add_randomly, already_sampled_ids=ids
@@ -87,5 +93,6 @@ if __name__ == "__main__":
     gdf = connector.extract_using_ids(ids)
 
     # Output dataset description
-    desc = gdf.mean(numeric_only=True)
-    desc.to_csv(outdir / f"{sampler.name}-means.csv", sep=";", index=True)
+    bools = gdf.select_dtypes(include=np.number) > 0
+    desc = bools.mean(numeric_only=True)
+    desc.to_csv(outdir / f"{sampler.name}-prevalences.csv", sep=";", index=True)

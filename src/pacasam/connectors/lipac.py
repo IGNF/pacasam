@@ -1,11 +1,14 @@
 # copy of https://github.com/IGNF/panini/blob/main/connector.py
 
 import logging
+import pandas as pd
+import geopandas as gpd
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select, text
+import sqlalchemy
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
-
+from sqlalchemy import MetaData
 from pacasam.connectors.synthetic import Connector
 
 log = logging.getLogger(__name__)
@@ -14,12 +17,13 @@ CREDENTIALS_FILE_PATH = "credentials.ini"  # with credentials.
 
 # DB_LIPAC_HOST = "localhost"
 DB_LIPAC_HOST = "lidar-ia-vm3"
-DB_LIPAC_NAME = "lidar_patch_catalogue"
+DB_LIPAC_NAME = "lidar_patch_catalogue_new"
 
 DB_UNI_HOST = "serveurbdudiff.ign.fr"
 DB_UNI_NAME = "bduni_france_consultation"
 
 # SRID_DICT = {"Lambert-93": 2154}
+CHUNKSIZE_FOR_EXTRACTION = 10000
 
 
 class LiPaCConnector(Connector):
@@ -28,6 +32,9 @@ class LiPaCConnector(Connector):
         self.host = host
         self.db_name = db_name
         self.create_session(password)
+        # TODO
+        # self.db_size = self.set_db_size()
+        self.db_size = self.session.execute(text('SELECT count(*) FROM "vignette"')).all()[0][0]
 
     def create_session(self, password):
         url = URL.create(
@@ -41,6 +48,29 @@ class LiPaCConnector(Connector):
         self.engine = create_engine(url)
         self.session = scoped_session(sessionmaker())
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
+
+    def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
+        # TODO: support override of the selection statement in vignette by a "where" argument.
+
+        query = text(f'Select "id", "geometrie" FROM "vignette" WHERE "{descriptor_name}" > 0')
+        try:
+            gdf = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie")
+        except sqlalchemy.exc.ProgrammingError:
+            # TODO: Lipac needs to be updated to have integer-coding of booleans. Then we can get rid of this.
+            query = text(f'Select "id", "geometrie" FROM "vignette" WHERE "{descriptor_name}" is true')
+            gdf = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie")
+
+        return gdf
+
+    def extract_using_ids(self, selected_ids: pd.Series) -> gpd.GeoDataFrame:
+        """Extract using ids."""
+        # Method by chunk :
+        extract = []
+        query = text('Select * FROM "vignette"')
+        for chunk in gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_EXTRACTION):
+            # TODO: consider a merge to leverage hash values (?)
+            extract += [chunk[chunk["id"].isin(selected_ids["id"])]]
+        return pd.concat(extract)
 
 
 def load_LiPaCConnector() -> LiPaCConnector:

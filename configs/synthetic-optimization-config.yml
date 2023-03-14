@@ -4,7 +4,7 @@
 
 # TODO: make a parser for the config once it is more stable. Check for constraints in range [0-1] and if their sum is <100%.
 
-target_size_num_samples: 10000
+num_tiles_in_sampled_dataset: 10000
 
 criteria:
   C0:

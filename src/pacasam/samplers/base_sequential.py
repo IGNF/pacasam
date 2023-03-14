@@ -57,13 +57,15 @@ class BaseSequential:
             num_to_add_randomly=num_to_add_randomly, already_sampled_ids=ids
         )
         ids = pd.concat([ids, randomly_sampled_ids])
-        # ids = pd.Series(ids, name="id")
 
         return ids
 
 
 # All samplers can be run with the synthetic dataset.
-def with_synthetic(BaseSequential):
+# This is where we developp the workflow : checks, messages...
+
+
+def with_synthetic():
     config_file = Path("configs/synthetic-optimization-config.yml")
 
     with open(config_file, "r") as file:
@@ -76,6 +78,6 @@ def with_synthetic(BaseSequential):
 
 
 if __name__ == "__main__":
-    extract = with_synthetic(BaseSequential)
+    extract = with_synthetic()
     desc = extract.mean(numeric_only=True)
     desc.to_csv(outdir / "base_sequential.csv", sep=";", index=True)

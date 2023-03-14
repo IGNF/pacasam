@@ -1,6 +1,9 @@
 # Configuration pour l'optimisation de l'échantillonnage de patches.
 # Idées : liste de champs de la BD et des critères permettant de les requêter. Directement sous la forme SQL si plus simple :
 # Nota: on pourra passer à un format csv si plus simple à inspecter / manipuler, mais attention à la forme des requêtes sql!
+
+# TODO: make a parser for the config once it is more stable. Check for constraints in range [0-1] and if their sum is <100%.
+
 target_size_num_samples: 10000
 
 criteria:

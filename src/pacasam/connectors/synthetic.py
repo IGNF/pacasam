@@ -4,6 +4,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+from shapely.geometry import box
 
 log = logging.getLogger(__name__)
 
@@ -20,10 +21,8 @@ class Connector:
     def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
         raise NotImplementedError()
 
-    # def select_randomly_without_repetition(self, num_to_add_randomly: int, already_sampled_ids: pd.Series):
-    #     raise NotImplementedError()
-
     def select_randomly_without_repetition(self, num_to_add_randomly: int, already_sampled_ids: pd.Series):
+        """Selects n *new* samples. Uses the fact that tiles ids are in range(0,db_size)."""
         candidates = set(range(self.db_size)) - set(i for i in already_sampled_ids)
         candidates = pd.Series(list(candidates), name="id")
         if num_to_add_randomly >= len(candidates):
@@ -36,11 +35,10 @@ class Connector:
         raise NotImplementedError()
 
 
-# TODO: choose if ids should be manipulated as sets instead of a pd.Series.
-# Pros for pd.Series : sample operation.
-
-
 class SyntheticConnector(Connector):
+    # TODO: name should be an attribute of the base abstract class,n calculated with __class__.__name__
+    name: str = "SyntheticConnector"
+
     def __init__(self, binary_descriptors_prevalence: List[float], db_size: int = 10000):
         self.db_size = db_size
         data = []
@@ -54,19 +52,10 @@ class SyntheticConnector(Connector):
         self.synthetic_df = gpd.GeoDataFrame(data, columns=self.descriptor_names, geometry=None)
         self.synthetic_df["id"] = range(len(self.synthetic_df))
 
-        # fake_grid_size = np.sqrt(db_size)
-        self.synthetic_df["geometry"] = None
+        self.synthetic_df["geometry"] = self._make_synthetic_geometries()
 
     def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
         return self.synthetic_df[self.synthetic_df[descriptor_name] > 0][["id", "geometry"]]
-
-    # def select_randomly_without_repetition(self, num_to_add_randomly: int, already_sampled_ids: pd.Series):
-    #     candidates = set(range(self.db_size)) - set(i for i in already_sampled_ids)
-    #     candidates = pd.Series(list(candidates), name="id")
-    #     if num_to_add_randomly >= len(candidates):
-    #         return candidates
-    #     choice = candidates.sample(n=num_to_add_randomly, replace=False, random_state=0)
-    #     return choice
 
     def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
@@ -76,3 +65,17 @@ class SyntheticConnector(Connector):
             on="id",
         )
         return extract
+
+    def _make_synthetic_geometries(self):
+        fake_grid_size = ceil(np.sqrt(self.db_size))
+        # Cartesian product of range * tile_size
+        tile_size = 50
+        df_x = pd.DataFrame({"x": range(fake_grid_size)}) * tile_size
+        df_y = pd.DataFrame({"y": range(fake_grid_size)}) * tile_size
+        df_xy = df_x.merge(df_y, how="cross")
+        df_geom = df_xy.apply(
+            lambda row: box(row["x"], row["y"], row["x"] + tile_size, row["y"] + tile_size, ccw=False),
+            axis=1,
+        )
+
+        return df_geom

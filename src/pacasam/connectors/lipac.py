@@ -27,13 +27,13 @@ CHUNKSIZE_FOR_EXTRACTION = 10000
 
 
 class LiPaCConnector(Connector):
+    name: str = "LiPaCConnector"
+
     def __init__(self, username, password, host, db_name):
         self.username = username
         self.host = host
         self.db_name = db_name
         self.create_session(password)
-        # TODO
-        # self.db_size = self.set_db_size()
         self.db_size = self.session.execute(text('SELECT count(*) FROM "vignette"')).all()[0][0]
 
     def create_session(self, password):
@@ -65,15 +65,17 @@ class LiPaCConnector(Connector):
     def extract_using_ids(self, selected_ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract using ids."""
         # Method by chunk :
+
         extract = []
         query = text('Select * FROM "vignette"')
         for chunk in gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_EXTRACTION):
             # TODO: consider a merge to leverage hash values (?)
-            extract += [chunk[chunk["id"].isin(selected_ids["id"])]]
+            extract += [chunk[chunk["id"].isin(selected_ids)]]
         return pd.concat(extract)
 
 
 def load_LiPaCConnector() -> LiPaCConnector:
+    # TODO: this loader should enable override of the DB_LIPAC_NAME and HOST, from the optimization config file.
     import configparser
 
     config = configparser.ConfigParser()

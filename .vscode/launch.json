@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Base Sequential on Synthetic Data",
+            "name": "Base Sequential",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/base_sequential.py",

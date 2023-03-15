@@ -24,6 +24,6 @@ criteria:
     target_min_samples_proportion: 0.10
 
 
-# kwargs for postgresql database
+# kwargs for lipac database
 # TODO : move constants here
 kwargs:

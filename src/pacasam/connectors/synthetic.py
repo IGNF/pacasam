@@ -49,10 +49,10 @@ class SyntheticConnector(Connector):
             data += [d]
         data = np.column_stack(data)
         self.descriptor_names = [f"C{idx}" for idx in range(len(binary_descriptors_prevalence))]
-        self.synthetic_df = gpd.GeoDataFrame(data, columns=self.descriptor_names, geometry=None)
+        self.synthetic_df = gpd.GeoDataFrame(
+            data, columns=self.descriptor_names, geometry=self._make_synthetic_geometries(), crs="EPSG:2154"
+        )
         self.synthetic_df["id"] = range(len(self.synthetic_df))
-
-        self.synthetic_df["geometry"] = self._make_synthetic_geometries()
 
     def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
         return self.synthetic_df[self.synthetic_df[descriptor_name] > 0][["id", "geometry"]]

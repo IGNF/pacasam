@@ -21,10 +21,12 @@ Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) 
 - Optimisation : 
     - [ ] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
         Réfléxion sur le format pour faciliter l'ajout ; garder possibilité d'afficher dans excel MAIS en protégeant les strings. Attention aux conversions automatiques... Fichier excel directement ? Moins risqué ? Mais moins standard... Et si format tabulaire pas possible d'ajouter des autres paramètres efficacement ! Sinon : proposer une conversion simple de yaml vers excel pour analyse, juste sur les objectifs de l'opti...
+    - [ ] Créer une brique de Farthest point Sampling, double usage : 
+        - [ ] Spatial Sampling --> pour l'instant ne semble pas essentiel, bonne répartition même avec 4M de tuiles de base. Mais
 
 + cf. les todo dans le code
 
-Panini - requests :
+# Panini - requests :
     - Passer les booléens en int pour faciliter opérations ">0". (cf. https://stackoverflow.com/a/1465432/8086033)
     - Enumerable des noms de classes en français
     - correction de "nb points artefats"
@@ -32,3 +34,8 @@ Panini - requests :
     - Indexation spatiale de la base, et rajoute de colonne directemnet avec une unique requête SQL (+ éventuellement ligne python pour schéma.)
     - Revue possible avec Marouane, des quelques fonctionnalités essentielles. 
     - Idée d'avoir une base de travail, qui peut être copiée ensuite par des utilisateurs dans un second temps, pour usage et sampling.
+
+# Analyses 
+- Tets de charge sur données synthétique, pour étudier la répartition d'après différents sampling (aléatoire ou spatiel éventuel).
+    --> Passe en mémoire (id et géométrie au moins). Sampling possible. A voir pour l'extract avec tous les attributs, besoin probable de chunker la données requêtée pour sauvegarde. 
+    --> Analyse des KNN - 288m attendu de distance moyenne). Problème de projection! A refaire en enregistrant le geopackage avec cf. [QGIS doc](https://docs.qgis.org/3.22/en/docs/user_manual/processing_algs/qgis/vectoranalysis.html#nearest-neighbour-analysis). Largeur des polygones fake n'est pas bonne. peut-être lié à enregistrement / projection... (35m de coté dans qgis).

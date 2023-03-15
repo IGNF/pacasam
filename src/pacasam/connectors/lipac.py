@@ -51,6 +51,7 @@ class LiPaCConnector(Connector):
 
     def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
         # TODO: support override of the selection statement in vignette by a "where" argument.
+        # This enables flexible descriptor, and no descriptors with "where TRUE".
 
         query = text(f'Select "id", "geometrie" FROM "vignette" WHERE "{descriptor_name}" > 0')
         try:

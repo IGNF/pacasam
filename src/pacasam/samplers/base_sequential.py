@@ -56,19 +56,18 @@ class BaseSequential:
             # random sampling independant of previous selection, with duplicates dropped later.
             matching_ids = matching_ids.sample(num_samples_found, random_state=1)
             log.info(
-                f"Descriptor: {descriptor_name}. "
-                f'"Target: {(descriptor_objectives["target_min_samples_proportion"]):.02f} (n={num_samples_target}).'
-                f'Found: {(num_samples_found/cf["num_tiles_in_sampled_dataset"]):.02f} (n={num_samples_found})'
+                f"Descriptor: {descriptor_name}"
+                f'  Target: {(descriptor_objectives["target_min_samples_proportion"])} (n={num_samples_target}). '
+                f'  Found: {(num_samples_found/cf["num_tiles_in_sampled_dataset"]):.03f} (n={num_samples_found})'
             )
             if num_samples_found < num_samples_target:
                 log.warning(f"Could not reach target for indicateur {descriptor_name}")
             ids += [matching_ids]
         ids = pd.concat(ids)
-        n = len(ids)
-        log.info(f"Sampled {n} ids to reach descriptors targets.")
+        n_sampled = len(ids)
         ids = ids.drop_duplicates()
         n_distinct = len(ids)
-        log.info(f"Corresponds to {n_distinct} distinct ids (concentration ratio: {n_distinct/n})")
+        log.info(f"Sampled {n_sampled} ids --> {n_distinct} distinct ids (redundancy ratio: {n_distinct/n_sampled:.03f}) ")
 
         # Complete with random sampling
         num_to_add_randomly = cf["num_tiles_in_sampled_dataset"] - len(ids)

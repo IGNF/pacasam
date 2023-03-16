@@ -1,6 +1,7 @@
 # copy of https://github.com/IGNF/panini/blob/main/connector.py
 
 import logging
+from typing import Generator
 import pandas as pd
 import geopandas as gpd
 
@@ -14,8 +15,7 @@ log = logging.getLogger(__name__)
 
 CREDENTIALS_FILE_PATH = "credentials.ini"  # with credentials.
 
-# SRID_DICT = {"Lambert-93": 2154}
-CHUNKSIZE_FOR_EXTRACTION = 10000
+CHUNKSIZE_FOR_POSTGIS_REQUESTS = 100000
 
 
 class LiPaCConnector(Connector):
@@ -42,11 +42,9 @@ class LiPaCConnector(Connector):
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
     def request_ids_by_condition(self, where: str) -> pd.Series:
-        # TODO: enables reading by chunk to anticipate larger database.
-
         query = text(f'Select "id", "geometrie" FROM "vignette" WHERE {where}')
-        gdf = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie")
-
+        chunks: Generator = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS)
+        gdf = pd.concat(chunks)
         return gdf
 
     def extract_using_ids(self, selected_ids: pd.Series) -> gpd.GeoDataFrame:
@@ -59,7 +57,7 @@ class LiPaCConnector(Connector):
             query,
             self.engine.connect(),
             geom_col="geometrie",
-            chunksize=CHUNKSIZE_FOR_EXTRACTION,
+            chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS,
         ):
             # TODO: consider a merge to leverage hash values (?)
             extract += [chunk[chunk["id"].isin(selected_ids)]]

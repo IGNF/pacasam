@@ -27,8 +27,8 @@ from pacasam.utils import set_log_text_handler, setup_custom_logger
 log = setup_custom_logger()
 
 # Choose database to use:
-# DATABASE_NAME = "synthetic"
-DATABASE_NAME = "lipac"
+DATABASE_NAME = "synthetic"
+# DATABASE_NAME = "lipac"
 
 
 class BaseSequential:
@@ -47,14 +47,16 @@ class BaseSequential:
         cf["criteria"] = self._sort_criteria(cf["criteria"])
         for descriptor_name, descriptor_objectives in cf["criteria"].items():
             # direct addition to start with
-            matching_ids = connector.request_ids_where_above_zero(descriptor_name)
+            where = descriptor_objectives.get("where", f"{descriptor_name} > 0")
+            matching_ids = connector.request_ids_by_condition(where=where)
+            # matching_ids = connector.request_ids_from_connector(descriptor_name)
             num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * cf["num_tiles_in_sampled_dataset"])
             num_samples_found = min(num_samples_target, len(matching_ids))  # cannot take more that there is.
             # random sampling independant of previous selection, with duplicates dropped later.
             matching_ids = matching_ids.sample(num_samples_found, random_state=1)
             log.info(
                 f"Descriptor: {descriptor_name}. "
-                '"Target: {(descriptor_objectives["target_min_samples_proportion"]):.02f} (n={num_samples_target}).'
+                f'"Target: {(descriptor_objectives["target_min_samples_proportion"]):.02f} (n={num_samples_target}).'
                 f'Found: {(num_samples_found/cf["num_tiles_in_sampled_dataset"]):.02f} (n={num_samples_found})'
             )
             if num_samples_found < num_samples_target:

@@ -15,10 +15,14 @@ criteria:
     target_min_samples_proportion: 0.05
   C2:
     target_min_samples_proportion: 0.05
+  
   # Order of criteria has no impact: they are sorted in code by target.
   C4:
-    target_min_samples_proportion: 0.3
+    target_min_samples_proportion: 0.2
   C3:
+    target_min_samples_proportion: 0.2
+  C3C4:
+    where: "(C3 > 0) & (C4 > 0)"
     target_min_samples_proportion: 0.1
 
 

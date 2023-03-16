@@ -19,15 +19,14 @@ CHUNKSIZE_FOR_EXTRACTION = 10000
 
 
 class LiPaCConnector(Connector):
-    name: str = "LiPaCConnector"
-
     def __init__(self, username: str, password: str, db_lipac_host: str, db_lipac_name: str):
+        super().__init__()
+
         self.username = username
         self.host = db_lipac_host
         self.db_name = db_lipac_name
         self.create_session(password)
         self.db_size = self.session.execute(text('SELECT count(*) FROM "vignette"')).all()[0][0]
-        self.name = self.__class__.__name__  # for convenience
 
     def create_session(self, password):
         url = URL.create(
@@ -42,9 +41,10 @@ class LiPaCConnector(Connector):
         self.session = scoped_session(sessionmaker())
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
-    def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
+    def request_ids_from_connector(self, descriptor_name: str, where: str = "{descriptor_name} > 0") -> pd.Series:
         # TODO: support override of the selection statement in vignette by a "where" argument.
         # This enables flexible descriptor, and no descriptors with "where TRUE".
+        # TODO: enables reading by chunk to anticipate larger database.
 
         query = text(f'Select "id", "geometrie" FROM "vignette" WHERE "{descriptor_name}" > 0')
         try:

@@ -18,7 +18,13 @@ class Connector:
 
     db_size: int
 
-    def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
+    def __init__(self):
+        self.name: str = self.__class__.__name__
+
+    def request_ids_by_condition(self, where: str) -> pd.Series:
+        raise NotImplementedError()
+
+    def request_ids_if_above_zero(self, descriptor_name) -> pd.Series:
         raise NotImplementedError()
 
     def select_randomly_without_repetition(self, num_to_add_randomly: int, already_sampled_ids: pd.Series):
@@ -40,6 +46,8 @@ class SyntheticConnector(Connector):
     # name: str = "SyntheticConnector"
 
     def __init__(self, binary_descriptors_prevalence: List[float], db_size: int = 10000):
+        super().__init__()
+
         self.db_size = db_size
         data = []
         for t in binary_descriptors_prevalence:
@@ -57,8 +65,17 @@ class SyntheticConnector(Connector):
         )
         self.synthetic_df["id"] = range(len(self.synthetic_df))
 
-    def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
-        return self.synthetic_df[self.synthetic_df[descriptor_name] > 0][["id", "geometry"]]
+    def request_ids_by_condition(self, where: str) -> pd.Series:
+        """Requests id based on a where sql-like query.
+
+        For instance: query = 'C0 > 0'.
+        Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html
+        """
+        return self.synthetic_df.query(where)
+
+    def request_ids_if_above_zero(self, descriptor_name) -> pd.Series:
+        """Requests ids when descriptor is above zero (default case)."""
+        return self.request_ids_by_condition(self, f"'{descriptor_name}' > 0")
 
     def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract everything using ids."""

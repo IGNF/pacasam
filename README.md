@@ -26,14 +26,16 @@ Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) 
 
 + cf. les todo dans le code
 
-# Panini - requests :
-    - Passer les booléens en int pour faciliter opérations ">0". (cf. https://stackoverflow.com/a/1465432/8086033)
-    - Enumerable des noms de classes en français
-    - correction de "nb points artefats"
-    - Documentation des noms de variables et de leur définition (altitude, dénivelés) dans un xslx (Databook)
-    - Indexation spatiale de la base, et rajoute de colonne directemnet avec une unique requête SQL (+ éventuellement ligne python pour schéma.)
-    - Revue possible avec Marouane, des quelques fonctionnalités essentielles. 
-    - Idée d'avoir une base de travail, qui peut être copiée ensuite par des utilisateurs dans un second temps, pour usage et sampling.
+# Panini - évolutions :
+- Passer les booléens en int pour faciliter opérations ">0". (cf. https://stackoverflow.com/a/1465432/8086033)
+- Enumerable des noms de classes en français --> pas forcément nécessaire, plutôt de la doc.
+- correction de "nb points artefats" -> artefaCts
+- Documentation des noms de variables et de leur définition (altitude, dénivelés) dans un xslx (Databook)
+- Indexation spatiale de la base, et rajoute de colonne directemnet avec une unique requête SQL (+ éventuellement ligne python pour schéma.)
+- Revue possible avec Marouane, des quelques fonctionnalités essentielles. Idée d'avoir une base de travail, qui peut être copiée ensuite par des utilisateurs dans un second temps, pour usage et sampling. Test BDBeaver à faire.
+- Nombre de points minimum par tuile à imposer ? On peut envisager un filtre en amont sur la BD. On peut aussi compléter la requête à chaque fois. Peut-on créer une table temporaire intermédiaire un premier temps à ensuite requêter ?
+- Dans zones d'eau, sans point sol, le dénivelé vaut -18446744073709551616. Passer à NULL ? Quelles conséquences sur les requêtes ensuite ?
+
 
 # Analyses 
 - Tets de charge sur données synthétique, pour étudier la répartition d'après différents sampling (aléatoire ou spatiel éventuel).

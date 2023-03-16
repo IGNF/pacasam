@@ -9,7 +9,13 @@ num_tiles_in_sampled_dataset: 5000  # 250km² = 100000 samples, 20x reduction.
 # gérer les booléens, faire des combinaisons, etc.
 
 criteria:
+
+# name_of_criteria_for_printing:
+#   where: Optional. Sql query to filter on table vignette in LiPaC. If absent, "x > 0" is used.
+#   target_min_samples_proportion: float. Target minimal proportion in the final dataset.
+
   presence_de_pylones:
+    # TODO: replace bool by integer in LiPaC to avoid this special case.
     where: "presence_de_pylones = true"
     target_min_samples_proportion: 0.02
 
@@ -19,17 +25,14 @@ criteria:
 
   presence_d_autoroutes:
     where: "presence_d_autoroutes = true"
-    target_min_samples_proportion: 0.01
-   
-  # presence_de_lineaire_d_eau:
-  #   where: "presence_de_lineaire_d_eau = true"
-  #   target_min_samples_proportion: 0.02
+    target_min_samples_proportion: 0.02
+
+  # TODO: Decide if we should we enforce the config order instead of sorting elements by freq
+  # Really depends if we expect high correlation between elements.
 
   # Sanity check ; prefer surface/linear of water first. 
-  # TODO: should we enforce the config order or sort elements by freq?
-
   nb_points_eau:
-    target_min_samples_proportion: 0.04
+    target_min_samples_proportion: 0.05
 
   nb_points_sursol_perenne:
     target_min_samples_proportion: 0.02
@@ -37,18 +40,36 @@ criteria:
   nb_points_pont:
     target_min_samples_proportion: 0.02
 
-  nb_points_bati:
+  nb_points_bati_heq_500:
+    where: "nb_points_bati >= 500"
     target_min_samples_proportion: 0.15
-  
-  foret_via_vegetation_haute_sup_20000_points:
-    where: "nb_points_vegetation_haute > 20000"
+
+  # Custom
+
+  foret_via_vegetation_haute_heq_20000_points:
+    where: "nb_points_vegetation_haute >= 20000"
     target_min_samples_proportion: 0.05
 
+  fort_devers_pente_entre_30_45:
+    where: "(pente >= 30) AND (pente < 45)"
+    target_min_samples_proportion: 0.02
+
+  fort_devers_pente_heq_45:
+    where: "pente >= 45"
+    target_min_samples_proportion: 0.02
+
+  points_haute_altitude_entre_1000m_2000m:
+    where: "(altitude >= 1000) AND (altitude < 2000)"
+    target_min_samples_proportion: 0.05
+
+  points_haute_altitude_heq_2000m:
+    where: "altitude > 2000"
+    target_min_samples_proportion: 0.05
 
 # Here are the criteria for which we would want a different behavior : diversity sampling ? Make buckets and sample from them?
 # FPS would not work when all the buckets are already selected.
 # histogram of classes (deciles ?)
-# Altitude
+# Altitude --> avec quelques seuils, et le sampling spatial aiderait ensuite ?
 # Denivele
 
 # kwargs for lipac database

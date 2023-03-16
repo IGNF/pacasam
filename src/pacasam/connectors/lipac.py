@@ -69,7 +69,12 @@ class LiPaCConnector(Connector):
 
         extract = []
         query = text('Select * FROM "vignette"')
-        for chunk in gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_EXTRACTION):
+        for chunk in gpd.read_postgis(
+            query,
+            self.engine.connect(),
+            geom_col="geometrie",
+            chunksize=CHUNKSIZE_FOR_EXTRACTION,
+        ):
             # TODO: consider a merge to leverage hash values (?)
             extract += [chunk[chunk["id"].isin(selected_ids)]]
         return pd.concat(extract)

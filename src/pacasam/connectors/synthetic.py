@@ -50,7 +50,10 @@ class SyntheticConnector(Connector):
         data = np.column_stack(data)
         self.descriptor_names = [f"C{idx}" for idx in range(len(binary_descriptors_prevalence))]
         self.synthetic_df = gpd.GeoDataFrame(
-            data, columns=self.descriptor_names, geometry=self._make_synthetic_geometries(), crs="EPSG:2154"
+            data,
+            columns=self.descriptor_names,
+            geometry=self._make_synthetic_geometries(),
+            crs="EPSG:2154",
         )
         self.synthetic_df["id"] = range(len(self.synthetic_df))
 
@@ -74,7 +77,13 @@ class SyntheticConnector(Connector):
         df_y = pd.DataFrame({"y": range(fake_grid_size)}) * tile_size
         df_xy = df_x.merge(df_y, how="cross")
         df_geom = df_xy.apply(
-            lambda row: box(row["x"], row["y"], row["x"] + tile_size, row["y"] + tile_size, ccw=False),
+            lambda row: box(
+                row["x"],
+                row["y"],
+                row["x"] + tile_size,
+                row["y"] + tile_size,
+                ccw=False,
+            ),
             axis=1,
         )
 

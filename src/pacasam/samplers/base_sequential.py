@@ -77,7 +77,12 @@ class BaseSequential:
         return ids
 
     def _sort_criteria(self, criteria):
-        return dict(sorted(criteria.items(), key=lambda item: item[1]["target_min_samples_proportion"]))
+        return dict(
+            sorted(
+                criteria.items(),
+                key=lambda item: item[1]["target_min_samples_proportion"],
+            )
+        )
 
 
 if __name__ == "__main__":

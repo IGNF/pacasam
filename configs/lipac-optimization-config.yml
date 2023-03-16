@@ -50,12 +50,12 @@ criteria:
     where: "nb_points_vegetation_haute >= 20000"
     target_min_samples_proportion: 0.05
 
-  fort_devers_pente_entre_30_45:
-    where: "(pente >= 30) AND (pente < 45)"
+  fort_devers_denivele_entre_30_45:
+    where: "(denivele >= 30) AND (denivele < 45)"
     target_min_samples_proportion: 0.02
 
-  fort_devers_pente_heq_45:
-    where: "pente >= 45"
+  fort_devers_denivele_heq_45:
+    where: "denivele >= 45"
     target_min_samples_proportion: 0.02
 
   points_haute_altitude_entre_1000m_2000m:

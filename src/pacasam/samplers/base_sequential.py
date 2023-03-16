@@ -103,7 +103,7 @@ if __name__ == "__main__":
         set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
         connector = SyntheticConnector(**optimization_config["connector_kwargs"])
     else:
-        config_file = Path("configs/toy-lipac-optimization-config.yml")
+        config_file = Path("configs/lipac-optimization-config.yml")
         with open(config_file, "r") as file:
             optimization_config = yaml.safe_load(file)
 

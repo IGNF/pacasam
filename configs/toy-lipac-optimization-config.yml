@@ -3,7 +3,6 @@
 # Nota: on pourra passer à un format csv si plus simple à inspecter / manipuler, mais attention à la forme des requêtes sql!
 num_tiles_in_sampled_dataset: 5000  # 250km² = 100000 samples, 20x reduction.
 
-# TODO: sort in code to be flexible in tagets
 # TODO: enable to **override** the "> 0" base query, by a custom, more complex SQL request! If does not exist, the query is "">0"
 
 criteria:
@@ -46,7 +45,6 @@ criteria:
 # Denivele
 
 # kwargs for lipac database
-# TODO : move constants of the DB here
 connector_kwargs:
   # DB_LIPAC_HOST: "localhost"
   db_lipac_host: "lidar-ia-vm3"

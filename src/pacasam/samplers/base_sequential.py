@@ -16,16 +16,19 @@ from typing import Dict
 import pandas as pd
 import numpy as np
 
-import geopandas as gpd
 import yaml
 from pathlib import Path
 
 
-from pacasam.connectors.lipac import LiPaCConnector, load_LiPaCConnector
+from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import Connector, SyntheticConnector
 from pacasam.utils import set_log_text_handler, setup_custom_logger
 
 log = setup_custom_logger()
+
+# Choose database to use:
+# DATABASE_NAME = "synthetic"
+DATABASE_NAME = "lipac"
 
 
 class BaseSequential:
@@ -86,9 +89,6 @@ class BaseSequential:
 
 if __name__ == "__main__":
     sampler = BaseSequential()
-    # Choose database to use:
-    # DATABASE_NAME = "synthetic"
-    DATABASE_NAME = "lipac"
 
     if DATABASE_NAME == "synthetic":
         config_file = Path("configs/synthetic-optimization-config.yml")

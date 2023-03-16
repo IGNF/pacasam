@@ -10,12 +10,12 @@ log = logging.getLogger(__name__)
 
 
 class Connector:
-    # TODO: use an interface.
     """
     Connector to the database.
     Field `id` will be an integer ranging from 0 to db_size-1.
     This assumption facilitates random selection but might be excessive.
     """
+
     db_size: int
 
     def request_ids_where_above_zero(self, descriptor_name) -> pd.Series:
@@ -37,7 +37,7 @@ class Connector:
 
 class SyntheticConnector(Connector):
     # TODO: name should be an attribute of the base abstract class,n calculated with __class__.__name__
-    name: str = "SyntheticConnector"
+    # name: str = "SyntheticConnector"
 
     def __init__(self, binary_descriptors_prevalence: List[float], db_size: int = 10000):
         self.db_size = db_size

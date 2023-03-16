@@ -1,9 +1,12 @@
 # Configuration pour l'optimisation de l'échantillonnage de patches.
 # Idées : liste de champs de la BD et des critères permettant de les requêter. Directement sous la forme SQL si plus simple :
 # Nota: on pourra passer à un format csv si plus simple à inspecter / manipuler, mais attention à la forme des requêtes sql!
+# Objectif de taille du dataset final.
 num_tiles_in_sampled_dataset: 5000  # 250km² = 100000 samples, 20x reduction.
 
-# TODO: enable to **override** the "> 0" base query, by a custom, more complex SQL request! If does not exist, the query is "">0"
+# Critères de constitution du dataset.
+# Par défaut les critères sont "x > 0", mais une condition where peut être utiliser pour
+# gérer les booléens, faire des combinaisons, etc.
 
 criteria:
   presence_de_pylones:
@@ -21,7 +24,6 @@ criteria:
   # presence_de_lineaire_d_eau:
   #   where: "presence_de_lineaire_d_eau = true"
   #   target_min_samples_proportion: 0.02
-
 
   # Sanity check ; prefer surface/linear of water first. 
   # TODO: should we enforce the config order or sort elements by freq?

@@ -41,18 +41,11 @@ class LiPaCConnector(Connector):
         self.session = scoped_session(sessionmaker())
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
-    def request_ids_from_connector(self, descriptor_name: str, where: str = "{descriptor_name} > 0") -> pd.Series:
-        # TODO: support override of the selection statement in vignette by a "where" argument.
-        # This enables flexible descriptor, and no descriptors with "where TRUE".
+    def request_ids_by_condition(self, where: str) -> pd.Series:
         # TODO: enables reading by chunk to anticipate larger database.
 
-        query = text(f'Select "id", "geometrie" FROM "vignette" WHERE "{descriptor_name}" > 0')
-        try:
-            gdf = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie")
-        except sqlalchemy.exc.ProgrammingError:
-            # TODO: Lipac needs to be updated to have integer-coding of booleans. Then we can get rid of this.
-            query = text(f'Select "id", "geometrie" FROM "vignette" WHERE "{descriptor_name}" is true')
-            gdf = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie")
+        query = text(f'Select "id", "geometrie" FROM "vignette" WHERE {where}')
+        gdf = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie")
 
         return gdf
 

@@ -26,9 +26,10 @@ from pacasam.utils import set_log_text_handler, setup_custom_logger
 
 log = setup_custom_logger()
 
-# Choose database to use:
-DATABASE_NAME = "synthetic"
-# DATABASE_NAME = "lipac"
+# PARAMETERS
+
+CONNECTOR_NAME = "synthetic"
+# CONNECTOR_NAME = "lipac"
 
 
 class BaseSequential:
@@ -93,7 +94,7 @@ class BaseSequential:
 if __name__ == "__main__":
     sampler = BaseSequential()
 
-    if DATABASE_NAME == "synthetic":
+    if CONNECTOR_NAME == "synthetic":
         config_file = Path("configs/synthetic-optimization-config.yml")
         with open(config_file, "r") as file:
             optimization_config = yaml.safe_load(file)
@@ -115,6 +116,7 @@ if __name__ == "__main__":
     gdf.to_file(outdir / f"{sampler.name}-{connector.name}-extract.gpkg")
 
     # Output dataset description
+    # TODO: abstract this in another kind of stat object (perhaps in utils.py)
     bools = gdf.select_dtypes(include=np.number) > 0
     desc = bools.mean(numeric_only=True)
     desc.name = "prop_above_zero"

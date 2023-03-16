@@ -42,9 +42,6 @@ class Connector:
 
 
 class SyntheticConnector(Connector):
-    # TODO: name should be an attribute of the base abstract class,n calculated with __class__.__name__
-    # name: str = "SyntheticConnector"
-
     def __init__(self, binary_descriptors_prevalence: List[float], db_size: int = 10000):
         super().__init__()
 
@@ -71,11 +68,7 @@ class SyntheticConnector(Connector):
         For instance: query = 'C0 > 0'.
         Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html
         """
-        return self.synthetic_df.query(where)
-
-    def request_ids_if_above_zero(self, descriptor_name) -> pd.Series:
-        """Requests ids when descriptor is above zero (default case)."""
-        return self.request_ids_by_condition(self, f"'{descriptor_name}' > 0")
+        return self.synthetic_df.query(where)[["id", "geometry"]]
 
     def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract everything using ids."""

@@ -95,18 +95,14 @@ if __name__ == "__main__":
     if CONNECTOR_NAME == "synthetic":
         config_file = Path("configs/synthetic-optimization-config.yml")
         optimization_config = load_config(config_file)
-
-        outdir = Path("outputs/synthetic/")
-        set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
         connector = SyntheticConnector(**optimization_config["connector_kwargs"])
     else:
         config_file = Path("configs/lipac-optimization-config.yml")
         optimization_config = load_config(config_file)
-
-        outdir = Path("outputs/lipac/")
-        set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
         connector = load_LiPaCConnector(optimization_config["connector_kwargs"])
 
+    outdir = Path(f"outputs/{CONNECTOR_NAME}/")
+    set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
     ids: pd.Series = sampler.sample(connector, optimization_config)
     gdf = connector.extract_using_ids(ids)
     gdf.to_file(outdir / f"{sampler.name}-{connector.name}-extract.gpkg")

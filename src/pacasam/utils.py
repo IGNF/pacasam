@@ -2,6 +2,8 @@ import logging
 from pathlib import Path
 import sys
 
+import yaml
+
 LOGGING_FORMATTER = logging.Formatter(fmt="%(asctime)s %(levelname)-8s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
 

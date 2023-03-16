@@ -28,8 +28,8 @@ log = setup_custom_logger()
 
 # PARAMETERS
 
-CONNECTOR_NAME = "synthetic"
-# CONNECTOR_NAME = "lipac"
+# CONNECTOR_NAME = "synthetic"
+CONNECTOR_NAME = "lipac"
 
 
 class BaseSequential:

@@ -39,6 +39,11 @@ criteria:
 
   nb_points_bati:
     target_min_samples_proportion: 0.15
+  
+  foret_via_vegetation_haute_sup_20000_points:
+    where: "nb_points_vegetation_haute > 20000"
+    target_min_samples_proportion: 0.05
+
 
 # Here are the criteria for which we would want a different behavior : diversity sampling ? Make buckets and sample from them?
 # FPS would not work when all the buckets are already selected.

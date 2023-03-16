@@ -28,7 +28,7 @@ criteria:
     target_min_samples_proportion: 0.02
 
   # TODO: Decide if we should we enforce the config order instead of sorting elements by freq
-  # Really depends if we expect high correlation between elements.
+  # Really depends if we expect high correlation between elements. Depends on sum of targets.
 
   # Sanity check ; prefer surface/linear of water first. 
   nb_points_eau:

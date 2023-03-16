@@ -5,7 +5,7 @@
 # TODO: make a parser for the config once it is more stable. Check for constraints in range [0-1] and if their sum is <100%.
 
 num_tiles_in_sampled_dataset: 1000
-# 75km²=30k tiles
+# 75km² = 30k tiles. 1% of 75km² = 300 tiles.
 # num_tiles_in_sampled_dataset: 30000
 
 criteria:
@@ -15,7 +15,6 @@ criteria:
     target_min_samples_proportion: 0.05
   C2:
     target_min_samples_proportion: 0.05
-  
   # Order of criteria has no impact: they are sorted in code by target.
   C4:
     target_min_samples_proportion: 0.2

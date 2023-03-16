@@ -35,6 +35,7 @@ CONNECTOR_NAME = "lipac"
 class BaseSequential:
     name: str = "BaseSequential"
     # TODO: adding a spatial sampling -> matching_ids.sample(...), and select_randomly_without_repetition
+    # Doc: https://stackoverflow.com/a/60955896/8086033
     # Could be methods of the BaseSequential, with a "spatial" argument each...
     # Seems not needed for now, may be needed with way larger input database.
     # See that when we have the full Lipac DB OR use synthetic data --> easier inspection...
@@ -56,7 +57,7 @@ class BaseSequential:
             # random sampling independant of previous selection, with duplicates dropped later.
             matching_ids = matching_ids.sample(num_samples_found, random_state=1)
             log.info(
-                f"Descriptor: {descriptor_name}"
+                f"Sampling: {descriptor_name}"
                 f'  Target: {(descriptor_objectives["target_min_samples_proportion"])} (n={num_samples_target}). '
                 f'  Found: {(num_samples_found/cf["num_tiles_in_sampled_dataset"]):.03f} (n={num_samples_found})'
             )
@@ -75,9 +76,6 @@ class BaseSequential:
             num_to_add_randomly=num_to_add_randomly, already_sampled_ids=ids
         )
         log.info(f"Completing with {num_to_add_randomly} samples.")
-        # We get rid of the geometries here, as we will make a real later right after.
-        # TODO: see if we can get rid of geometries earlier, after having performed spatial sampling...
-
         ids = pd.concat([ids["id"], randomly_sampled_ids])
         return ids
 

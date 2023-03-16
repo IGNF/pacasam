@@ -22,7 +22,7 @@ from pathlib import Path
 
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import Connector, SyntheticConnector
-from pacasam.utils import set_log_text_handler, setup_custom_logger
+from pacasam.utils import load_config, set_log_text_handler, setup_custom_logger
 
 log = setup_custom_logger()
 
@@ -94,16 +94,14 @@ if __name__ == "__main__":
 
     if CONNECTOR_NAME == "synthetic":
         config_file = Path("configs/synthetic-optimization-config.yml")
-        with open(config_file, "r") as file:
-            optimization_config = yaml.safe_load(file)
+        optimization_config = load_config(config_file)
 
         outdir = Path("outputs/synthetic/")
         set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
         connector = SyntheticConnector(**optimization_config["connector_kwargs"])
     else:
         config_file = Path("configs/lipac-optimization-config.yml")
-        with open(config_file, "r") as file:
-            optimization_config = yaml.safe_load(file)
+        optimization_config = load_config(config_file)
 
         outdir = Path("outputs/lipac/")
         set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")

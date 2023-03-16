@@ -80,6 +80,7 @@ class BaseSequential:
         return ids
 
     def _sort_criteria(self, criteria):
+        """Sort criteria target_min_samples_proportion. This may be removed if having control over order is better..."""
         return dict(
             sorted(
                 criteria.items(),

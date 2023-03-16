@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, text
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
-from pacasam.connectors.synthetic import Connector
+from pacasam.connectors.connector import Connector
 
 log = logging.getLogger(__name__)
 
@@ -41,16 +41,14 @@ class LiPaCConnector(Connector):
         self.session = scoped_session(sessionmaker())
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
-    def request_ids_by_condition(self, where: str) -> pd.Series:
-        query = text(f'Select "id", "geometrie" FROM "vignette" WHERE {where}')
+    def request_ids_by_condition(self, where: str) -> gpd.GeoDataFrame:
+        query = text(f'Select "id", "dalle_id", "geometrie" FROM "vignette" WHERE {where}')
         chunks: Generator = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS)
         gdf = pd.concat(chunks)
         return gdf
 
     def extract_using_ids(self, selected_ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract using ids."""
-        # Method by chunk :
-
         extract = []
         query = text('Select * FROM "vignette"')
         for chunk in gpd.read_postgis(

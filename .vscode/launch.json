@@ -10,7 +10,7 @@
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/base_sequential.py",
             "console": "integratedTerminal",
-            "justMyCode": true
+            "justMyCode": false,
         }
     ]
 }

@@ -19,13 +19,16 @@ Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) 
     - [X] Connecteur "données synthétique"
     - [X] Connecteur LiPaC
     - [ ] (Si nécessaire face à volume de données important) Connecteur données synthétiques pourrait dériver d'un connecteur "GeoDataFrame" avec des opérations de query. Et alors on peut envisager que toute la base Lipac soit mise en mémoire, pour des traitements plus rapides.
-
+    - [ ] The *random* completion with additionnal points is not robust to deletion in PostGIS. Might not be an issue anymore once we have spatial sammpling.
 - [ ] Prise en main PGADMIN ou BDBeaver pour anticipation des opérations copie+manipulation. Idée de "version de référence" maintenue dont partent des copies / enrichissements, qui se feraient avec des requêtes simples.
 - Optimisation : 
     - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
-    - [ ] Créer une brique de Farthest point Sampling, double usage : 
-        - [ ] Spatial Sampling par FPS --> pour l'instant semble une optimisation car déjà bonne répartition même avec 4M de tuiles de base.
-        - [ ] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois. On peut envisager une méthode effficae où on attribue un index à chaque patch au sein de chaque dalle, et ensuite on filtre avec un seuil ? Overkill, commencer simple : on devrait sélectionner max 5 patches en conditions réelles. MAIS : les patches ne seront pas optimisés spatialement entre des dalles adjacentes, juste bien répartie par grille. Semble OK.
+    - [ ] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.
+        On peut envisager une méthode effficae où on attribue un index à chaque patch au sein de chaque dalle, et ensuite on filtre avec un seuil ? Overkill, commencer simple : on devrait sélectionner max 5 patches en conditions réelles. MAIS : les patches ne seront pas optimisés spatialement entre des dalles adjacentes, juste bien répartie par grille. Semble OK.
+        - [ ] Version "in memory" qui nécessite de charger id et geometrie en mémoire. 
+        - [ ] Si besoin on l'appliquera par chantier dans un seconde temps 
+    - [ ] Spatial Sampling par FPS --> pour l'instant semble inutilement complexe et long.
+    - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
 - Extraction
     - [X] Extract geopackag des métadonnées
     - [ ] Rechercher un format hybride intégrant les données Lidars et permettant affichage dans QGIS. PostGreSQL-3D

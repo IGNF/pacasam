@@ -28,7 +28,6 @@ from pacasam.utils import set_log_text_handler, setup_custom_logger
 log = setup_custom_logger()
 
 
-# TODO: create an interface object
 class BaseSequential:
     name: str = "BaseSequential"
     # TODO: adding a spatial sampling -> matching_ids.sample(...), and select_randomly_without_repetition
@@ -88,16 +87,17 @@ class BaseSequential:
 if __name__ == "__main__":
     sampler = BaseSequential()
     # Choose database to use:
-    DATABASE_NAME = "synthetic"
-    # DATABASE_NAME = "lipac"
+    # DATABASE_NAME = "synthetic"
+    DATABASE_NAME = "lipac"
 
     if DATABASE_NAME == "synthetic":
         config_file = Path("configs/synthetic-optimization-config.yml")
         with open(config_file, "r") as file:
             optimization_config = yaml.safe_load(file)
+
         outdir = Path("outputs/synthetic/")
         set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
-        connector = SyntheticConnector(**optimization_config["kwargs"])
+        connector = SyntheticConnector(**optimization_config["connector_kwargs"])
     else:
         config_file = Path("configs/toy-lipac-optimization-config.yml")
         with open(config_file, "r") as file:
@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
         outdir = Path("outputs/lipac/")
         set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
-        connector = load_LiPaCConnector()
+        connector = load_LiPaCConnector(optimization_config["connector_kwargs"])
 
     ids: pd.Series = sampler.sample(connector, optimization_config)
     gdf = connector.extract_using_ids(ids)
@@ -116,5 +116,4 @@ if __name__ == "__main__":
     desc = bools.mean(numeric_only=True)
     desc.name = "prop_above_zero"
     desc.index.name = "attribute_name"
-    # desc = desc.reset_index()
     desc.to_csv(outdir / f"{sampler.name}-stats_of_extract.csv", sep=";", index=True)

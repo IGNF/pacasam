@@ -15,13 +15,6 @@ log = logging.getLogger(__name__)
 
 CREDENTIALS_FILE_PATH = "credentials.ini"  # with credentials.
 
-# DB_LIPAC_HOST = "localhost"
-DB_LIPAC_HOST = "lidar-ia-vm3"
-DB_LIPAC_NAME = "lidar_patch_catalogue_new"
-
-DB_UNI_HOST = "serveurbdudiff.ign.fr"
-DB_UNI_NAME = "bduni_france_consultation"
-
 # SRID_DICT = {"Lambert-93": 2154}
 CHUNKSIZE_FOR_EXTRACTION = 10000
 
@@ -29,10 +22,10 @@ CHUNKSIZE_FOR_EXTRACTION = 10000
 class LiPaCConnector(Connector):
     name: str = "LiPaCConnector"
 
-    def __init__(self, username, password, host, db_name):
+    def __init__(self, username: str, password: str, db_lipac_host: str, db_lipac_name: str):
         self.username = username
-        self.host = host
-        self.db_name = db_name
+        self.host = db_lipac_host
+        self.db_name = db_lipac_name
         self.create_session(password)
         self.db_size = self.session.execute(text('SELECT count(*) FROM "vignette"')).all()[0][0]
 
@@ -80,12 +73,11 @@ class LiPaCConnector(Connector):
         return pd.concat(extract)
 
 
-def load_LiPaCConnector() -> LiPaCConnector:
-    # TODO: this loader should enable override of the DB_LIPAC_NAME and HOST, from the optimization config file.
+def load_LiPaCConnector(lipac_kwargs) -> LiPaCConnector:
     import configparser
 
     config = configparser.ConfigParser()
     config.read(CREDENTIALS_FILE_PATH)
     lipac_username = config["LIDAR_PATCH_CATALOGUE"]["DB_LOGIN"]
     lipac_password = config["LIDAR_PATCH_CATALOGUE"]["DB_PASSWORD"]
-    return LiPaCConnector(lipac_username, lipac_password, DB_LIPAC_HOST, DB_LIPAC_NAME)
+    return LiPaCConnector(username=lipac_username, password=lipac_password, **lipac_kwargs)

@@ -8,22 +8,46 @@ num_tiles_in_sampled_dataset: 5000  # 250km² = 100000 samples, 20x reduction.
 
 criteria:
   presence_de_pylones:
-    where: "presence_de_pylones > 0"
-    target_min_samples_proportion: 0.01
-
-  nb_points_eau:
-    where: "nb_points_eau > 0"
+    where: "presence_de_pylones = true"
     target_min_samples_proportion: 0.02
 
+  presence_de_surfaces_d_eau:
+    where: "presence_de_surfaces_d_eau = true"
+    target_min_samples_proportion: 0.02
+
+  presence_d_autoroutes:
+    where: "presence_d_autoroutes = true"
+    target_min_samples_proportion: 0.01
+   
+  # presence_de_lineaire_d_eau:
+  #   where: "presence_de_lineaire_d_eau = true"
+  #   target_min_samples_proportion: 0.02
+
+
+  # Sanity check ; prefer surface/linear of water first. 
+  # TODO: should we enforce the config order or sort elements by freq?
+
+  nb_points_eau:
+    target_min_samples_proportion: 0.04
+
   nb_points_sursol_perenne:
-    where: "nb_points_sursol_perenne > 0"
+    target_min_samples_proportion: 0.02
+
+  nb_points_pont:
     target_min_samples_proportion: 0.02
 
   nb_points_bati:
-    where: "nb_points_bati > 0"
-    target_min_samples_proportion: 0.10
+    target_min_samples_proportion: 0.15
 
+# Here are the criteria for which we would want a different behavior : diversity sampling ? Make buckets and sample from them?
+# FPS would not work when all the buckets are already selected.
+# histogram of classes (deciles ?)
+# Altitude
+# Denivele
 
 # kwargs for lipac database
-# TODO : move constants here
-kwargs:
+# TODO : move constants of the DB here
+connector_kwargs:
+  # DB_LIPAC_HOST: "localhost"
+  db_lipac_host: "lidar-ia-vm3"
+  db_lipac_name: "lidar_patch_catalogue_new"

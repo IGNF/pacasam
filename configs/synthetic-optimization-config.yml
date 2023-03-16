@@ -24,7 +24,7 @@ criteria:
 
 
 # kwargs for synthetic connector
-kwargs:
+connector_kwargs:
   # Lower
   binary_descriptors_prevalence: [0.005, 0.005, 0.005, 0.7, 0.7]
   db_size: 10000

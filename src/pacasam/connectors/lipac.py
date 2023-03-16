@@ -4,11 +4,10 @@ import logging
 import pandas as pd
 import geopandas as gpd
 
-from sqlalchemy import create_engine, select, text
+from sqlalchemy import create_engine, text
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
-from sqlalchemy import MetaData
 from pacasam.connectors.synthetic import Connector
 
 log = logging.getLogger(__name__)

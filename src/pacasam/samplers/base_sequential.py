@@ -35,11 +35,6 @@ CONNECTOR_NAME = "lipac"
 
 class BaseSequential:
     name: str = "BaseSequential"
-    # TODO: adding a spatial sampling -> matching_ids.sample(...), and select_randomly_without_repetition
-    # Doc: https://stackoverflow.com/a/60955896/8086033
-    # Could be methods of the BaseSequential, with a "spatial" argument each...
-    # Seems not needed for now, may be needed with way larger input database.
-    # See that when we have the full Lipac DB OR use synthetic data --> easier inspection...
 
     def make_a_complying_dataset(self, connector: Connector, optimization_config: Dict):
         cf = optimization_config

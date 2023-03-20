@@ -135,7 +135,7 @@ class BaseSequential:
             # sanity check
             sampled_ids_uniques = sampled_ids.drop_duplicates(subset=["id"])
             assert len(sampled_ids) == len(sampled_ids_uniques)
-            sampled_ids = sampled_ids.drop_duplicates(subset=["id"])
+            sampled_ids = sampled_ids_uniques
 
         return sampled_ids
 

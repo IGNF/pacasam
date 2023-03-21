@@ -11,6 +11,14 @@
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/base_sequential.py",
             "console": "integratedTerminal",
             "justMyCode": false,
+        },
+        {
+            "name": "run.py",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
         }
     ]
 }

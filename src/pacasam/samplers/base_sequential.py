@@ -101,7 +101,6 @@ class BaseSequential:
     def sample_spatially_by_slab(self, matching_ids: gpd.GeoDataFrame, num_samples_to_sample: int):
         """Efficient spatial sampling by sampling in each slab, iteratively.
 
-
         Args:
             matching_ids (gpd.GeoDataFrame): _description_
             num_samples_to_sample (int): _description_
@@ -120,9 +119,14 @@ class BaseSequential:
         min_n_by_slab = max(min_n_by_slab, 1)
         sampled_ids = matching_ids.groupby("dalle_id").sample(n=min_n_by_slab, random_state=random_state, replace=True)
         sampled_ids = sampled_ids.drop_duplicates(subset="id")
+        if len(sampled_ids) > num_samples_to_sample:
+            # We alreay have all the sample we need (case where num_samples_to_sample is low and we got 1 in each tile)
+            return sampled_ids.sample(n=num_samples_to_sample, random_state=random_state)
 
         # Step 2: Complete, accounting for slabs with a small number of tiles by removing the already selected
         # ones from the pool, and sampling one tile at each iteration.
+        # WARNING: the extreme case is where the is a mega concentration in a specific slab, and then we have to
+        # loop to get every tile within (with a maximum of n~400 iterations since it is the max num of tile per slab.)
         while len(sampled_ids) < num_samples_to_sample:
             random_state += 1
             remaining_ids = matching_ids[~matching_ids["id"].isin(sampled_ids["id"])]
@@ -132,7 +136,7 @@ class BaseSequential:
                 add_these_ids = add_these_ids.sample(n=num_samples_to_sample - len(sampled_ids), random_state=random_state)
 
             sampled_ids = pd.concat([sampled_ids, add_these_ids])
-            # sanity check
+            # sanity check that ids were already uniques.
             sampled_ids_uniques = sampled_ids.drop_duplicates(subset=["id"])
             assert len(sampled_ids) == len(sampled_ids_uniques)
             sampled_ids = sampled_ids_uniques

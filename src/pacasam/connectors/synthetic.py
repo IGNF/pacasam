@@ -49,6 +49,11 @@ class SyntheticConnector(Connector):
         """
         return self.synthetic_df.query(where)[["id", "geometry", "dalle_id"]]
 
+    def request_all_other_tiles(self, exclude: pd.Series):
+        """Requests all tiles. Should work for both synthetic and Lipac."""
+        all_ids = self.request_tiles_by_condition(where="true")
+        return all_ids[~all_ids["id"].isin(exclude)]
+
     def extract_using_ids(self, selected_ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
         extract = self.synthetic_df.merge(

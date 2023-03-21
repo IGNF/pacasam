@@ -23,9 +23,8 @@ class Connector:
         raise NotImplementedError()
 
     def request_all_other_tiles(self, exclude: pd.Series):
-        """Requests all tiles. Should work for both synthetic and Lipac."""
-        all_ids = self.request_tiles_by_condition(where="id")
-        return all_ids[~all_ids["id"].isin(exclude)]
+        """Requests all tiles except the ones whose id is in exclude."""
+        raise NotImplementedError()
 
     def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract selected ids and geometries from the database."""

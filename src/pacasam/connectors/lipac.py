@@ -47,6 +47,11 @@ class LiPaCConnector(Connector):
         gdf = pd.concat(chunks)
         return gdf
 
+    def request_all_other_tiles(self, exclude: pd.Series):
+        """Requests all tiles. Should work for both synthetic and Lipac."""
+        all_ids = self.request_tiles_by_condition(where="true")
+        return all_ids[~all_ids["id"].isin(exclude)]
+
     def extract_using_ids(self, selected_ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract using ids."""
         extract = []

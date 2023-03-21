@@ -6,9 +6,9 @@ No spatial sampling nor any optimization.
 
 """
 
-from math import floor
 import sys
 from pathlib import Path
+
 
 directory = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(directory))
@@ -24,6 +24,7 @@ from pathlib import Path
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import Connector, SyntheticConnector
 from pacasam.utils import load_config, set_log_text_handler, setup_custom_logger
+from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
 
 log = setup_custom_logger()
 
@@ -60,14 +61,14 @@ class BaseSequential:
     def get_matching_tiles(self, cf, connector: Connector, descriptor_name: str, descriptor_objectives: Dict):
         # query the matching ids
         query = descriptor_objectives.get("where", f"{descriptor_name} > 0")
-        matching_ids = connector.request_tiles_by_condition(where=query)
+        tiles = connector.request_tiles_by_condition(where=query)
         num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * cf["num_tiles_in_sampled_dataset"])
-        num_samples_to_sample = min(num_samples_target, len(matching_ids))  # cannot take more that there is.
+        num_samples_to_sample = min(num_samples_target, len(tiles))  # cannot take more that there is.
 
         if cf["use_spatial_sampling"]:
-            sampled_matching_ids = self.sample_spatially_by_slab(matching_ids, num_samples_to_sample)
+            tiles = sample_spatially_by_slab(tiles, num_samples_to_sample)
         else:
-            sampled_matching_ids = self.sample_randomly(matching_ids, num_samples_to_sample)
+            tiles = sample_randomly(tiles, num_samples_to_sample)
 
         log.info(
             f"Sampling: {descriptor_name} "
@@ -79,14 +80,14 @@ class BaseSequential:
         if num_samples_to_sample < num_samples_target:
             log.warning(f"Could not reach target for {descriptor_name}: not enough samples matching query in database.")
 
-        return sampled_matching_ids
+        return tiles
 
     def get_other_tiles(self, cf: Dict, connector: Connector, selection: gpd.GeoDataFrame, num_to_sample: int):
         others = connector.request_all_other_tiles(exclude=selection)
         if cf["use_spatial_sampling"]:
-            sampled_others = self.sample_spatially_by_slab(others, num_to_sample)
+            sampled_others = sample_spatially_by_slab(others, num_to_sample)
         else:
-            sampled_others = self.sample_randomly(others, num_to_sample)
+            sampled_others = sample_randomly(others, num_to_sample)
         log.info(f"Completing with {num_to_sample} samples.")
         return sampled_others
 
@@ -102,54 +103,6 @@ class BaseSequential:
                 key=lambda item: item[1]["target_min_samples_proportion"],
             )
         )
-
-    def sample_randomly(self, matching_ids: gpd.GeoDataFrame, num_samples_to_sample: int):
-        return matching_ids.sample(n=num_samples_to_sample, replace=False, random_state=1)
-
-    def sample_spatially_by_slab(self, matching_ids: gpd.GeoDataFrame, num_samples_to_sample: int):
-        """Efficient spatial sampling by sampling in each slab, iteratively.
-
-        Args:
-            matching_ids (gpd.GeoDataFrame): _description_
-            num_samples_to_sample (int): _description_
-
-        Returns:
-            _type_: _description_
-        """
-        if len(matching_ids) == 0:
-            return matching_ids
-        # Step 1: start by sampling in each slab the minimal number of tiles by slab we would want.
-        # Sample with replacement to avoid errors, dropping duplicates afterwards.
-        # This leads us to be already close to our target num of samples.
-
-        random_state = 0
-        min_n_by_slab = floor(num_samples_to_sample / len(matching_ids["dalle_id"].unique()))
-        min_n_by_slab = max(min_n_by_slab, 1)
-        sampled_ids = matching_ids.groupby("dalle_id").sample(n=min_n_by_slab, random_state=random_state, replace=True)
-        sampled_ids = sampled_ids.drop_duplicates(subset="id")
-        if len(sampled_ids) > num_samples_to_sample:
-            # We alreay have all the sample we need (case where num_samples_to_sample is low and we got 1 in each tile)
-            return sampled_ids.sample(n=num_samples_to_sample, random_state=random_state)
-
-        # Step 2: Complete, accounting for slabs with a small number of tiles by removing the already selected
-        # ones from the pool, and sampling one tile at each iteration.
-        # WARNING: the extreme case is where the is a mega concentration in a specific slab, and then we have to
-        # loop to get every tile within (with a maximum of n~400 iterations since it is the max num of tile per slab.)
-        while len(sampled_ids) < num_samples_to_sample:
-            random_state += 1
-            remaining_ids = matching_ids[~matching_ids["id"].isin(sampled_ids["id"])]
-            add_these_ids = remaining_ids.groupby("dalle_id").sample(n=1, random_state=random_state, replace=False)
-
-            if len(add_these_ids) + len(sampled_ids) > num_samples_to_sample:
-                add_these_ids = add_these_ids.sample(n=num_samples_to_sample - len(sampled_ids), random_state=random_state)
-
-            sampled_ids = pd.concat([sampled_ids, add_these_ids])
-            # sanity check that ids were already uniques.
-            sampled_ids_uniques = sampled_ids.drop_duplicates(subset=["id"])
-            assert len(sampled_ids) == len(sampled_ids_uniques)
-            sampled_ids = sampled_ids_uniques
-
-        return sampled_ids
 
 
 if __name__ == "__main__":

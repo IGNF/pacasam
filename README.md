@@ -36,12 +36,10 @@ Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) 
     - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
     - [X] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.
         On peut envisager une méthode effficae où on attribue un index à chaque patch au sein de chaque dalle, et ensuite on filtre avec un seuil ? Overkill, commencer simple : on devrait sélectionner max 5 patches en conditions réelles. MAIS : les patches ne seront pas optimisés spatialement entre des dalles adjacentes, juste bien répartie par grille. Semble OK.
-        - [X] Version "in memory" qui nécessite de charger id et geometrie en mémoire. 
-        - [ ] Si besoin on l'appliquera par chantier dans un seconde temps 
-    - [ ] Spatial Sampling par FPS --> pour l'instant semble inutilement complexe et long. Doc on the problem: https://stackoverflow.com/a/60955896/8086033
+        - [X] Version "in memory" qui nécessite de charger id et dalle en mémoire. 
     - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
     - [ ] Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
-        - IDée à évaluer : pour chaque dalle, sampler avec une pondération qui correspond à celle de l'ensemble du jeu de données en termes d'histogrammes de classes décilisés (=cluster). En pratique : assocei
+        - Idée à évaluer : pour chaque dalle, sampler avec une pondération qui correspond à celle de l'ensemble du jeu de données en termes d'histogrammes de classes décilisés (=cluster). En pratique : assocei
 - Extraction
     - [X] Extract geopackage des métadonnées
     - [ ] Rechercher un format hybride intégrant les données Lidar et permettant affichage dans QGIS. PostGreSQL-3D.

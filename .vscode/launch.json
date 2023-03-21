@@ -5,12 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Base Sequential",
+            "name": "Base Sequential lipac",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/base_sequential.py",
             "console": "integratedTerminal",
             "justMyCode": false,
+            "args": [
+                "--connector=lipac"
+            ]
+        },
+        {
+            "name": "Base Sequential synthetic",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/base_sequential.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--connector=synthetic"
+            ]
         },
         {
             "name": "run.py",

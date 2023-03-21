@@ -41,7 +41,7 @@ class LiPaCConnector(Connector):
         self.session = scoped_session(sessionmaker())
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
-    def request_ids_by_condition(self, where: str) -> gpd.GeoDataFrame:
+    def request_tiles_by_condition(self, where: str) -> gpd.GeoDataFrame:
         query = text(f'Select "id", "dalle_id", "geometrie" FROM "vignette" WHERE {where}')
         chunks: Generator = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS)
         gdf = pd.concat(chunks)

@@ -4,7 +4,7 @@
 
 # TODO: make a parser for the config once it is more stable. Check for constraints in range [0-1] and if their sum is <100%.
 
-num_tiles_in_sampled_dataset: 10000
+num_tiles_in_sampled_dataset: 1000
 use_spatial_sampling: true
 
 # 75km² = 30k tiles. 1% of 75km² = 300 tiles.
@@ -32,7 +32,7 @@ criteria:
 connector_kwargs:
   # Lower
   binary_descriptors_prevalence: [0.005, 0.005, 0.005, 0.7, 0.7]
-  db_size: 100000
+  db_size: 10000
 
   # 2500km²=4M tiles
   # db_size: 4000000

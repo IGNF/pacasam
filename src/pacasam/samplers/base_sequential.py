@@ -36,32 +36,31 @@ CONNECTOR_NAME = "lipac"
 class BaseSequential:
     name: str = "BaseSequential"
 
-    def make_a_complying_dataset(self, connector: Connector, optimization_config: Dict):
+    def make_a_complying_dataset(self, connector: Connector, optimization_config: Dict) -> pd.Series:
         cf = optimization_config
-        ids = []
+        selection = []
+        # Meet target requirements for each criterium
         sorted_criteria = self._sort_criteria(cf["criteria"])
         for descriptor_name, descriptor_objectives in sorted_criteria.items():
-            matching_ids = self.get_matching_ids(cf, connector, descriptor_name, descriptor_objectives)
-            ids += [matching_ids]
-        ids = pd.concat(ids)
-        n_sampled = len(ids)
-        ids = ids.drop_duplicates(subset=["id"])
-        n_distinct = len(ids)
+            matching_ids = self.get_matching_tiles(cf, connector, descriptor_name, descriptor_objectives)
+            # TODO: test/train split may happen here.
+            selection += [matching_ids]
+        selection = pd.concat(selection)
+        n_sampled = len(selection)
+        selection = selection.drop_duplicates(subset=["id"])
+        n_distinct = len(selection)
         log.info(f"Sampled {n_sampled} ids --> {n_distinct} distinct ids (redundancy ratio: {n_distinct/n_sampled:.03f}) ")
 
-        # Complete with random sampling
-        num_to_add_randomly = cf["num_tiles_in_sampled_dataset"] - len(ids)
-        randomly_sampled_ids = connector.select_randomly_without_repetition(
-            num_to_add_randomly=num_to_add_randomly, already_sampled_ids=ids
-        )
-        log.info(f"Completing with {num_to_add_randomly} samples.")
-        ids = pd.concat([ids["id"], randomly_sampled_ids])
-        return ids
+        # Complete the dataset with the other tiles
+        num_tiles_to_complete = cf["num_tiles_in_sampled_dataset"] - len(selection)
+        sampled_others = self.get_other_tiles(cf=cf, connector=connector, selection=selection, num_to_sample=num_tiles_to_complete)
+        selection = pd.concat([selection["id"], sampled_others["id"]])
+        return selection
 
-    def get_matching_ids(self, cf, connector: Connector, descriptor_name: str, descriptor_objectives: Dict):
+    def get_matching_tiles(self, cf, connector: Connector, descriptor_name: str, descriptor_objectives: Dict):
         # query the matching ids
         query = descriptor_objectives.get("where", f"{descriptor_name} > 0")
-        matching_ids = connector.request_ids_by_condition(where=query)
+        matching_ids = connector.request_tiles_by_condition(where=query)
         num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * cf["num_tiles_in_sampled_dataset"])
         num_samples_to_sample = min(num_samples_target, len(matching_ids))  # cannot take more that there is.
 
@@ -71,9 +70,9 @@ class BaseSequential:
             sampled_matching_ids = self.sample_randomly(matching_ids, num_samples_to_sample)
 
         log.info(
-            f"Sampling: {descriptor_name}"
+            f"Sampling: {descriptor_name} "
             f'| Target: {(descriptor_objectives["target_min_samples_proportion"])} (n={num_samples_target}). '
-            f'| Found: {(num_samples_to_sample/cf["num_tiles_in_sampled_dataset"]):.03f} (n={num_samples_to_sample})'
+            f'| Found: {(num_samples_to_sample/cf["num_tiles_in_sampled_dataset"]):.03f} (n={num_samples_to_sample}) '
             f"| Query: {query}"
         )
 
@@ -81,6 +80,15 @@ class BaseSequential:
             log.warning(f"Could not reach target for {descriptor_name}: not enough samples matching query in database.")
 
         return sampled_matching_ids
+
+    def get_other_tiles(self, cf: Dict, connector: Connector, selection: gpd.GeoDataFrame, num_to_sample: int):
+        others = connector.request_all_other_tiles(exclude=selection)
+        if cf["use_spatial_sampling"]:
+            sampled_others = self.sample_spatially_by_slab(others, num_to_sample)
+        else:
+            sampled_others = self.sample_randomly(others, num_to_sample)
+        log.info(f"Completing with {num_to_sample} samples.")
+        return sampled_others
 
     def _sort_criteria(self, criteria):
         """Sort criteria target_min_samples_proportion.

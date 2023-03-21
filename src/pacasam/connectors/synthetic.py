@@ -41,7 +41,7 @@ class SyntheticConnector(Connector):
         self.synthetic_df["id"] = range(len(self.synthetic_df))
         self.synthetic_df["dalle_id"] = df_dalle_id
 
-    def request_ids_by_condition(self, where: str) -> pd.Series:
+    def request_tiles_by_condition(self, where: str) -> pd.Series:
         """Requests id based on a where sql-like query.
 
         For instance: query = 'C0 > 0'.
@@ -49,10 +49,10 @@ class SyntheticConnector(Connector):
         """
         return self.synthetic_df.query(where)[["id", "geometry", "dalle_id"]]
 
-    def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
+    def extract_using_ids(self, selected_ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
         extract = self.synthetic_df.merge(
-            ids,
+            selected_ids,
             how="inner",
             on="id",
         )

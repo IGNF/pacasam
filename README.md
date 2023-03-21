@@ -25,7 +25,12 @@ Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) 
     - [ ] Possibilité de créer une table "vignette_pool" temporaire basée sur ce filtre, et requêter là dessus ?
     - Filtre nb_points > 50. (Mais qu'en est-il de l'eau alors ?...)
     - Filtre sur les chantier, pour exclure ou inclure certains, et créer le **jeu de test de façon exclusive**.
-    -(Peut-être mise en mémoire alors de la BD filtrée, avec un connecteur type GeoDataFrame ? (Vérifier que ça scalera).
+    - (Peut-être mise en mémoire alors de la BD filtrée, avec un connecteur type GeoDataFrame ? (Vérifier que ça scalera). -6> pas très satisfaisant, enlève l'intérêt d'une base "online" facilement inspectable.
+    - Préférer l'option "on fait une copie locale de la BD" sur laquelle on a des droits d'écriture 
+        - Cf. pour faire une copie : https://stackoverflow.com/a/8815010/8086033 ; sinon en click boutont dans PGAdmin en faisant aussi un backup. Mais pas satisfaisant... Voir si on peut contrôler les rôles suffisamment pour autoriser tables temporaires.
+        - https://desertdba.com/what-permissions-are-required-for-temporary-tables/ --> possibilité de créer la base temporaire en amont, et que chaque use puisse la remplir avec "ses" vignettes au moment de la connexion ? Dans ce cas, on doit juste s'assurer que la connexion reste ouverte. A valider avec Marouane ?
+        - Now, the point of this exercise is not so much about the 40 MB space as it is this: by default, any user can consume any tempdb space, limited only by either maximum file size or available drive space. See here ; https://learn.microsoft.com/en-us/sql/relational-databases/databases/tempdb-database?view=sql-server-ver16 ; is this applicable ?
+
 
 - Optimisation : 
     - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 

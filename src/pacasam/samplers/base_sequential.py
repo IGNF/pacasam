@@ -6,6 +6,7 @@ No spatial sampling nor any optimization.
 
 """
 
+from math import floor
 import sys
 from pathlib import Path
 
@@ -23,30 +24,35 @@ from pathlib import Path
 
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import Connector, SyntheticConnector
-from pacasam.utils import load_config, set_log_text_handler, setup_custom_logger
+from pacasam.samplers.utils import load_optimization_config
+from pacasam.utils import set_log_text_handler, setup_custom_logger
 from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
 
 log = setup_custom_logger()
 
 # PARAMETERS
 
-# CONNECTOR_NAME = "synthetic"
-CONNECTOR_NAME = "lipac"
+CONNECTOR_NAME = "synthetic"
+# CONNECTOR_NAME = "lipac"
 
 
 class BaseSequential:
     name: str = "BaseSequential"
 
-    def make_a_complying_dataset(self, connector: Connector, optimization_config: Dict) -> pd.Series:
+    def select_tiles(self, connector: Connector, optimization_config: Dict) -> pd.Series:
+        """Define a dataset as a GeoDataFrame with fields [id, is_test_set]."""
+
         cf = optimization_config
         selection = []
         # Meet target requirements for each criterium
         sorted_criteria = self._sort_criteria(cf["criteria"])
         for descriptor_name, descriptor_objectives in sorted_criteria.items():
-            matching_ids = self.get_matching_tiles(cf, connector, descriptor_name, descriptor_objectives)
-            # TODO: test/train split may happen here.
-            selection += [matching_ids]
+            tiles = self.get_matching_tiles(cf, connector, descriptor_name, descriptor_objectives)
+            self._set_test_set_flag(tiles=tiles, frac_test_set=cf["frac_test_set"], use_spatial_sampling=cf["use_spatial_sampling"])
+            selection += [tiles]
         selection = pd.concat(selection)
+
+        # some logs
         n_sampled = len(selection)
         selection = selection.drop_duplicates(subset=["id"])
         n_distinct = len(selection)
@@ -55,8 +61,27 @@ class BaseSequential:
         # Complete the dataset with the other tiles
         num_tiles_to_complete = cf["num_tiles_in_sampled_dataset"] - len(selection)
         sampled_others = self.get_other_tiles(cf=cf, connector=connector, selection=selection, num_to_sample=num_tiles_to_complete)
-        selection = pd.concat([selection["id"], sampled_others["id"]])
+        self._set_test_set_flag(tiles=sampled_others, frac_test_set=cf["frac_test_set"], use_spatial_sampling=cf["use_spatial_sampling"])
+        selection = pd.concat([selection[["id", "is_test_set"]], sampled_others[["id", "is_test_set"]]])
         return selection
+
+    def _set_test_set_flag(
+        self,
+        tiles: gpd.GeoDataFrame,
+        frac_test_set: float,
+        use_spatial_sampling: bool = True,
+    ):
+        """(Inplace) Set a binary flag for the test tiles, selected randomly."""
+        # TODO: decide if the config should be accessible as attribute of the class instead of a config param.
+        num_samples_test_set = floor(frac_test_set * len(tiles))
+
+        if use_spatial_sampling:
+            test_ids = sample_spatially_by_slab(tiles, num_samples_test_set)["id"]
+        else:
+            test_ids = sample_randomly(tiles, num_samples_test_set)["id"]
+
+        tiles["is_test_set"] = 0
+        tiles.loc[tiles["id"].isin(test_ids), "is_test_set"] = 1
 
     def get_matching_tiles(self, cf, connector: Connector, descriptor_name: str, descriptor_objectives: Dict):
         # query the matching ids
@@ -82,7 +107,7 @@ class BaseSequential:
 
         return tiles
 
-    def get_other_tiles(self, cf: Dict, connector: Connector, selection: gpd.GeoDataFrame, num_to_sample: int):
+    def get_other_tiles(self, cf: Dict, connector: Connector, selection: gpd.GeoDataFrame, num_to_sample: int) -> gpd.GeoDataFrame:
         others = connector.request_all_other_tiles(exclude=selection)
         if cf["use_spatial_sampling"]:
             sampled_others = sample_spatially_by_slab(others, num_to_sample)
@@ -110,17 +135,17 @@ if __name__ == "__main__":
 
     if CONNECTOR_NAME == "synthetic":
         config_file = Path("configs/synthetic-optimization-config.yml")
-        optimization_config = load_config(config_file)
-        connector = SyntheticConnector(**optimization_config["connector_kwargs"])
+        conf = load_optimization_config(config_file)
+        connector = SyntheticConnector(**conf["connector_kwargs"])
     else:
         config_file = Path("configs/lipac-optimization-config.yml")
-        optimization_config = load_config(config_file)
-        connector = load_LiPaCConnector(optimization_config["connector_kwargs"])
+        conf = load_optimization_config(config_file)
+        connector = load_LiPaCConnector(conf["connector_kwargs"])
 
     outdir = Path(f"outputs/{CONNECTOR_NAME}/")
     set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
-    ids: pd.Series = sampler.make_a_complying_dataset(connector, optimization_config)
-    gdf = connector.extract_using_ids(ids)
+    selection: gpd.GeoDataFrame = sampler.select_tiles(connector, conf)
+    gdf = connector.extract(selection)
     gdf.to_file(outdir / f"{sampler.name}-{connector.name}-extract.gpkg")
 
     # Output dataset description

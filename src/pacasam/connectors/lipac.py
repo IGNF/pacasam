@@ -52,7 +52,7 @@ class LiPaCConnector(Connector):
         all_ids = self.request_tiles_by_condition(where="true")
         return all_ids[~all_ids["id"].isin(exclude)]
 
-    def extract_using_ids(self, selected_ids: pd.Series) -> gpd.GeoDataFrame:
+    def extract(self, selection: pd.Series) -> gpd.GeoDataFrame:
         """Extract using ids."""
         extract = []
         query = text('Select * FROM "vignette"')
@@ -62,8 +62,13 @@ class LiPaCConnector(Connector):
             geom_col="geometrie",
             chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS,
         ):
-            # TODO: consider a merge to leverage hash values (?)
-            extract += [chunk[chunk["id"].isin(selected_ids)]]
+            extract += [
+                chunk.merge(
+                    selection,
+                    how="inner",
+                    on="id",
+                )
+            ]
         return pd.concat(extract)
 
 

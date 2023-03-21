@@ -26,6 +26,6 @@ class Connector:
         """Requests all tiles except the ones whose id is in exclude."""
         raise NotImplementedError()
 
-    def extract_using_ids(self, ids: pd.Series) -> gpd.GeoDataFrame:
+    def extract(self, ids: pd.Series) -> gpd.GeoDataFrame:
         """Extract selected ids and geometries from the database."""
         raise NotImplementedError()

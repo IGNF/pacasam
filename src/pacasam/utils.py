@@ -2,7 +2,6 @@ import logging
 from pathlib import Path
 import sys
 
-import yaml
 
 LOGGING_FORMATTER = logging.Formatter(fmt="%(asctime)s %(levelname)-8s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
 
@@ -30,8 +29,3 @@ def set_log_text_handler(log: logging.Logger, outdir: Path, log_file_name: str =
 def get_class_name(instance):
     return str(instance.__class__.__name__)
 
-
-def load_config(config_file):
-    with open(config_file, "r") as file:
-        optimization_config = yaml.safe_load(file)
-    return optimization_config

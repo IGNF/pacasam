@@ -19,8 +19,8 @@ Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) 
     - [X] Connecteur "données synthétique"
     - [X] Connecteur LiPaC
     - [ ] (**Si nécessaire face à volume de données important**) Connecteur données synthétiques pourrait dériver d'un connecteur "GeoDataFrame" avec des opérations de query. Et alors on peut envisager que toute la base Lipac soit mise en mémoire, pour des traitements plus rapides.
-    - [ ] The *random* completion with additionnal points is not robust to deletion in PostGIS. Might not be an issue anymore once we have spatial sampling.
-- [ ] Prise en main PGADMIN ou BDBeaver pour anticipation des opérations copie+manipulation. Idée de "version de référence" maintenue dont partent des copies / enrichissements, qui se feraient avec des requêtes simples.
+    - [X] *random* completion -> spatial sampling for completion.
+- [X] Prise en main PGADMIN ou BDBeaver pour anticipation des opérations copie+manipulation. Idée de "version de référence" maintenue dont partent des copies / enrichissements, qui se feraient avec des requêtes simples.
 - [ ] Possibilité d'un filtre en amont sur la BD. 
     - [ ] Possibilité de créer une table "vignette_pool" temporaire basée sur ce filtre, et requêter là dessus ?
     - Filtre nb_points > 50. (Mais qu'en est-il de l'eau alors ?...)

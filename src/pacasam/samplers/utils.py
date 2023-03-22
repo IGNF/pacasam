@@ -1,6 +1,6 @@
 import logging
-from math import floor
 import yaml
+import geopandas as gpd
 
 log = logging.getLogger(__name__)
 
@@ -22,3 +22,11 @@ def load_optimization_config(config_file):
     # # log.info(f'Target test set size: {cf["size_of_test_set"]} tiles (frac={(int_t/n):.2f})')
 
     return cf
+
+
+def drop_duplicates_by_id_and_log_sampling_attrition(log: logging.Logger, gdf: gpd.GeoDataFrame, sampling_name: str = "Targeted Sampling"):
+    n_sampled = len(gdf)
+    gdf = gdf.drop_duplicates(subset=["id"])
+    n_distinct = len(gdf)
+    log.info(f"{sampling_name}: {n_sampled} ids --> {n_distinct} distinct ids (redundancy ratio: {n_distinct/n_sampled:.03f}) ")
+    return gdf

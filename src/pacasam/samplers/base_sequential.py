@@ -24,7 +24,7 @@ from pathlib import Path
 
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import Connector, SyntheticConnector
-from pacasam.samplers.utils import load_optimization_config
+from pacasam.samplers.utils import drop_duplicates_by_id_and_log_sampling_attrition, load_optimization_config
 from pacasam.utils import set_log_text_handler, setup_custom_logger
 from pacasam.samplers.algos import fps, sample_randomly, sample_spatially_by_slab
 from sklearn.preprocessing import QuantileTransformer
@@ -53,40 +53,42 @@ class BaseSequential:
     def select_tiles(self) -> pd.Series:
         """Define a dataset as a GeoDataFrame with fields [id, is_test_set]."""
 
-        selection = []
-        # Meet target requirements for each criterium
-        for descriptor_name, descriptor_objectives in self._get_sorted_criteria().items():
-            tiles = self.get_matching_tiles(descriptor_name, descriptor_objectives)
-            selection += [tiles]
-        selection = pd.concat(selection)
-
-        # some logs
-        n_sampled = len(selection)
-        selection = selection.drop_duplicates(subset=["id"])
-        n_distinct = len(selection)
-        log.info(f"Sequential Sampling: {n_sampled} ids --> {n_distinct} distinct ids (redundancy ratio: {n_distinct/n_sampled:.03f}) ")
+        targetted = self.get_targetted_tiles()
+        targetted = drop_duplicates_by_id_and_log_sampling_attrition(log=log, gdf=targetted, sampling_name="Targeted Sampling")
 
         # Perform diversity sampling based on class histograms
-        num_diverse_to_sample = (self.cf["num_tiles_in_sampled_dataset"] - len(selection)) // 2  # half of remaining tiles
-        diverse = self.get_diverse_tiles(num_to_sample=num_diverse_to_sample)
-        # TODO: deal with the case where not enough data...
+        num_diverse_to_sample = (self.cf["num_tiles_in_sampled_dataset"] - len(targetted)) // 2  # half of remaining tiles
+        if num_diverse_to_sample < 0:
+            log.warning(
+                f"Target dataset size of n={self.cf['num_tiles_in_sampled_dataset']} tiles achieved via targetted sampling single-handedly."
+                "\n This means that the SUM OF CONSTRAINTS IS ABOVE 100%. Consider reducing constraints, and potentially having a bigger dataset."
+            )
+            return targetted
 
-        # some logs
-        n_sampled = len(diverse)
-        diverse = diverse.drop_duplicates(subset=["id"])
-        n_distinct = len(diverse)
-        log.info(f"Diversity Sampling: {n_sampled} ids --> {n_distinct} distinct ids (redundancy ratio: {n_distinct/n_sampled:.03f}) ")
+        diverse = self.get_diverse_tiles(num_to_sample=num_diverse_to_sample)
+        diverse = drop_duplicates_by_id_and_log_sampling_attrition(log=log, gdf=diverse, sampling_name="Diversity Sampling")
+
         # add to the rest of the selection
-        selection = pd.concat([selection, diverse])
+        selection = pd.concat([targetted, diverse])
 
         # Complete the dataset with the other tiles
         num_tiles_to_complete = self.cf["num_tiles_in_sampled_dataset"] - len(selection)
         others = self.get_other_tiles(current_selection=selection, num_to_sample=num_tiles_to_complete)
-        selection = pd.concat([selection[SELECTION_SCHEMA], others[SELECTION_SCHEMA]])
+        selection = pd.concat([selection, others])
         return selection
 
-    def get_matching_tiles(self, descriptor_name: str, descriptor_objectives: Dict):
-        """Query the matching ids. Output has schema SELECTION_SCHEMA."""
+    def get_targetted_tiles(self):
+        """Sample tiles by"""
+        selection = []
+        # Meet target requirements for each criterium
+        for descriptor_name, descriptor_objectives in self._get_sorted_criteria().items():
+            tiles = self._get_matching_tiles(descriptor_name, descriptor_objectives)
+            selection += [tiles]
+        selection = pd.concat(selection)
+        return selection
+
+    def _get_matching_tiles(self, descriptor_name: str, descriptor_objectives: Dict):
+        """Query the tiles info based on a descriptor name + objective."""
         query = descriptor_objectives.get("where", f"{descriptor_name} > 0")
         tiles = connector.request_tiles_by_condition(where=query)
         num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * self.cf["num_tiles_in_sampled_dataset"])

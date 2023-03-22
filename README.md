@@ -55,6 +55,8 @@ python src/pacasam/samplers/triple.py --connector=synthetic
     - [ ] (**Si nécessaire face à volume de données important**) Connecteur données synthétiques pourrait dériver d'un connecteur "GeoDataFrame" avec des opérations de query. Et alors on peut envisager que toute la base Lipac soit mise en mémoire, pour des traitements plus rapides.
     - [X] *random* completion -> spatial sampling for completion.
 - [X] Prise en main PGADMIN ou BDBeaver pour anticipation des opérations copie+manipulation. Idée de "version de référence" maintenue dont partent des copies / enrichissements, qui se feraient avec des requêtes simples.
+- [ ] API unique pour les samplers, dans run.py, avec config en argument.
+- [ ] Renommer criteria dans config pour préciser qu'il s'agit de targetted sampling. Le nommer par le nom de la classe !
 - [ ] Possibilité d'un filtre en amont sur la BD. 
     - [ ] Possibilité de créer une table "vignette_pool" temporaire basée sur ce filtre, et requêter là dessus ?
     - Filtre nb_points > 50. (Mais qu'en est-il de l'eau alors ?...)
@@ -66,13 +68,14 @@ python src/pacasam/samplers/triple.py --connector=synthetic
         - Now, the point of this exercise is not so much about the 40 MB space as it is this: by default, any user can consume any tempdb space, limited only by either maximum file size or available drive space. See here ; https://learn.microsoft.com/en-us/sql/relational-databases/databases/tempdb-database?view=sql-server-ver16 ; is this applicable ?
 
 
-- Optimisation : 
+- Optimisation :
     - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
     - [X] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.
         On peut envisager une méthode effficae où on attribue un index à chaque patch au sein de chaque dalle, et ensuite on filtre avec un seuil ? Overkill, commencer simple : on devrait sélectionner max 5 patches en conditions réelles. MAIS : les patches ne seront pas optimisés spatialement entre des dalles adjacentes, juste bien répartie par grille. Semble OK.
-        - [X] Version "in memory" qui nécessite de charger id et dalle en mémoire. 
+        - [X] Version "in memory" qui nécessite de charger id et dalle en mémoire.
     - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
     - [X] Diversity sampling : Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
+        - [ ] Contrôle et paramétrisation des éléments du diversity sampling. En gros, les différents indicators à définir par des requêter sql (si différent du nom de base, cf. criteria). Être capable de faire une unique requete sql pour remplacer l'usage de sampler.extract qui n'est pas prévue pour ça.
     - [ ] Get rid of unused random sampling / simplify its call and remove the if/else clause.
 - Extraction
     - [X] Extract geopackage des métadonnées

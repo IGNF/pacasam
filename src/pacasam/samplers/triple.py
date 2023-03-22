@@ -26,7 +26,7 @@ from pacasam.utils import set_log_text_handler, setup_custom_logger, load_optimi
 
 from pacasam.samplers.sampler import Sampler
 from pacasam.samplers.completion import CompletionSampler
-from pacasam.samplers.diverse import DiversitySampler
+from pacasam.samplers.diversity import DiversitySampler
 from pacasam.samplers.targetted import TargettedSampler
 
 log = setup_custom_logger()

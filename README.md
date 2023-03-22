@@ -75,7 +75,7 @@ python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.y
     - [ ] (**Si nécessaire face à volume de données important**) Connecteur données synthétiques pourrait dériver d'un connecteur "GeoDataFrame" avec des opérations de query. Et alors on peut envisager que toute la base Lipac soit mise en mémoire, pour des traitements plus rapides.
     - [X] *random* completion -> spatial sampling for completion.
 - [X] Prise en main PGADMIN ou BDBeaver pour anticipation des opérations copie+manipulation. Idée de "version de référence" maintenue dont partent des copies / enrichissements, qui se feraient avec des requêtes simples.
-- [ ] API unique pour les samplers, dans run.py, avec config en argument.
+- [X] API unique pour les samplers, dans run.py, avec config en argument.
 - [ ] Renommer criteria dans config pour préciser qu'il s'agit de targetted sampling. Le nommer par le nom de la classe !
 - [ ] Possibilité d'un filtre en amont sur la BD. 
     - [ ] Possibilité de créer une table "vignette_pool" temporaire basée sur ce filtre, et requêter là dessus ?
@@ -86,7 +86,10 @@ python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.y
         - Cf. pour faire une copie : https://stackoverflow.com/a/8815010/8086033 ; sinon en click boutont dans PGAdmin en faisant aussi un backup. Mais pas satisfaisant... Voir si on peut contrôler les rôles suffisamment pour autoriser tables temporaires.
         - https://desertdba.com/what-permissions-are-required-for-temporary-tables/ --> possibilité de créer la base temporaire en amont, et que chaque use puisse la remplir avec "ses" vignettes au moment de la connexion ? Dans ce cas, on doit juste s'assurer que la connexion reste ouverte. A valider avec Marouane ?
         - Now, the point of this exercise is not so much about the 40 MB space as it is this: by default, any user can consume any tempdb space, limited only by either maximum file size or available drive space. See here ; https://learn.microsoft.com/en-us/sql/relational-databases/databases/tempdb-database?view=sql-server-ver16 ; is this applicable ?
-
+    - [] Makefile
+        - [ ] Test données synthétiques
+        - [ ] Vider les sorties
+        - [ ] Test de tous les samplers pour comparaison, sur la données LiPaC.
 - Optimisation :
     - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
     - [X] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.

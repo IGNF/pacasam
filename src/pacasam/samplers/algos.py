@@ -47,7 +47,7 @@ def sample_spatially_by_slab(tiles: gpd.GeoDataFrame, num_to_sample: int):
     return sampled_tiles
 
 
-def fps(points: np.ndarray, n_samples: int):
+def fps(arr: np.ndarray, num_to_sample: int):
     """
     Adapted from: https://minibatchai.com/sampling/2021/08/07/FPS.html
     points: [N, 3] array containing the whole point cloud
@@ -56,13 +56,13 @@ def fps(points: np.ndarray, n_samples: int):
     15% of 75km² is 4500 samples, so this will work in the general case where targets account for most of the samples..
     TODO: check the FPS algo below.
     """
-    points = np.array(points)
+    arr = np.array(arr)
 
     # Represent the points by their indices in points
-    points_left = np.arange(len(points))  # [P]
+    points_left = np.arange(len(arr))  # [P]
 
     # Initialise an array for the sampled indices
-    sample_inds = np.zeros(n_samples, dtype="int")  # [S]
+    sample_inds = np.zeros(num_to_sample, dtype="int")  # [S]
 
     # Initialise distances to inf
     dists = np.ones_like(points_left) * float("inf")  # [P]
@@ -75,12 +75,12 @@ def fps(points: np.ndarray, n_samples: int):
     points_left = np.delete(points_left, selected)  # [P - 1]
 
     # Iteratively select points for a maximum of n_samples
-    for i in range(1, n_samples):
+    for i in range(1, num_to_sample):
         # Find the distance to the last added point in selected
         # and all the others
         last_added = sample_inds[i - 1]
 
-        dist_to_last_added_point = ((points[last_added] - points[points_left]) ** 2).sum(-1)  # [P - i]
+        dist_to_last_added_point = ((arr[last_added] - arr[points_left]) ** 2).sum(-1)  # [P - i]
 
         # If closer, updated distances
         dists[points_left] = np.minimum(dist_to_last_added_point, dists[points_left])  # [P - i]

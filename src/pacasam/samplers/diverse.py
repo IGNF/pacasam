@@ -2,11 +2,11 @@ from math import floor
 
 import numpy as np
 from pacasam.samplers.algos import fps
-from pacasam.samplers.base import SELECTION_SCHEMA, TILE_INFO, BaseSampling
+from pacasam.samplers.sampler import SELECTION_SCHEMA, TILE_INFO, Sampler
 from sklearn.preprocessing import QuantileTransformer
 
 
-class DiversitySampling(BaseSampling):
+class DiversitySampler(Sampler):
     def get_tiles(self, num_to_sample: int):
         """A sampling to cover the space of class histogram in order to include the diverse data scenes.
         Class histogram is a proxy for scene content. E.g. highly present building, quasi absent vegetation --> urban scene?
@@ -58,7 +58,7 @@ class DiversitySampling(BaseSampling):
         # Farthest Point Sampling
         # Set indices to a range to be sure that np indices = pandas indices.
         extract = extract.reset_index(drop=True)
-        diverse_idx = fps(extract.loc[:, nb_points_cols].values, num_to_sample)
+        diverse_idx = fps(arr=extract.loc[:, nb_points_cols].values, num_to_sample=num_to_sample)
         diverse = extract.loc[diverse_idx, TILE_INFO]
 
         # Nice property of FPS: using it on its own output starting from the same

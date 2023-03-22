@@ -2,6 +2,40 @@
 Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) of data patches based on their metadata, for deep learning dataset pruning.
 
 
+## Contenu
+
+Classes d'objets:
+- Connector: interface de connexion aux données: 
+    - LiPaC: connexion et requêtage de la base LiPaC.
+    - Synthetic: création d'un GeoDataFrame synthétique, composé de tuiles répartie dans une grille arbitraire, pour effectuer des tests rapidements.
+- Sampler: objet de sampling, qui interrogent le connector suivant la configuration pour sélectionne des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
+    - Targetted: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale.
+    - Diverse: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. nombre de points de certaines classes, quantilisés)
+    - Completion: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
+
+Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/{SamplingName}-extract.gpkg`, contenant l'échantillon de tuiles avec l'ensemble des champs de la base de données initiales, ainsi qu'une variable `is_test_set` définissant le jeu de test pour un futur apprentissage.
+
+
+## Usage
+Mettre en place l'environnement virtual conda:
+```bash
+conda install mamba --yes -n base -c conda-forge
+mamba env create -f environment.yml
+```
+Lancer un échantillonnage "tripl" sur des données synthétiques :
+```python
+conda activate pacasam
+python src/pacasam/samplers/triple.py --connector=synthetic
+```
+Lancer un échantillonnage "tripl" sur des données réelles - base PostGIS LiPaC:
+1. Créer fichier `credentials.ini` avec la section `[LIDAR_PATCH_CATALOGUE]` et les champs `DB_LOGIN` et `DB_PASSWORD`. (droits en lecture nécessaires.)
+2. Créer sa configuration dans le dossier `configs` (cf. `configs/lipac-optimization-config.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
+3. Lancer le sampling.
+```python
+conda activate pacasam
+python src/pacasam/samplers/triple.py --connector=synthetic
+```
+
 # Roadmap
 
 - Structure :

@@ -2,10 +2,10 @@ import geopandas as gpd
 import pandas as pd
 from typing import Dict
 from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
-from pacasam.samplers.base import SELECTION_SCHEMA, BaseSampling
+from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 
 
-class TargettedSampling(BaseSampling):
+class TargettedSampler(Sampler):
     """A sampling to meet constraints - target prevalence of descriptor - sequentially."""
 
     def get_tiles(self) -> gpd.GeoDataFrame:

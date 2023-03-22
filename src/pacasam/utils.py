@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+import yaml
 import sys
 
 
@@ -28,3 +29,9 @@ def set_log_text_handler(log: logging.Logger, outdir: Path, log_file_name: str =
 
 def get_class_name(instance):
     return str(instance.__class__.__name__)
+
+
+def load_optimization_config(config_file):
+    with open(config_file, "r") as file:
+        cf = yaml.safe_load(file)
+    return cf

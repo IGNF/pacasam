@@ -22,13 +22,12 @@ from pathlib import Path
 
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
-from pacasam.utils import set_log_text_handler, setup_custom_logger
-from pacasam.samplers.utils import load_optimization_config
+from pacasam.utils import set_log_text_handler, setup_custom_logger, load_optimization_config
 
-from pacasam.samplers.base import BaseSampling
-from pacasam.samplers.completion import CompletionSampling
-from pacasam.samplers.diverse import DiversitySampling
-from pacasam.samplers.targetted import TargettedSampling
+from pacasam.samplers.sampler import Sampler
+from pacasam.samplers.completion import CompletionSampler
+from pacasam.samplers.diverse import DiversitySampler
+from pacasam.samplers.targetted import TargettedSampler
 
 log = setup_custom_logger()
 
@@ -39,12 +38,12 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--connector", default="lipac", choices=["synthetic", "lipac"])
 
 
-class TripleSampling(BaseSampling):
+class TripleSampling(Sampler):
     """Succession of Targetted, Diversity, and Completion sampling."""
 
     def get_tiles(self) -> pd.Series:
         """Define a dataset as a GeoDataFrame with fields [id, is_test_set]."""
-        ts = TargettedSampling(connector=self.connector, optimization_config=self.cf, log=self.log)
+        ts = TargettedSampler(connector=self.connector, optimization_config=self.cf, log=self.log)
         targetted = ts.get_tiles()
         targetted = ts.drop_duplicates_by_id_and_log_sampling_attrition(targetted)
 
@@ -56,14 +55,14 @@ class TripleSampling(BaseSampling):
                 "\n This means the SUM OF CONSTRAINTS IS ABOVE 100%. Consider reducing constraints, and having a bigger dataset."
             )
             return targetted
-        ds = DiversitySampling(connector=self.connector, optimization_config=self.cf, log=self.log)
+        ds = DiversitySampler(connector=self.connector, optimization_config=self.cf, log=self.log)
         diverse = ds.get_tiles(num_to_sample=num_diverse_to_sample)
         diverse = ds.drop_duplicates_by_id_and_log_sampling_attrition(diverse)
         selection = pd.concat([targetted, diverse])
 
         # Complete the dataset with the other tiles
         num_tiles_to_complete = self.cf["num_tiles_in_sampled_dataset"] - len(selection)
-        cs = CompletionSampling(connector=self.connector, optimization_config=self.cf, log=self.log)
+        cs = CompletionSampler(connector=self.connector, optimization_config=self.cf, log=self.log)
         others = cs.get_tiles(current_selection=selection, num_to_sample=num_tiles_to_complete)
         selection = pd.concat([selection, others])
 

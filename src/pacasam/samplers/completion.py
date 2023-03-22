@@ -1,10 +1,10 @@
 import geopandas as gpd
 
 from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
-from pacasam.samplers.base import SELECTION_SCHEMA, BaseSampling
+from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 
 
-class CompletionSampling(BaseSampling):
+class CompletionSampler(Sampler):
     """A sampling to complete a dataset, excluding a current selection by their ids."""
 
     def get_tiles(self, current_selection: gpd.GeoDataFrame, num_to_sample: int) -> gpd.GeoDataFrame:

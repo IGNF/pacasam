@@ -4,7 +4,7 @@
 
 # TODO: make a parser for the config once it is more stable. Check for constraints in range [0-1] and if their sum is <100%.
 
-num_tiles_in_sampled_dataset: 10
+num_tiles_in_sampled_dataset: 500
 frac_test_set:  0.1 # float 
 use_spatial_sampling: true
 
@@ -22,7 +22,7 @@ criteria:
   C4:
     target_min_samples_proportion: 0.2
   C3:
-    target_min_samples_proportion: 0.99
+    target_min_samples_proportion: 0.3
   C3C4:
     where: "(C3 > 0) & (C4 > 0)"
     target_min_samples_proportion: 0.1

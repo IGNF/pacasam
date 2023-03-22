@@ -8,7 +8,7 @@
             "name": "Base Sequential lipac",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/base_sequential.py",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/triple.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -19,7 +19,7 @@
             "name": "Base Sequential synthetic",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/base_sequential.py",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/triple.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [

@@ -12,7 +12,7 @@ use_spatial_sampling: true  # True : sampling itératif par dalle, avec une bonn
 # gérer les booléens, faire des combinaisons, etc.
 
 # TODO: rename as the sequential_kwargs
-criteria:
+targetted_sampling_criteria:
 
 # name_of_criteria_for_printing:
 #   where: Optional. Sql query to filter on table vignette in LiPaC. If absent, "x > 0" is used.

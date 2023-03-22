@@ -76,7 +76,7 @@ python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.y
     - [X] *random* completion -> spatial sampling for completion.
 - [X] Prise en main PGADMIN ou BDBeaver pour anticipation des opérations copie+manipulation. Idée de "version de référence" maintenue dont partent des copies / enrichissements, qui se feraient avec des requêtes simples.
 - [X] API unique pour les samplers, dans run.py, avec config en argument.
-- [ ] Renommer criteria dans config pour préciser qu'il s'agit de targetted sampling. Le nommer par le nom de la classe !
+- [X] Renommer criteria dans config pour préciser qu'il s'agit de targetted sampling. Le nommer par le nom de la classe !
 - [ ] Possibilité d'un filtre en amont sur la BD. 
     - [ ] Possibilité de créer une table "vignette_pool" temporaire basée sur ce filtre, et requêter là dessus ?
     - Filtre nb_points > 50. (Mais qu'en est-il de l'eau alors ?...)
@@ -97,7 +97,7 @@ python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.y
         - [X] Version "in memory" qui nécessite de charger id et dalle en mémoire.
     - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
     - [X] Diversity sampling : Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
-        - [ ] Contrôle et paramétrisation des éléments du diversity sampling. En gros, les différents indicators à définir par des requêter sql (si différent du nom de base, cf. criteria). Être capable de faire une unique requete sql pour remplacer l'usage de sampler.extract qui n'est pas prévue pour ça.
+        - [ ] Contrôle et paramétrisation des éléments du diversity sampling. En gros, les différents indicators à définir par des requêter sql (si différent du nom de base, cf. targetted_sampling_criteria). Être capable de faire une unique requete sql pour remplacer l'usage de sampler.extract qui n'est pas prévue pour ça.
     - [ ] Get rid of unused random sampling / simplify its call and remove the if/else clause.
 - Extraction
     - [X] Extract geopackage des métadonnées

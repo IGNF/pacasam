@@ -11,7 +11,7 @@ class TargettedSampler(Sampler):
     def get_tiles(self) -> gpd.GeoDataFrame:
         selection = []
         # Meet target requirements for each criterium
-        for descriptor_name, descriptor_objectives in self._get_sorted_criteria(self.cf["targetted_sampling_criteria"]).items():
+        for descriptor_name, descriptor_objectives in self._get_sorted_criteria(self.cf["targets_for_TargettedSampler"]).items():
             tiles = self._get_matching_tiles(descriptor_name, descriptor_objectives)
             selection += [tiles]
         selection = pd.concat(selection)

@@ -3,15 +3,7 @@ from math import floor
 from typing import Dict
 import geopandas as gpd
 
-import sys
-from pathlib import Path
-
 from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
-
-
-directory = Path(__file__).resolve().parent.parent.parent
-sys.path.append(str(directory))
-
 from pacasam.connectors.connector import Connector
 
 SELECTION_SCHEMA = ["id", "is_test_set"]
@@ -48,4 +40,3 @@ class Sampler:
 
         tiles["is_test_set"] = 0
         tiles.loc[tiles["id"].isin(test_ids), "is_test_set"] = 1
-

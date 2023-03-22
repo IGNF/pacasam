@@ -1,9 +1,9 @@
-from math import floor
-
 import numpy as np
+from math import floor
+from sklearn.preprocessing import QuantileTransformer
+
 from pacasam.samplers.algos import fps
 from pacasam.samplers.sampler import SELECTION_SCHEMA, TILE_INFO, Sampler
-from sklearn.preprocessing import QuantileTransformer
 
 
 class DiversitySampler(Sampler):

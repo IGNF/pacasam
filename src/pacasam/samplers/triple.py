@@ -22,23 +22,24 @@ from pathlib import Path
 
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
-from pacasam.utils import set_log_text_handler, setup_custom_logger, load_optimization_config
+
+# from pacasam.utils import set_log_text_handler, setup_custom_logger, load_optimization_config
 
 from pacasam.samplers.sampler import Sampler
 from pacasam.samplers.completion import CompletionSampler
 from pacasam.samplers.diversity import DiversitySampler
 from pacasam.samplers.targetted import TargettedSampler
 
-log = setup_custom_logger()
+# log = setup_custom_logger()
 
-# PARAMETERS
-import argparse
+# # PARAMETERS
+# import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--connector", default="lipac", choices=["synthetic", "lipac"])
+# parser = argparse.ArgumentParser()
+# parser.add_argument("--connector", default="lipac", choices=["synthetic", "lipac"])
 
 
-class TripleSampling(Sampler):
+class TripleSampler(Sampler):
     """Succession of Targetted, Diversity, and Completion sampling."""
 
     def get_tiles(self) -> pd.Series:
@@ -69,33 +70,33 @@ class TripleSampling(Sampler):
         return selection
 
 
-# TODO: move this main to run.py, in parents dir?
-if __name__ == "__main__":
-    args = parser.parse_args()
+# # TODO: move this main to run.py, in parents dir?
+# if __name__ == "__main__":
+#     args = parser.parse_args()
 
-    if args.connector == "synthetic":
-        config_file = Path("configs/synthetic-optimization-config.yml")
-        conf = load_optimization_config(config_file)
-        connector = SyntheticConnector(**conf["connector_kwargs"])
-    else:
-        config_file = Path("configs/lipac-optimization-config.yml")
-        conf = load_optimization_config(config_file)
-        connector = load_LiPaCConnector(conf["connector_kwargs"])
-    sampler = TripleSampling(connector=connector, optimization_config=conf, log=log)
-    outdir = Path(f"outputs/{connector.name}/")
-    set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
+#     if args.connector == "synthetic":
+#         config_file = Path("configs/synthetic-optimization-config.yml")
+#         conf = load_optimization_config(config_file)
+#         connector = SyntheticConnector(**conf["connector_kwargs"])
+#     else:
+#         config_file = Path("configs/lipac-optimization-config.yml")
+#         conf = load_optimization_config(config_file)
+#         connector = load_LiPaCConnector(conf["connector_kwargs"])
+#     sampler = TripleSampler(connector=connector, optimization_config=conf, log=log)
+#     outdir = Path(f"outputs/{connector.name}/")
+#     set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
 
-    # DEBUG:
-    # # diverse = sampler.get_diverse_tiles(100)
+#     # DEBUG:
+#     # # diverse = sampler.get_diverse_tiles(100)
 
-    selection: gpd.GeoDataFrame = sampler.get_tiles()
-    gdf = connector.extract(selection)
-    gdf.to_file(outdir / f"{sampler.name}-{connector.name}-extract.gpkg")
+#     selection: gpd.GeoDataFrame = sampler.get_tiles()
+#     gdf = connector.extract(selection)
+#     gdf.to_file(outdir / f"{sampler.name}-{connector.name}-extract.gpkg")
 
-    #     # Output dataset description
-    #     # TODO: abstract this in another kind of stat object (perhaps in utils.py)
-    bools = gdf.select_dtypes(include=np.number) > 0
-    desc = bools.mean(numeric_only=True)
-    desc.name = "prop_above_zero"
-    desc.index.name = "attribute_name"
-    desc.to_csv(outdir / f"{sampler.name}-stats_of_extract.csv", sep=";", index=True)
+#     #     # Output dataset description
+#     #     # TODO: abstract this in another kind of stat object (perhaps in utils.py)
+#     bools = gdf.select_dtypes(include=np.number) > 0
+#     desc = bools.mean(numeric_only=True)
+#     desc.name = "prop_above_zero"
+#     desc.index.name = "attribute_name"
+#     desc.to_csv(outdir / f"{sampler.name}-stats_of_extract.csv", sep=";", index=True)

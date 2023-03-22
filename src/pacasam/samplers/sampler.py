@@ -48,3 +48,4 @@ class Sampler:
 
         tiles["is_test_set"] = 0
         tiles.loc[tiles["id"].isin(test_ids), "is_test_set"] = 1
+

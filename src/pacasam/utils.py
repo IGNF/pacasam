@@ -2,6 +2,12 @@ import logging
 from pathlib import Path
 import yaml
 import sys
+from pacasam.connectors.lipac import load_LiPaCConnector
+from pacasam.connectors.synthetic import SyntheticConnector
+from pacasam.samplers.completion import CompletionSampler
+from pacasam.samplers.targetted import TargettedSampler
+
+from pacasam.samplers.triple import TripleSampler
 
 
 LOGGING_FORMATTER = logging.Formatter(fmt="%(asctime)s %(levelname)-8s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
@@ -35,3 +41,15 @@ def load_optimization_config(config_file):
     with open(config_file, "r") as file:
         cf = yaml.safe_load(file)
     return cf
+
+
+# Dictionnaries to parametrize the access to object via configs.
+
+SAMPLERS_LIBRARY = {
+    "TripleSampler": TripleSampler,
+    "TargettedSampler": TargettedSampler,
+    "CompletionSampler": CompletionSampler,
+    "TargettedSampler": TargettedSampler,
+}
+
+CONNECTORS_LIBRARY = {"LiPaCConnector": load_LiPaCConnector, "SyntheticConnector": SyntheticConnector}

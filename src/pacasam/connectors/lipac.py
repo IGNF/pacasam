@@ -83,7 +83,7 @@ class LiPaCConnector(Connector):
         return extract
 
 
-def load_LiPaCConnector(lipac_kwargs) -> LiPaCConnector:
+def load_LiPaCConnector(**lipac_kwargs) -> LiPaCConnector:
     import configparser
 
     config = configparser.ConfigParser()

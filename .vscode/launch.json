@@ -5,34 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Base Sequential lipac",
+            "name": "Run main (Triple+LiPaC)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/triple.py",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+        },
+        {
+            "name": "Run main (Triple+Synthetic)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--connector=lipac"
+                "--config_file=configs/synthetic-optimization-config.yml",
+                "--connector_class=SyntheticConnector",
+                "--sampler_class=TripleSampler",
             ]
         },
-        {
-            "name": "Base Sequential synthetic",
-            "type": "python",
-            "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/samplers/triple.py",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "args": [
-                "--connector=synthetic"
-            ]
-        },
-        {
-            "name": "run.py",
-            "type": "python",
-            "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run.py",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-        }
     ]
 }

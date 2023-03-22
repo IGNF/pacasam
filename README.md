@@ -1,20 +1,25 @@
 # pacasam
-Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) of data patches based on their metadata, for deep learning dataset pruning.
-
 
 ## Contenu
 
 Classes d'objets:
 - Connector: interface de connexion aux données: 
-    - LiPaC: connexion et requêtage de la base LiPaC.
-    - Synthetic: création d'un GeoDataFrame synthétique, composé de tuiles répartie dans une grille arbitraire, pour effectuer des tests rapidements.
+    - `LiPaCConnector`: connexion et requêtage de la base LiPaC (Lidar Patch Catalogue).
+    - `SyntheticConnector`: création d'un GeoDataFrame synthétique, composé de tuiles répartie dans une grille arbitraire, pour effectuer des tests rapidements.
 - Sampler: objet de sampling, qui interrogent le connector suivant la configuration pour sélectionne des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
-    - Targetted: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale.
-    - Diverse: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. nombre de points de certaines classes, quantilisés)
-    - Completion: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
+    - `TargettedSampler`: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale.
+    - `DiversitySampler`: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. nombre de points de certaines classes, quantilisés)
+    - `CompletionSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/{SamplingName}-extract.gpkg`, contenant l'échantillon de tuiles avec l'ensemble des champs de la base de données initiales, ainsi qu'une variable `is_test_set` définissant le jeu de test pour un futur apprentissage.
 
+**Illustration d'une sortie de TripleSampler dans QGis**:
+- Les tuiles du jeu de test sont colorées en rouge.
+- Les zones de bâti et d'eau sont bien représentées, conformément à la configuration utilisée à date.
+- Bonne répartition spatiale globale, grâce à la stratification par dalle utilisée par le `TargettedSampler` et le `CompletionSampler`.
+- Bonne répartition spatiale entre jeu d'apprentissage et de test (pour la même raison). Cette répartition s'effectue pour chaque critère dans `TargettedSampler`.
+![](img/TripleSampler-example.png)
+![](img/TripleSampler-example-0955_6336.png)
 
 ## Usage
 ### Mettre en place l'environnement virtual conda:
@@ -45,6 +50,14 @@ python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.y
 
 # Roadmap
 
+### Points critiques : 
+- Passage à l'échelle : mise en mémoire de la base dans son intégralité pourra poser soucis. Tests avec données synthétiques et 4M de tuiles (et <10 variables) passent sur machine locale avec 7.2GB de RAM. Projection : 250km²=50MB actuellement (avec une vingtaine de descripteurs dans la base) -> 10000km²=4GB. Certaines opérations peuvent se faire par morceaux avec une perte minimale de qualité du sampling : sampling par dalle ; sampling par FPS.
+
+- Possibilité d'ignorer certaines dalles en amont du processus. Par exemple avec des vues SQL, ou mieux : avec une vue temporaire (mais alors -> droits en écriture). Si possible, cela ouvre la possibilité d'appeler un sampler séquentiellement, par chantier par exemple. **Cela peut être une solution pour gérer le passage à l'échelle**. Un chantier = 2500km² -> 1GB (avec de la marge pour doubler, voire tripler le nombre de descripteurs).
+
+- Paramétrisation du DiversitySampling : pour l'instant, hardcodé. La quantilisation par attribut doit pouvoir être contrôlée. Peut-être remise en cause d'une quantilisation qui ne se calcule pas avec la valeur "0".
+
+### Tasks
 - Structure :
     - [X] mise en place espace de travail
         - [X] repo github, env, connector, structure... attention aux credentials.
@@ -74,7 +87,6 @@ python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.y
         - https://desertdba.com/what-permissions-are-required-for-temporary-tables/ --> possibilité de créer la base temporaire en amont, et que chaque use puisse la remplir avec "ses" vignettes au moment de la connexion ? Dans ce cas, on doit juste s'assurer que la connexion reste ouverte. A valider avec Marouane ?
         - Now, the point of this exercise is not so much about the 40 MB space as it is this: by default, any user can consume any tempdb space, limited only by either maximum file size or available drive space. See here ; https://learn.microsoft.com/en-us/sql/relational-databases/databases/tempdb-database?view=sql-server-ver16 ; is this applicable ?
 
-
 - Optimisation :
     - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
     - [X] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.
@@ -89,21 +101,19 @@ python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.y
     - [ ] Rechercher un format hybride intégrant les données Lidar et permettant affichage dans QGIS. PostGreSQL-3D.
 
 
-# Panini - évolutions :
+# Panini - évolutions souhaitées pour la base LiPaC
 - Passer les booléens en int pour faciliter opérations ">0". (cf. https://stackoverflow.com/a/1465432/8086033)
 - Enumerable des noms de classes en français --> pas forcément nécessaire, plutôt de la doc.
-- correction de "nb points artefats" -> artefaCts
+- correction de "nb_points_artefats" -> nb_points_artefacts
 - Documentation des noms de variables et de leur définition (altitude, dénivelés) dans un xslx (Databook)
-- Indexation spatiale de la base, et rajoute de colonne directemnet avec une unique requête SQL (+ éventuellement ligne python pour schéma.)
-- Revue possible avec Marouane, des quelques fonctionnalités essentielles. Idée d'avoir une base de travail, qui peut être copiée ensuite par des utilisateurs dans un second temps, pour usage et sampling. Test BDBeaver à faire.
-- Nombre de points minimum par tuile à imposer ? On peut envisager un filtre en amont sur la BD. On peut aussi compléter la requête à chaque fois. Peut-on créer une table temporaire intermédiaire un premier temps à ensuite requêter ?
+- Gestion des valeurs manquantes à la création (e.g. dénivelé=NaN)
 - Dans zones d'eau, sans point sol, le dénivelé vaut -18446744073709551616. Passer à NULL ? Quelles conséquences sur les requêtes ensuite ?
-- Nom complet des fichiers LAS dans le Store vers la base
-- Table Blocs ?
-smb://store.ign.fr/store-lidarhd/production/reception/QO/donnees_classees/livraison10p/Livraison_20230116/02_SemisClasse
-- Ref sur les ORMS : https://stackoverflow.com/a/56992364/8086033
+- Indexation spatiale de la base, et rajout des descripteurs directement avec une unique requête SQL.
+- Nom complet des fichiers LAS dans le Store vers la base smb://store.ign.fr/store-lidarhd/production/reception/QO/donnees_classees/livraison10p/Livraison_20230116/02_SemisClasse
+- Table Blocs sans géométrie ?
 - Backup de Lipac:  pg_dump dbname > outfile
 - Colonnes spécifiant la redondance avec jeux de données pré-existants : 151proto, 201eval, Annecy. Fournir les emprises en format standard.
+- Ref sur les ORMS : https://stackoverflow.com/a/56992364/8086033
 
 
 # Analyses 

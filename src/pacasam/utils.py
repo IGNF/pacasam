@@ -28,4 +28,3 @@ def set_log_text_handler(log: logging.Logger, outdir: Path, log_file_name: str =
 
 def get_class_name(instance):
     return str(instance.__class__.__name__)
-

@@ -17,6 +17,7 @@ from pacasam.connectors.connector import Connector
 SELECTION_SCHEMA = ["id", "is_test_set"]
 TILE_INFO = ["id", "dalle_id", "geometry"]
 
+
 # TODO: check if we can convert a child class into a sister class to simplify compositions in triple.py
 class BaseSampling:
     def __init__(self, connector: Connector, optimization_config: Dict, log: logging.Logger = logging.getLogger(__name__)):

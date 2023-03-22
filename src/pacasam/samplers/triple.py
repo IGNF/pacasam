@@ -13,8 +13,6 @@ from pathlib import Path
 directory = Path(__file__).resolve().parent.parent.parent
 sys.path.append(str(directory))
 
-from math import floor
-from typing import Any, Dict
 import pandas as pd
 import geopandas as gpd
 import numpy as np
@@ -26,7 +24,6 @@ from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
 from pacasam.utils import set_log_text_handler, setup_custom_logger
 from pacasam.samplers.utils import load_optimization_config
-from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
 
 from pacasam.samplers.base import BaseSampling
 from pacasam.samplers.completion import CompletionSampling
@@ -56,7 +53,7 @@ class TripleSampling(BaseSampling):
         if num_diverse_to_sample < 0:
             self.log.warning(
                 f"Target dataset size of n={self.cf['num_tiles_in_sampled_dataset']} tiles achieved via targetted sampling single-handedly."
-                "\n This means that the SUM OF CONSTRAINTS IS ABOVE 100%. Consider reducing constraints, and potentially having a bigger dataset."
+                "\n This means the SUM OF CONSTRAINTS IS ABOVE 100%. Consider reducing constraints, and having a bigger dataset."
             )
             return targetted
         ds = DiversitySampling(connector=self.connector, optimization_config=self.cf, log=self.log)

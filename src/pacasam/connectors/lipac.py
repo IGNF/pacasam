@@ -6,7 +6,6 @@ import pandas as pd
 import geopandas as gpd
 
 from sqlalchemy import create_engine, text
-import sqlalchemy
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
 from pacasam.connectors.connector import Connector

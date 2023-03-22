@@ -11,7 +11,8 @@ from pacasam.connectors.lipac import Connector, load_LiPaCConnector
 from sqlalchemy.sql import text  # https://stackoverflow.com/a/75309321/8086033
 
 import geopandas as gpd
-import configparser
+
+# import configparser
 
 from pacasam.utils import load_config
 

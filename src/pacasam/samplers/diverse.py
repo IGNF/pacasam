@@ -1,4 +1,3 @@
-
 from math import floor
 
 import numpy as np
@@ -70,4 +69,3 @@ class DiversitySampling(BaseSampling):
         diverse.loc[diverse.index[:num_samples_test_set], ("is_test_set",)] = 1
 
         return diverse[SELECTION_SCHEMA]
-

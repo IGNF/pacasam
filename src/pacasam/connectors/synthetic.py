@@ -15,6 +15,21 @@ TILE_SIZE = 50
 
 NUM_TILES_BY_SLAB = int((SLAB_SIZE / TILE_SIZE) ** 2)
 
+# for diverse sampling. Could be a kwarg of the connector...
+
+NB_POINTS_COLNAMES = [
+    "nb_points_sol",
+    "nb_points_bati",
+    "nb_points_non_classes",
+    "nb_points_vegetation_basse",
+    "nb_points_vegetation_moyenne",
+    "nb_points_vegetation_haute",
+    # "nb_points_vegetation",
+    # "nb_points_pont",
+    # "nb_points_eau",
+    # "nb_points_sursol_perenne",
+]
+
 
 class SyntheticConnector(Connector):
     def __init__(self, binary_descriptors_prevalence: List[float], db_size: int = 10000):
@@ -28,8 +43,11 @@ class SyntheticConnector(Connector):
             d = np.concatenate([np.ones(shape=(n_target,)), np.zeros(shape=(db_size - n_target,))])
             np.random.shuffle(d)
             data += [d]
+        for _ in NB_POINTS_COLNAMES:
+            d = np.random.randint(low=0, high=30_000, size=(db_size,)).astype(int)
+            data += [d]
         data = np.column_stack(data)
-        self.descriptor_names = [f"C{idx}" for idx in range(len(binary_descriptors_prevalence))]
+        self.descriptor_names = [f"C{idx}" for idx in range(len(binary_descriptors_prevalence))] + NB_POINTS_COLNAMES
         # WARNING: the synthetic geometries will not be compliant with the dall_id.
         df_geom, df_dalle_id = self._make_synthetic_geometries_and_slabs()
         self.synthetic_df = gpd.GeoDataFrame(

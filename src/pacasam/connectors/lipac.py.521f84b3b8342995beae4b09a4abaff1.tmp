@@ -24,8 +24,9 @@ def geometrie_to_geometry_col(gdf):
 
 
 class LiPaCConnector(Connector):
-    lambert_93_crs = 2154
     
+    lambert_93_crs = 2154
+
     def __init__(self, username: str, password: str, db_lipac_host: str, db_lipac_name: str):
         super().__init__()
 

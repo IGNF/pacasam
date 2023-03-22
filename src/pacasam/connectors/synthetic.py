@@ -1,6 +1,6 @@
 import logging
 from math import ceil
-from typing import List
+from typing import List, Optional
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -49,13 +49,16 @@ class SyntheticConnector(Connector):
         """
         return self.synthetic_df.query(where)[["id", "geometry", "dalle_id"]]
 
-    def request_all_other_tiles(self, exclude: pd.Series):
+    def request_all_other_tiles(self, exclude_ids: pd.Series):
         """Requests all tiles. Should work for both synthetic and Lipac."""
-        all_ids = self.request_tiles_by_condition(where="id")
-        return all_ids[~all_ids["id"].isin(exclude)]
+        all_tiles = self.request_tiles_by_condition(where="id")
+        return all_tiles[~all_tiles["id"].isin(exclude_ids)]
 
-    def extract(self, selection: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
+        if selection is None:
+            return self.synthetic_df
+
         extract = self.synthetic_df.merge(
             selection,
             how="inner",

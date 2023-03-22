@@ -1,7 +1,7 @@
 # copy of https://github.com/IGNF/panini/blob/main/connector.py
 
 import logging
-from typing import Generator
+from typing import Generator, Optional
 import pandas as pd
 import geopandas as gpd
 
@@ -16,6 +16,11 @@ log = logging.getLogger(__name__)
 CREDENTIALS_FILE_PATH = "credentials.ini"  # with credentials.
 
 CHUNKSIZE_FOR_POSTGIS_REQUESTS = 100000
+
+
+def geometrie_to_geometry_col(gdf):
+    gdf = gdf.rename(columns={"geometrie": "geometry"}).set_geometry("geometry")
+    return gdf
 
 
 class LiPaCConnector(Connector):
@@ -45,15 +50,17 @@ class LiPaCConnector(Connector):
         query = text(f'Select "id", "dalle_id", "geometrie" FROM "vignette" WHERE {where}')
         chunks: Generator = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS)
         gdf = pd.concat(chunks)
+        gdf = geometrie_to_geometry_col(gdf)
         return gdf
 
-    def request_all_other_tiles(self, exclude: pd.Series):
+    def request_all_other_tiles(self, exclude_ids: pd.Series):
         """Requests all tiles. Should work for both synthetic and Lipac."""
-        all_ids = self.request_tiles_by_condition(where="true")
-        return all_ids[~all_ids["id"].isin(exclude)]
+        all_tiles = self.request_tiles_by_condition(where="true")
+        return all_tiles[~all_tiles["id"].isin(exclude_ids)]
 
-    def extract(self, selection: pd.Series) -> gpd.GeoDataFrame:
-        """Extract using ids."""
+    def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
+        """Extract using ids. If selection is None, select everything. selection contains id + new columns like is_test_set."""
+        # TODO: add a extract_all function to have clearer separation.
         extract = []
         query = text('Select * FROM "vignette"')
         for chunk in gpd.read_postgis(
@@ -62,14 +69,16 @@ class LiPaCConnector(Connector):
             geom_col="geometrie",
             chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS,
         ):
-            extract += [
-                chunk.merge(
+            if selection is not None:
+                chunk = chunk.merge(
                     selection,
                     how="inner",
                     on="id",
                 )
-            ]
-        return pd.concat(extract)
+            extract += [chunk]
+        extract = pd.concat(extract)
+        extract = geometrie_to_geometry_col(extract)
+        return extract
 
 
 def load_LiPaCConnector(lipac_kwargs) -> LiPaCConnector:

@@ -11,6 +11,7 @@ use_spatial_sampling: true  # True : sampling itératif par dalle, avec une bonn
 # Par défaut les critères sont "x > 0", mais une condition where peut être utiliser pour
 # gérer les booléens, faire des combinaisons, etc.
 
+# TODO: rename as the sequential_kwargs
 criteria:
 
 # name_of_criteria_for_printing:

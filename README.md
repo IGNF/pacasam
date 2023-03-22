@@ -40,6 +40,7 @@ Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) 
     - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
     - [ ] Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
         - Idée à évaluer : pour chaque dalle, sampler avec une pondération qui correspond à celle de l'ensemble du jeu de données en termes d'histogrammes de classes décilisés (=cluster). En pratique : assocei
+    - [ ] Get rid of unused random sampling / simplify its call and remove the if/else clause.
 - Extraction
     - [X] Extract geopackage des métadonnées
     - [ ] Rechercher un format hybride intégrant les données Lidar et permettant affichage dans QGIS. PostGreSQL-3D.

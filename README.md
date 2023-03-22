@@ -17,23 +17,30 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/
 
 
 ## Usage
-Mettre en place l'environnement virtual conda:
+### Mettre en place l'environnement virtual conda:
 ```bash
 conda install mamba --yes -n base -c conda-forge
 mamba env create -f environment.yml
 ```
-Lancer un échantillonnage "tripl" sur des données synthétiques :
+### Lancer un échantillonnage "tripl" sur des données synthétiques :
 ```python
 conda activate pacasam
-python src/pacasam/samplers/triple.py --connector=synthetic
+python ./src/pacasam/main.py --config_file=configs/synthetic-optimization-config.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
 ```
-Lancer un échantillonnage "tripl" sur des données réelles - base PostGIS LiPaC:
-1. Créer fichier `credentials.ini` avec la section `[LIDAR_PATCH_CATALOGUE]` et les champs `DB_LOGIN` et `DB_PASSWORD`. (droits en lecture nécessaires.)
-2. Créer sa configuration dans le dossier `configs` (cf. `configs/lipac-optimization-config.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
-3. Lancer le sampling.
+### Lancer un échantillonnage sur des données réelles - base PostGIS LiPaC:
+
+1. Créer sa configuration dans le dossier `configs` (cf. `configs/lipac-optimization-config.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
+
+2. Créer un fichier `credentials.ini` avec la section `[LIDAR_PATCH_CATALOGUE]` et les champs `DB_LOGIN` et `DB_PASSWORD`, contenant les éléments de connexion à au catalogue de patch (droits en lecture nécessaires.)
+
+3. (Optionnel) Afficher les options de sampling.
+```python
+python ./src/pacasam/main.py --help
+```
+4. Lancer le sampling.
 ```python
 conda activate pacasam
-python src/pacasam/samplers/triple.py --connector=synthetic
+python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.yml
 ```
 
 # Roadmap

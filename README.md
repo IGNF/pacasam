@@ -38,8 +38,7 @@ Patch-Catalogue-Sampling: methods to sample a catalogue (e.g. PostGIS database) 
         On peut envisager une méthode effficae où on attribue un index à chaque patch au sein de chaque dalle, et ensuite on filtre avec un seuil ? Overkill, commencer simple : on devrait sélectionner max 5 patches en conditions réelles. MAIS : les patches ne seront pas optimisés spatialement entre des dalles adjacentes, juste bien répartie par grille. Semble OK.
         - [X] Version "in memory" qui nécessite de charger id et dalle en mémoire. 
     - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
-    - [ ] Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
-        - Idée à évaluer : pour chaque dalle, sampler avec une pondération qui correspond à celle de l'ensemble du jeu de données en termes d'histogrammes de classes décilisés (=cluster). En pratique : assocei
+    - [X] Diversity sampling : Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
     - [ ] Get rid of unused random sampling / simplify its call and remove the if/else clause.
 - Extraction
     - [X] Extract geopackage des métadonnées

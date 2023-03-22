@@ -55,7 +55,7 @@ class BaseSequential:
 
         selection = []
         # Meet target requirements for each criterium
-        for descriptor_name, descriptor_objectives in self.get_sorted_criteria().items():
+        for descriptor_name, descriptor_objectives in self._get_sorted_criteria().items():
             tiles = self.get_matching_tiles(descriptor_name, descriptor_objectives)
             selection += [tiles]
         selection = pd.concat(selection)
@@ -84,18 +84,6 @@ class BaseSequential:
         others = self.get_other_tiles(current_selection=selection, num_to_sample=num_tiles_to_complete)
         selection = pd.concat([selection[SELECTION_SCHEMA], others[SELECTION_SCHEMA]])
         return selection
-
-    def _set_test_set_flag_inplace(self, tiles: gpd.GeoDataFrame):
-        """(Inplace) Set a binary flag for the test tiles, selected randomly or by slab."""
-        num_samples_test_set = floor(self.cf["frac_test_set"] * len(tiles))
-
-        if self.cf["use_spatial_sampling"]:
-            test_ids = sample_spatially_by_slab(tiles, num_samples_test_set)["id"]
-        else:
-            test_ids = sample_randomly(tiles, num_samples_test_set)["id"]
-
-        tiles["is_test_set"] = 0
-        tiles.loc[tiles["id"].isin(test_ids), "is_test_set"] = 1
 
     def get_matching_tiles(self, descriptor_name: str, descriptor_objectives: Dict):
         """Query the matching ids. Output has schema SELECTION_SCHEMA."""
@@ -196,7 +184,7 @@ class BaseSequential:
         self._set_test_set_flag_inplace(tiles=sampled_others)
         return sampled_others[SELECTION_SCHEMA]
 
-    def get_sorted_criteria(self):
+    def _get_sorted_criteria(self):
         """Sort criteria target_min_samples_proportion.
 
         TODO: DECISION: This may be removed if having control over order is better...
@@ -208,6 +196,18 @@ class BaseSequential:
                 key=lambda item: item[1]["target_min_samples_proportion"],
             )
         )
+
+    def _set_test_set_flag_inplace(self, tiles: gpd.GeoDataFrame):
+        """(Inplace) Set a binary flag for the test tiles, selected randomly or by slab."""
+        num_samples_test_set = floor(self.cf["frac_test_set"] * len(tiles))
+
+        if self.cf["use_spatial_sampling"]:
+            test_ids = sample_spatially_by_slab(tiles, num_samples_test_set)["id"]
+        else:
+            test_ids = sample_randomly(tiles, num_samples_test_set)["id"]
+
+        tiles["is_test_set"] = 0
+        tiles.loc[tiles["id"].isin(test_ids), "is_test_set"] = 1
 
 
 if __name__ == "__main__":

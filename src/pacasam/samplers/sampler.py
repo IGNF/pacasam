@@ -11,6 +11,8 @@ TILE_INFO = ["id", "dalle_id", "geometry"]
 
 
 # TODO: check if we can convert a child class into a sister class to simplify compositions in triple.py
+# TODO: check if we really need to keep the geometry for tile_info, or if we can have something simpler
+
 class Sampler:
     def __init__(self, connector: Connector, optimization_config: Dict, log: logging.Logger = logging.getLogger(__name__)):
         self.name: str = self.__class__.__name__

@@ -11,7 +11,6 @@ use_spatial_sampling: true  # True : sampling itératif par dalle, avec une bonn
 # Par défaut les critères sont "x > 0", mais une condition where peut être utiliser pour
 # gérer les booléens, faire des combinaisons, etc.
 
-# TODO: rename as the sequential_kwargs
 targets_for_TargettedSampler:
 
 # name_of_criteria_for_printing:
@@ -19,7 +18,6 @@ targets_for_TargettedSampler:
 #   target_min_samples_proportion: float. Target minimal proportion in the final dataset.
 
   presence_de_pylones:
-    # TODO: replace bool by integer in LiPaC to avoid this special case.
     where: "presence_de_pylones = true"
     target_min_samples_proportion: 0.02
 

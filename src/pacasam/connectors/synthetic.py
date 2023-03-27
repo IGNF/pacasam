@@ -7,6 +7,7 @@ import geopandas as gpd
 from shapely.geometry import box
 
 from pacasam.connectors.connector import Connector
+from pacasam.describe import NB_POINTS_COLNAMES
 
 log = logging.getLogger(__name__)
 
@@ -14,21 +15,6 @@ SLAB_SIZE = 1000
 TILE_SIZE = 50
 
 NUM_TILES_BY_SLAB = int((SLAB_SIZE / TILE_SIZE) ** 2)
-
-# for diverse sampling. Could be a kwarg of the connector...
-
-NB_POINTS_COLNAMES = [
-    "nb_points_sol",
-    "nb_points_bati",
-    "nb_points_non_classes",
-    "nb_points_vegetation_basse",
-    "nb_points_vegetation_moyenne",
-    "nb_points_vegetation_haute",
-    # "nb_points_vegetation",
-    # "nb_points_pont",
-    # "nb_points_eau",
-    # "nb_points_sursol_perenne",
-]
 
 
 class SyntheticConnector(Connector):

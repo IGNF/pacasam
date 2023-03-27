@@ -6,6 +6,7 @@ import geopandas as gpd
 directory = Path(__file__).resolve().parent.parent
 sys.path.append(str(directory))
 from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_optimization_config, setup_custom_logger
+from pacasam.describe import make_all_graphs
 
 log = setup_custom_logger()
 
@@ -42,15 +43,13 @@ def main():
     # Perform sampling
     selection: gpd.GeoDataFrame = sampler.get_tiles()
     gdf = connector.extract(selection)
-    gdf.to_file(outdir / f"{sampler.name}-{connector.name}-extract.gpkg")
+    gpkg_path = outdir / f"{sampler.name}-{connector.name}-extract.gpkg"
+    gdf.to_file(gpkg_path)
 
-    # Describe sampling with statistics
-    #     # TODO: abstract this in another kind of stat object (perhaps in utils.py)
-    bools = gdf.select_dtypes(include=np.number) > 0
-    desc = bools.mean(numeric_only=True)
-    desc.name = "prop_above_zero"
-    desc.index.name = "attribute_name"
-    desc.to_csv(outdir / f"{sampler.name}-stats_of_extract.csv", sep=";", index=True)
+    # make some html files
+    output_path = outdir / "dataviz/"
+    output_path.mkdir(parents=True, exist_ok=True)
+    make_all_graphs(gpkg_path=gpkg_path, output_path=output_path)
 
 
 if __name__ == "__main__":

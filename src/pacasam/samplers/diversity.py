@@ -59,6 +59,7 @@ class DiversitySampler(Sampler):
         # Farthest Point Sampling
         # Set indices to a range to be sure that np indices = pandas indices.
         extract = extract.reset_index(drop=True)
+        # TODO: process by chunk if needed, after a sampling. Then resample again with FPS.
         diverse_idx = fps(arr=extract.loc[:, nb_points_cols].values, num_to_sample=num_to_sample)
         diverse = extract.loc[diverse_idx, TILE_INFO]
 

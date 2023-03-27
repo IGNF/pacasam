@@ -105,17 +105,18 @@ python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.y
 
 
 # Panini - évolutions souhaitées pour la base LiPaC
-- Passer les booléens en int pour faciliter opérations ">0". (cf. https://stackoverflow.com/a/1465432/8086033)
+<!-- - Passer les booléens en int pour faciliter opérations ">0". (cf. https://stackoverflow.com/a/1465432/8086033) -->
 - Enumerable des noms de classes en français --> pas forcément nécessaire, plutôt de la doc.
 - correction de "nb_points_artefats" -> nb_points_artefacts
+- Enlever nb_points_bati_incertains.
 - Documentation des noms de variables et de leur définition (altitude, dénivelés) dans un xslx (Databook)
 - Gestion des valeurs manquantes à la création (e.g. dénivelé=NaN)
-- Dans zones d'eau, sans point sol, le dénivelé vaut -18446744073709551616. Passer à NULL ? Quelles conséquences sur les requêtes ensuite ?
+- Dans zones d'eau, sans point sol, le dénivelé vaut -18446744073709551616. Passer à 0. 
 - Indexation spatiale de la base, et rajout des descripteurs directement avec une unique requête SQL.
-- Nom complet des fichiers LAS dans le Store vers la base smb://store.ign.fr/store-lidarhd/production/reception/QO/donnees_classees/livraison10p/Livraison_20230116/02_SemisClasse
+- Nom complet des fichiers LAS dans le Store vers la base smb://store.ign.fr/store-lidarhd/production/reception/QO/donnees_classees/livraison10p/Livraison_20230116/02_SemisClasse --> remonter a moins jusqu'à réception, à partir du nom du bloc, voire à "production".
 - Table Blocs sans géométrie ?
 - Backup de Lipac:  pg_dump dbname > outfile
-- Colonnes spécifiant la redondance avec jeux de données pré-existants : 151proto, 201eval, Annecy. Fournir les emprises en format standard.
+- Table spécifiant la redondance avec jeux de données pré-existants : 151proto, 201evalmanuel, 68evalauto, Annecy. Fournir les emprises en format standard.
 - Ref sur les ORMS : https://stackoverflow.com/a/56992364/8086033
 
 

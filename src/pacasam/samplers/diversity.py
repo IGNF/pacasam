@@ -15,6 +15,7 @@ class DiversitySampler(Sampler):
         We use a high number of quantiles so that signal is preserved between elements with close values.
         With q=50, we get for 4 classes 50**4 potential bins. Tests show on 100k tiles that most (>99%) are unique, so
         FPS will have the signal it requires to sample.
+        # TODO: check the behavior of QuantileTransform : no need fo q=50 if signal remains withing bins.
 
         NB: Rare classes are already targeted spatially via sequential sampling. Adding them here might give them a high weight...
         but may be done.

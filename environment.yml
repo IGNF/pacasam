@@ -3,6 +3,7 @@
 name: pacasam
 channels:
   - conda-forge
+  - plotly
 dependencies:
   - python==3.9.*
   - pip
@@ -20,6 +21,10 @@ dependencies:
   - s3fs
   - geopandas
 
-  - jupyterlab # better jupyter notebooks
   - numpy
-  # - scikit-learn
+  - jupyterlab>=3 # better jupyter notebooks
+  - plotly
+  - jupyter-dash 
+  - ipywidgets>=7.6
+  - pip:
+    - black[jupyter]

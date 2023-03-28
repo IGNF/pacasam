@@ -49,7 +49,6 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/
 <details>
 <summary><h2>Usage</h2></summary>
 
-## Usage
 ### Mettre en place l'environnement virtual conda:
 ```bash
 conda install mamba --yes -n base -c conda-forge

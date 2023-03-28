@@ -42,7 +42,7 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/
 - Sur la dalle suivante, le `DiversitySampler` (violet) se concentre sur les panneaux solaires au sud-est. Cet exemple illustre la capacité de ce sampler à identifier des scènes atypiques pour les inclures dans le jeu de données.
 - Les zones de bâti sont couverte par trois patches choisis par le `TargettedSampler` (jaune), dont une de test (quadrillage).
 - Au sein d'une seule dalle, le choix du `CompletionSampler` se fait de façon aléatoire, ce qui sélectionne des zones plus naturelles et forestières (marron). 
-![](img/TripleSampler-example-0955_6336.png)
+![](img/TripleSampler-example-0954_6338-by-sampler.png)
 
 </details>
 

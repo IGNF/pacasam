@@ -1,7 +1,7 @@
 # copy of https://github.com/IGNF/panini/blob/main/connector.py
 
 import logging
-from typing import Generator, Optional
+from typing import Generator, Iterable, Optional
 import pandas as pd
 import geopandas as gpd
 
@@ -54,7 +54,7 @@ class LiPaCConnector(Connector):
         gdf = geometrie_to_geometry_col(gdf)
         return gdf
 
-    def request_all_other_tiles(self, exclude_ids: pd.Series):
+    def request_all_other_tiles(self, exclude_ids: Iterable):
         """Requests all tiles. Should work for both synthetic and Lipac."""
         all_tiles = self.request_tiles_by_condition(where="true")
         return all_tiles[~all_tiles["id"].isin(exclude_ids)]

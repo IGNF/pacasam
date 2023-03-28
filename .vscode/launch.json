@@ -16,16 +16,14 @@
             ]
         },
         {
-            "name": "Run main (Diversity+Synthetic)",
+            "name": "Run main (Completion+Lipac)",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--config_file=configs/TripleSampler-Synthetic.yml",
-                "--connector_class=SyntheticConnector",
-                "--sampler_class=DiversitySampler",
+                "--sampler_class=CompletionSampler",
             ]
         },
         {

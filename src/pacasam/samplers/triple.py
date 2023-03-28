@@ -31,7 +31,7 @@ class TripleSampler(Sampler):
         # Complete the dataset with the other tiles
         num_tiles_to_complete = self.cf["num_tiles_in_sampled_dataset"] - len(selection)
         cs = CompletionSampler(connector=self.connector, optimization_config=self.cf, log=self.log)
-        others = cs.get_tiles(current_selection=selection, num_to_sample=num_tiles_to_complete)
+        others = cs.get_tiles(current_selection_ids=selection["id"], num_to_sample=num_tiles_to_complete)
         selection = pd.concat([selection, others])
 
         return selection

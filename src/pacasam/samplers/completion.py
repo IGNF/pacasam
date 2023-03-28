@@ -1,3 +1,4 @@
+from typing import Iterable
 import geopandas as gpd
 
 from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
@@ -7,8 +8,14 @@ from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 class CompletionSampler(Sampler):
     """A sampling to complete a dataset, excluding a current selection by their ids."""
 
-    def get_tiles(self, current_selection: gpd.GeoDataFrame, num_to_sample: int) -> gpd.GeoDataFrame:
-        others = self.connector.request_all_other_tiles(exclude_ids=current_selection["id"])
+    def get_tiles(self, **kwargs) -> gpd.GeoDataFrame:
+        current_selection_ids: Iterable = kwargs.get(
+            "current_selection_ids", set()
+        )
+        num_to_sample: int = kwargs.get(
+            "num_to_sample", self.cf["num_tiles_in_sampled_dataset"]
+        )
+        others = self.connector.request_all_other_tiles(exclude_ids=current_selection_ids)
         if self.cf["use_spatial_sampling"]:
             sampled_others = sample_spatially_by_slab(others, num_to_sample)
         else:

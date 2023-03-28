@@ -1,4 +1,5 @@
 import logging
+from typing import Iterable
 import pandas as pd
 import geopandas as gpd
 
@@ -22,7 +23,7 @@ class Connector:
         """Requests tiles matching conditions. Output schema: [id, dalle_id, geometry]"""
         raise NotImplementedError()
 
-    def request_all_other_tiles(self, exclude: pd.Series):
+    def request_all_other_tiles(self, exclude_ids: Iterable):
         """Requests all tiles except the ones whose id is in exclude."""
         raise NotImplementedError()
 

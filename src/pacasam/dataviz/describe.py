@@ -107,66 +107,75 @@ def make_scatter_matrix_classes(df, norm=None, hide_zeros=True):
     return fig
 
 
-def make_all_graphs(gpkg_path: Path, output_path: Path):
+HTML_PLOTS_PLACEHOLDER = "{{next_div}}"
+
+
+def make_all_graphs_and_a_report(gpkg_path: Path, output_path: Path):
+    # Load the HTML template
+    with open("./src/pacasam/dataviz/sampling_dataviz_template.html", "r") as f:
+        template = f.read()
+    template = template.replace("{{sampling_gpkg_path}}", str(gpkg_path))
+
+    def add_viz(template: str, viz_name: str):
+        with open(output_path / f"{viz_name}.html", "r") as f:
+            plot_html = f.read()
+        template = template.replace(HTML_PLOTS_PLACEHOLDER, plot_html + "\n" + HTML_PLOTS_PLACEHOLDER)
+        return template
+
     df: pd.DataFrame = gpd.read_file(gpkg_path)
 
     # TODO: change is_test_set to be a str from its creation on.
     df["Split"] = df["is_test_set"].apply(lambda flag: "Test" if flag else "Train")
-    fig_class_hist, df_bool_classes = make_class_histogram(df)
-    fig_class_hist.write_html(output_path / "classes_histogram.html")
-    fig_class_hist.write_image(output_path / "classes_histogram.svg")
 
+    viz_name = "classes_histogram"
+    fig_class_hist, df_bool_classes = make_class_histogram(df)
+    fig_class_hist.write_html(output_path / f"{viz_name}.html")
+    fig_class_hist.write_image(output_path / f"{viz_name}.svg")
+    template = add_viz(template, viz_name)
     # TODO: consolidation could be done at extract time to have a cleaner output
 
+    viz_name = "descriptors_histogram"
     df["nb_points_eau_heq_500"] = df["nb_points_eau"] > 500
     df["nb_points_bati_heq_500"] = df["nb_points_bati"] > 500
     bool_desc_cols = ["nb_points_eau_heq_500", "nb_points_bati_heq_500"]
     # Make sure that the column is considered
     bool_desc_cols += [column for column in df if column.startswith(PREFIX_BOOL_DESCRIPTOR)]
     fig_bool_desc, df_bool_descriptors = make_boolean_descriptor_histogram(df, bool_desc_cols)
-    fig_bool_desc.write_html(output_path / "descriptors_histogram.html")
-    fig_bool_desc.write_image(output_path / "descriptors_histogram.svg")
+    fig_bool_desc.write_html(output_path / f"{viz_name}.html")
+    fig_bool_desc.write_image(output_path / f"{viz_name}.svg")
+    template = add_viz(template, viz_name)
+
     fig_class_hist_nb_points = make_class_histograms(df)
     for colname, fig in zip(NB_POINTS_COLNAMES, fig_class_hist_nb_points):
-        fig.write_html(output_path / f"distribution-{colname}.html")
-        fig.write_image(output_path / f"distribution-{colname}.svg")
+        viz_name = f"distribution-{colname}"
+        fig.write_html(output_path / f"{viz_name}.html")
+        fig.write_image(output_path / f"{viz_name}.svg")
+        template = add_viz(template, viz_name)
 
+    viz_name = "scatter_matrix-nonorm"
     fig_scatter_matrix = make_scatter_matrix_classes(df, norm=None)
+    fig_scatter_matrix.write_html(output_path / f"{viz_name}.html")
+    fig_scatter_matrix.write_image(output_path / f"{viz_name}.svg")
+    template = add_viz(template, viz_name)
+
+    viz_name = "scatter_matrix-standardnorm"
     fig_scatter_matrix_standard = make_scatter_matrix_classes(df, norm="Standardization")
+    fig_scatter_matrix_standard.write_html(output_path / f"{viz_name}.html")
+    fig_scatter_matrix_standard.write_image(output_path / f"{viz_name}.svg")
+    template = add_viz(template, viz_name)
+
+    viz_name = "scatter_matrix-quantilenorm"
     fig_scatter_matrix_quantile = make_scatter_matrix_classes(df, norm="Quantilization")
+    fig_scatter_matrix_quantile.write_html(output_path / f"{viz_name}.html")
+    fig_scatter_matrix_quantile.write_image(output_path / f"{viz_name}.svg")
+    template = add_viz(template, viz_name)
 
-    fig_scatter_matrix.write_html(output_path / "scatter_matrix-nonorm.html")
-    fig_scatter_matrix.write_image(output_path / "scatter_matrix-nonorm.svg")
-    fig_scatter_matrix_standard.write_html(output_path / "scatter_matrix-standardnorm.html")
-    fig_scatter_matrix_standard.write_image(output_path / "scatter_matrix-standardnorm.svg")
-    fig_scatter_matrix_quantile.write_html(output_path / "scatter_matrix-quantilenorm.html")
-    fig_scatter_matrix_quantile.write_image(output_path / "scatter_matrix-quantilenorm.svg")
-
-    first_plot_url = str((output_path / "descriptors_histogram.html").resolve())
     # cf. https://medium.com/analytics-vidhya/how-to-export-a-plotly-chart-as-html-3b5df568df4a
-    html_string = (
-        """
-            <html>
-                <head>
-                    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-                    <style>body{ margin:0 100; background:whitesmoke; }</style>
-                </head>
-                <body>
-                    <h1>Dataviz d'un échantillonnage via pacasam</h1>
-            """
-        f"<!-- *** Fichier visualizé : {str(gpkg_path)} *** --->"
-        f"""
-                Histogramme de classes:
-                <iframe width="100%" height="300" frameborder="0" seamless="seamless" scrolling="no" src="{output_path / 'classes_histogram.html'}"</iframe>
-                # Histogrammes de classes:
-                # <iframe width="100%" height="300" frameborder="0" seamless="seamless" scrolling="no" src="{first_plot_url}"</iframe>
-        """
-        """
-                </body>
-            </html>
-    """
-    )
 
-    f = open(f'{output_path / "all.html"}', "w")
-    f.write(html_string)
-    f.close()
+    # Fill in
+
+    # Write the final report to a file
+    # TODO: add a timestamp.
+    template = template.replace(HTML_PLOTS_PLACEHOLDER, "")
+    with open(output_path / "pacasam-sampling-dataviz.html", "w") as f:
+        f.write(template)

@@ -7,7 +7,7 @@ import geopandas as gpd
 from shapely.geometry import box
 
 from pacasam.connectors.connector import Connector
-from pacasam.describe import NB_POINTS_COLNAMES
+from pacasam.dataviz.describe import NB_POINTS_COLNAMES
 
 log = logging.getLogger(__name__)
 

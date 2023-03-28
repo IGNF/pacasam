@@ -6,7 +6,7 @@ import geopandas as gpd
 directory = Path(__file__).resolve().parent.parent
 sys.path.append(str(directory))
 from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_optimization_config, setup_custom_logger
-from pacasam.describe import make_all_graphs
+from pacasam.dataviz.describe import make_all_graphs_and_a_report
 
 log = setup_custom_logger()
 
@@ -49,7 +49,7 @@ def main():
     # make some html files
     output_path = outdir / "dataviz/"
     output_path.mkdir(parents=True, exist_ok=True)
-    make_all_graphs(gpkg_path=gpkg_path, output_path=output_path)
+    make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
 
 
 if __name__ == "__main__":

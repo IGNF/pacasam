@@ -78,7 +78,7 @@ class LiPaCConnector(Connector):
                     on="id",
                 )
             extract += [chunk]
-        extract = pd.concat(extract)
+        extract: gpd.GeoDataFrame = pd.concat(extract)
         extract = geometrie_to_geometry_col(extract)
         extract = extract.set_crs(self.lambert_93_crs)
         return extract

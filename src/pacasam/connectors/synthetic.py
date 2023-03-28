@@ -8,6 +8,7 @@ from shapely.geometry import box
 
 from pacasam.connectors.connector import Connector
 from pacasam.dataviz.describe import NB_POINTS_COLNAMES
+from pacasam.samplers.sampler import TILE_INFO
 
 log = logging.getLogger(__name__)
 
@@ -51,10 +52,10 @@ class SyntheticConnector(Connector):
         For instance: query = 'C0 > 0'.
         Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html
         """
-        return self.synthetic_df.query(where)[["id", "geometry", "dalle_id"]]
+        return self.synthetic_df.query(where)[TILE_INFO]
 
     def request_all_other_tiles(self, exclude_ids: Iterable):
-        """Requests all tiles. Should work for both synthetic and Lipac."""
+        """Requests all other tiles."""
         all_tiles = self.request_tiles_by_condition(where="id")
         return all_tiles[~all_tiles["id"].isin(exclude_ids)]
 

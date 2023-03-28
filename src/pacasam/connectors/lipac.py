@@ -9,6 +9,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
 from pacasam.connectors.connector import Connector
+from pacasam.samplers.sampler import TILE_INFO, TILE_INFO_SQL
 
 log = logging.getLogger(__name__)
 
@@ -48,14 +49,14 @@ class LiPaCConnector(Connector):
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
     def request_tiles_by_condition(self, where: str) -> gpd.GeoDataFrame:
-        query = text(f'Select "id", "dalle_id", "geometrie" FROM "vignette" WHERE {where}')
+        query = text(f'Select {TILE_INFO_SQL}, geometrie FROM "vignette" WHERE {where}')
         chunks: Generator = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS)
         gdf = pd.concat(chunks)
-        gdf = geometrie_to_geometry_col(gdf)
-        return gdf
+        # gdf = geometrie_to_geometry_col(gdf)
+        return gdf[TILE_INFO]
 
     def request_all_other_tiles(self, exclude_ids: Iterable):
-        """Requests all tiles. Should work for both synthetic and Lipac."""
+        """Requests all other tiles."""
         all_tiles = self.request_tiles_by_condition(where="true")
         return all_tiles[~all_tiles["id"].isin(exclude_ids)]
 

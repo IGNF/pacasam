@@ -21,6 +21,7 @@ class CompletionSampler(Sampler):
         else:
             sampled_others = sample_randomly(others, num_to_sample)
         self.log.info(f"Completing with {num_to_sample} samples.")
+        
         self._set_test_set_flag_inplace(tiles=sampled_others)
         sampled_others["sampler"] = self.name
         return sampled_others[SELECTION_SCHEMA]

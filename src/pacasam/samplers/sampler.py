@@ -7,11 +7,9 @@ from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
 from pacasam.connectors.connector import Connector
 
 SELECTION_SCHEMA = ["id", "is_test_set", "sampler"]
-TILE_INFO = ["id", "dalle_id", "geometry"]
-
-
-# TODO: check if we can convert a child class into a sister class to simplify compositions in triple.py
-# TODO: check if we really need to keep the geometry for tile_info, or if we can have something simpler
+TILE_INFO = ["id", "dalle_id"]
+# need the geometrie for sql requests.
+TILE_INFO_SQL = '"' + '", "'.join(TILE_INFO + ["geometrie"]) + '"'
 
 
 class Sampler:

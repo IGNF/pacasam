@@ -37,7 +37,7 @@ def make_class_histogram(df):
 def make_boolean_descriptor_histogram(df, bool_descriptors_cols: List[str]):
     df_bool = df[["Split"] + bool_descriptors_cols].copy()
     df_bool["all"] = 1
-    df_bool = df_bool.groupby("Split")[["total"] + bool_descriptors_cols].sum().transpose().sort_values(by="Train", ascending=True)
+    df_bool = df_bool.groupby("Split")[["all"] + bool_descriptors_cols].sum().transpose().sort_values(by="Train", ascending=True)
     fig = px.bar(
         df_bool,
         color="Split",

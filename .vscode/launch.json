@@ -5,6 +5,17 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run main (Diversity+Lipac)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampler_class=DiversitySampler",
+            ]
+        },
+        {
             "name": "Run main (Diversity+Synthetic)",
             "type": "python",
             "request": "launch",

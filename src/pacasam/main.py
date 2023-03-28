@@ -46,9 +46,7 @@ def main():
     gpkg_path = outdir / f"{sampler.name}-{connector.name}-extract.gpkg"
     gdf.to_file(gpkg_path)
 
-    # make some html files
     output_path = outdir / "dataviz/"
-    output_path.mkdir(parents=True, exist_ok=True)
     make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
 
 

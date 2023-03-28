@@ -49,7 +49,7 @@ class LiPaCConnector(Connector):
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
     def request_tiles_by_condition(self, where: str) -> gpd.GeoDataFrame:
-        query = text(f'Select {TILE_INFO_SQL}, geometrie FROM "vignette" WHERE {where}')
+        query = text(f'Select {TILE_INFO_SQL} FROM "vignette" WHERE {where}')
         chunks: Generator = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS)
         gdf = pd.concat(chunks)
         # gdf = geometrie_to_geometry_col(gdf)
@@ -61,7 +61,7 @@ class LiPaCConnector(Connector):
         return all_tiles[~all_tiles["id"].isin(exclude_ids)]
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
-        """Extract using ids. If selection is None, select everything. selection contains id + new columns like is_test_set."""
+        """Extract using ids. If selection is None, select everything."""
         # TODO: add a extract_all function to have clearer separation.
         extract = []
         query = text('Select * FROM "vignette"')

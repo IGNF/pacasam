@@ -6,7 +6,7 @@ import geopandas as gpd
 from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
 from pacasam.connectors.connector import Connector
 
-SELECTION_SCHEMA = ["id", "is_test_set", "sampler"]
+SELECTION_SCHEMA = ["id", "split", "sampler"]
 TILE_INFO = ["id", "dalle_id"]
 # need the geometrie for sql requests.
 TILE_INFO_SQL = '"' + '", "'.join(TILE_INFO + ["geometrie"]) + '"'
@@ -39,5 +39,5 @@ class Sampler:
         else:
             test_ids = sample_randomly(tiles, num_samples_test_set)["id"]
 
-        tiles["is_test_set"] = 0
-        tiles.loc[tiles["id"].isin(test_ids), "is_test_set"] = 1
+        tiles["split"] = "train"
+        tiles.loc[tiles["id"].isin(test_ids), "split"] = "test"

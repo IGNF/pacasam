@@ -10,7 +10,6 @@ class TripleSampler(Sampler):
     """Succession of Targetted, Diversity, and Completion sampling."""
 
     def get_tiles(self) -> pd.Series:
-        """Define a dataset as a GeoDataFrame with fields [id, is_test_set]."""
         ts = TargettedSampler(connector=self.connector, optimization_config=self.cf, log=self.log)
         targetted = ts.get_tiles()
         targetted = ts.drop_duplicates_by_id_and_log_sampling_attrition(targetted)

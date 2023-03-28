@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run main (Diversity+Synthetic)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_file=configs/TripleSampler-Synthetic.yml",
+                "--connector_class=SyntheticConnector",
+                "--sampler_class=DiversitySampler",
+            ]
+        },
+        {
             "name": "Run main (Triple+LiPaC)",
             "type": "python",
             "request": "launch",
@@ -20,7 +33,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--config_file=configs/synthetic-optimization-config.yml",
+                "--config_file=configs/TripleSampler-Synthetic.yml",
                 "--connector_class=SyntheticConnector",
                 "--sampler_class=TripleSampler",
             ]

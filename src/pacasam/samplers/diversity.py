@@ -7,7 +7,8 @@ from pacasam.samplers.sampler import SELECTION_SCHEMA, TILE_INFO, Sampler
 
 
 class DiversitySampler(Sampler):
-    def get_tiles(self, num_to_sample: int):
+    # TODO: remove this arg to use as standalone...
+    def get_tiles(self):
         """A sampling to cover the space of class histogram in order to include the diverse data scenes.
         Class histogram is a proxy for scene content. E.g. highly present building, quasi absent vegetation --> urban scene?
         We need to normalize each count of points to map them to class-specific notions from "absent" to "highly present".
@@ -24,13 +25,18 @@ class DiversitySampler(Sampler):
         # Could be done with an API similar to the sequential one, with a num_quantile arg. Each
         # col can be obtained via a sql query (sum included),
         """
-
         # TODO: extract could be done in a single big sql formula, by chunk.
         # TODO: clean out the comments once this is stable
-        extract = self.connector.extract(selection=None)
         # WARNING: Here we put everything in memory
         # TODO: Might not scale with more than 100k tiles ! we need to do this by chunk...
         # Or test with synthetic data, but we would need to create the fields.
+        extract = self.connector.extract(selection=None)
+        if "targets_for_DiversitySampler" in self.cf:
+            # Either we defined a target number of patches via another sampler.
+            num_to_sample: int = self.cf["targets_for_DiversitySampler"]["num_diverse_to_sample"]
+        else:
+            # Or we use diversity in a standalone mode
+            num_to_sample = self.cf["num_tiles_in_sampled_dataset"]
 
         vegetation_columns = ["nb_points_vegetation_basse", "nb_points_vegetation_moyenne", "nb_points_vegetation_haute"]
         # Therefore we do not need to sample them by the amount of points.
@@ -70,4 +76,5 @@ class DiversitySampler(Sampler):
         diverse["is_test_set"] = 0
         diverse.loc[diverse.index[:num_samples_test_set], ("is_test_set",)] = 1
 
+        diverse["sampler"] = self.name
         return diverse[SELECTION_SCHEMA]

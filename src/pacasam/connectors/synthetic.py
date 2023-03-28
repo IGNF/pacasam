@@ -30,7 +30,7 @@ class SyntheticConnector(Connector):
             np.random.shuffle(d)
             data += [d]
         for _ in NB_POINTS_COLNAMES:
-            d = np.random.randint(low=0, high=30_000, size=(db_size,)).astype(int)
+            d = np.random.randint(low=0, high=60_000, size=(db_size,)).astype(int)
             data += [d]
         data = np.column_stack(data)
         self.descriptor_names = [f"C{idx}" for idx in range(len(binary_descriptors_prevalence))] + NB_POINTS_COLNAMES

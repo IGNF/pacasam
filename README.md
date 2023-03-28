@@ -8,8 +8,9 @@ Classes d'objets:
     - `SyntheticConnector`: création d'un GeoDataFrame synthétique, composé de tuiles répartie dans une grille arbitraire, pour effectuer des tests rapidements.
 - Sampler: objet de sampling, qui interrogent le connector suivant la configuration pour sélectionne des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
     - `TargettedSampler`: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale.
-    - `DiversitySampler`: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. nombre de points de certaines classes, quantilisés)
-    - `CompletionSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
+    - `DiversitySampler`: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. nombre de points de certaines classes, quantilisés).
+    - `CompletionSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale. Ne peut être utilisé seul pour le moment.
+    - `TripleSampler`: succession des trois précédents samplers.
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/{SamplingName}-extract.gpkg`, contenant l'échantillon de tuiles avec l'ensemble des champs de la base de données initiales, ainsi qu'une variable `is_test_set` définissant le jeu de test pour un futur apprentissage.
 
@@ -30,11 +31,11 @@ mamba env create -f environment.yml
 ### Lancer un échantillonnage "tripl" sur des données synthétiques :
 ```python
 conda activate pacasam
-python ./src/pacasam/main.py --config_file=configs/synthetic-optimization-config.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
+python ./src/pacasam/main.py --config_file=configs/TripleSampler-Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
 ```
 ### Lancer un échantillonnage sur des données réelles - base PostGIS LiPaC:
 
-1. Créer sa configuration dans le dossier `configs` (cf. `configs/lipac-optimization-config.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
+1. Créer sa configuration dans le dossier `configs` (cf. `configs/TripleSampler-Lipac.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
 
 2. Créer un fichier `credentials.ini` avec la section `[LIDAR_PATCH_CATALOGUE]` et les champs `DB_LOGIN` et `DB_PASSWORD`, contenant les éléments de connexion à au catalogue de patch (droits en lecture nécessaires.)
 
@@ -45,7 +46,7 @@ python ./src/pacasam/main.py --help
 4. Lancer le sampling.
 ```python
 conda activate pacasam
-python ./src/pacasam/main.py --config_file=lipac/synthetic-optimization-config.yml
+python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
 ```
 
 # Roadmap

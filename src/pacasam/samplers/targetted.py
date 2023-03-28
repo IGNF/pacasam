@@ -42,7 +42,7 @@ class TargettedSampler(Sampler):
             )
 
         self._set_test_set_flag_inplace(tiles=tiles)
-
+        tiles["sampler"] = self.name
         return tiles[SELECTION_SCHEMA]
 
     def _get_sorted_criteria(self, criteria: Dict):

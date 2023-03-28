@@ -5,8 +5,8 @@ import sys
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
 from pacasam.samplers.completion import CompletionSampler
+from pacasam.samplers.diversity import DiversitySampler
 from pacasam.samplers.targetted import TargettedSampler
-
 from pacasam.samplers.triple import TripleSampler
 
 
@@ -49,7 +49,7 @@ SAMPLERS_LIBRARY = {
     "TripleSampler": TripleSampler,
     "TargettedSampler": TargettedSampler,
     "CompletionSampler": CompletionSampler,
-    "TargettedSampler": TargettedSampler,
+    "DiversitySampler": DiversitySampler,
 }
 
 CONNECTORS_LIBRARY = {"LiPaCConnector": load_LiPaCConnector, "SyntheticConnector": SyntheticConnector}

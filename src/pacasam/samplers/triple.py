@@ -23,8 +23,9 @@ class TripleSampler(Sampler):
                 "\n This means the SUM OF CONSTRAINTS IS ABOVE 100%. Consider reducing constraints, and having a bigger dataset."
             )
             return targetted
+        self.cf["targets_for_DiversitySampler"] = dict(num_diverse_to_sample=num_diverse_to_sample)
         ds = DiversitySampler(connector=self.connector, optimization_config=self.cf, log=self.log)
-        diverse = ds.get_tiles(num_to_sample=num_diverse_to_sample)
+        diverse = ds.get_tiles()
         diverse = ds.drop_duplicates_by_id_and_log_sampling_attrition(diverse)
         selection = pd.concat([targetted, diverse])
 

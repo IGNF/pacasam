@@ -14,8 +14,8 @@ log = setup_custom_logger()
 import argparse
 
 parser = argparse.ArgumentParser()
-POSSIBLE_CONFIGS = ["configs/lipac-optimization-config.yml", "configs/synthetic-optimization-config.yml"]
-parser.add_argument("--config_file", default="configs/lipac-optimization-config.yml", choices=POSSIBLE_CONFIGS)
+POSSIBLE_CONFIGS = ["configs/TripleSampler-Lipac.yml", "configs/TripleSampler-Synthetic.yml"]
+parser.add_argument("--config_file", default="configs/TripleSampler-Lipac.yml", choices=POSSIBLE_CONFIGS)
 
 parser.add_argument("--connector_class", default="LiPaCConnector", choices=CONNECTORS_LIBRARY.keys())
 parser.add_argument("--sampler_class", default="TripleSampler", choices=SAMPLERS_LIBRARY.keys())
@@ -24,7 +24,7 @@ config_file = Path()
 
 
 def main():
-    # config_file = Path("configs/lipac-optimization-config.yml")
+    # config_file = Path("configs/TripleSampler-Lipac.yml")
     args = parser.parse_args()
     conf = load_optimization_config(args.config_file)
 

@@ -72,7 +72,7 @@ python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
         - [X] Requêter si indicateur binaire est vrai (Nota: doit on faire aussi si faux ?)
         - [X] Compléter aléatoirement avec d'autres ids
         - [X] Faire un extract sur la base des ids.
-        - [ ] Requête spatialement distribuée. Si large base (> seuil), travailler par chunk, puis redistribution eventuelle dans la sélection.
+        - [X] Requête spatialement distribuée. Si large base (> seuil), travailler par chunk, puis redistribution eventuelle dans la sélection.
     - [X] Connecteur "données synthétique"
     - [X] Connecteur LiPaC
     - [ ] (**Si nécessaire face à volume de données important**) Connecteur données synthétiques pourrait dériver d'un connecteur "GeoDataFrame" avec des opérations de query. Et alors on peut envisager que toute la base Lipac soit mise en mémoire, pour des traitements plus rapides.
@@ -92,7 +92,7 @@ python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
     - [] Makefile
         - [ ] Test données synthétiques
         - [ ] Vider les sorties
-        - [ ] Test de tous les samplers pour comparaison, sur la données LiPaC.
+        - [ ] Test de tous les samplers pour comparaison, sur la données LiPaC --> avec pytest... mais pas immédiat.
 - Optimisation :
     - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
     - [X] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.
@@ -108,9 +108,8 @@ python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
 
 
 # Panini - évolutions souhaitées pour la base LiPaC
-<!-- - Passer les booléens en int pour faciliter opérations ">0". (cf. https://stackoverflow.com/a/1465432/8086033) -->
-- Enumerable des noms de classes en français --> pas forcément nécessaire, plutôt de la doc.
 - correction de "nb_points_artefats" -> nb_points_artefacts
+- Nomenclature avec préfixe défini pour les descripteurs booléens (p.ex. "presence_" ou "FLAG_")
 - Enlever nb_points_bati_incertains.
 - Documentation des noms de variables et de leur définition (altitude, dénivelés) dans un xslx (Databook)
 - Gestion des valeurs manquantes à la création (e.g. dénivelé=NaN)

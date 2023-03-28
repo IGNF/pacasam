@@ -1,28 +1,51 @@
-# pacasam
+# Patch Catalogue Sampling
+
+Méthodes de sous-échantillonnage (*sampling*) de patches de données pour la constitution d'un jeu de données d'apprentissages.
+Les données à dispositions auront été décrites au préalable dans un "Catalogue", incluant leur emprise géographique, les histogrammes des classes de chaque patch, et des indicateurs de présences de certains objets d'intérêt (p.ex. éoliennes). Ces métadonnées serviront à échantillonner les données suivant plusieurs heuristiques, avec les cadres conceptuels suivant :
+
+- *Uncertainty Sampling* : on souhaite sélectionner des types de scènes sur lesquelles nos modèles de segmentation sémantique actuels (cf. [myria3d](https://github.com/IGNF/myria3d)) manquent parfois de confiance, voire font des erreurs (p.ex. grands bâtiments).
+- *Rebalancing* : on souhaite atteindre de bonnes performances sur certaines classes rares (p.ex. eau, sursol pérenne) et objets rares (p.ex. éoliennes, lignes à haute tension, chemin ferroviaires), en augmentant leur prévalence dans le jeu de données.
+- *Diversity Sampling* : on souhaite couvrir la grande diversité des scènes possibles. On posera les deux hypothèses suivantes : 
+    - (1) Autocorrélation spatiale des scènes : des scènes proches ont tendance à se ressembler plus que des scènes lointaines ; 
+    - (2) Les histogrammes des classes de chaque patch sont un proxy (imparfait) de la nature des scènes : sous condition d'une bonne normalisation, on doit pouvoir définir une mesure de distance des scènes à partir des histogrammes de classes, et de là favoriser la diversité des scènes.
 
 ## Contenu
 
-Classes d'objets:
-- Connector: interface de connexion aux données: 
+Un sampling se lance au moyen d'un fichier de configuration, et via les objets suivants:
+
+- **Connector**: interface de connexion aux données: 
     - `LiPaCConnector`: connexion et requêtage de la base LiPaC (Lidar Patch Catalogue).
     - `SyntheticConnector`: création d'un GeoDataFrame synthétique, composé de tuiles répartie dans une grille arbitraire, pour effectuer des tests rapidements.
-- Sampler: objet de sampling, qui interrogent le connector suivant la configuration pour sélectionne des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
+- **Sampler**: interrogent les objets `Connector` suivant la configuration pour sélectionne des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
     - `TargettedSampler`: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale. NB: Si usage de ce sampler en isolation, la taille du jeu de données en sortie n'est pas garantie.
     - `DiversitySampler`: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. nombre de points de certaines classes, quantilisés).
     - `CompletionSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
-    - `TripleSampler`: Succession des trois précédents samplers, commençant par TargettedSampled, suivi des deux autres à proportion égale des patches à sampler restant.
+    - `TripleSampler`: Succession des trois précédents samplers, commençant par `TargettedSampled`, suivi des deux autres à proportion égale.
 
 `TripleSampler` fait un compromis entre les différentes approches. Les autres samplers de base peuvent être utilisés en isolation également.
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/{SamplingName}-extract.gpkg`, contenant l'échantillon de tuiles avec l'ensemble des champs de la base de données initiales, ainsi qu'une variable `split` définissant le jeu de test pour un futur apprentissage.
 
-**Illustration d'une sortie de TripleSampler dans QGis**:
-- Les tuiles du jeu de test sont colorées en rouge.
-- Les zones de bâti et d'eau sont bien représentées, conformément à la configuration utilisée à date.
-- Bonne répartition spatiale globale, grâce à la stratification par dalle utilisée par le `TargettedSampler` et le `CompletionSampler`.
-- Bonne répartition spatiale entre jeu d'apprentissage et de test (pour la même raison). Cette répartition s'effectue pour chaque critère dans `TargettedSampler`.
-![](img/TripleSampler-example.png)
+
+<details>
+<summary><h3>Illustration QGIS - Echantillonnage par TripleSampler</h3></summary>
+- A partir de 40 dalles voisines, c'est-à-dire 16000 patches en tout, 893 patches sont échantillonnées, soit environ 6% de la zone.
+- Chaque sampler apporte sa contribution (`TargettedSampler`: jaune, `DiversitySampler`: violet, `CompletionSampler`: marron)
+- Les zones de bâti et d'eau sont bien représentées, conformément à la configuration de l'échantillonnage.
+- Les tuiles du jeu de test sont quadrillées (zoom nécessaire). Elles sont réparties de façon homogène dans le jeu de données, et ce pour chaque sampler :
+    - Spatiallement `TargettedSampler`: on couvre un maximum de dalles pour chaque critère.
+    - Par les histogrammes de classes pour le `DiversitySampler`, afin que le jeu de test couvre le même espace des histogrammes que le jeu de train, mais simplement de façon moins dense.
+    - Spatiallement pour le `CompletionSampler`: on couvre un maximum de dalles.
+
+![](img/TripleSampler-example-by-sampler.png)
+
+- Sur la dalle suivante, le `DiversitySampler` (violet) se concentre sur les panneaux solaires au sud-est. Cet exemple illustre la capacité de ce sampler à identifier des scènes atypiques pour les inclures dans le jeu de données.
+- Les zones de bâti sont couverte par trois patches choisis par le `TargettedSampler` (jaune), dont une de test (quadrillage).
+- Au sein d'une seule dalle, le choix du `CompletionSampler` se fait de façon aléatoire, ce qui sélectionne des zones plus naturelles et forestières (marron). 
 ![](img/TripleSampler-example-0955_6336.png)
+
+</details>
+
 
 ## Usage
 ### Mettre en place l'environnement virtual conda:
@@ -51,7 +74,8 @@ conda activate pacasam
 python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
 ```
 
-# Roadmap
+<details>
+<summary><h2>Roadmap de développement</h2></summary>
 
 ### Points critiques : 
 - Passage à l'échelle : mise en mémoire de la base dans son intégralité pourra poser soucis. Tests avec données synthétiques et 4M de tuiles (et <10 variables) passent sur machine locale avec 7.2GB de RAM. Projection : 250km²=50MB actuellement (avec une vingtaine de descripteurs dans la base) -> 10000km²=4GB. Certaines opérations peuvent se faire par morceaux avec une perte minimale de qualité du sampling : sampling par dalle ; sampling par FPS.
@@ -126,3 +150,5 @@ python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
 - Tets de charge sur données synthétique, pour étudier la répartition d'après différents sampling (aléatoire ou spatiel éventuel).
     --> Passe en mémoire (id et géométrie au moins). Sampling possible. A voir pour l'extract avec tous les attributs, besoin probable de chunker la données requêtée pour sauvegarde. 
     --> Analyse des KNN - 288m attendu de distance moyenne). Problème de projection! A refaire en enregistrant le geopackage avec cf. [QGIS doc](https://docs.qgis.org/3.22/en/docs/user_manual/processing_algs/qgis/vectoranalysis.html#nearest-neighbour-analysis). Largeur des polygones fake n'est pas bonne. peut-être lié à enregistrement / projection... (35m de coté dans qgis).
+
+</details>

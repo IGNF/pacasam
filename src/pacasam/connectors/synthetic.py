@@ -52,7 +52,7 @@ class SyntheticConnector(Connector):
         For instance: query = 'C0 > 0'.
         Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html
         """
-        return self.synthetic_df.query(where)[TILE_INFO]
+        return self.synthetic_df.query(where)   
 
     def request_all_other_tiles(self, exclude_ids: Iterable):
         """Requests all other tiles."""

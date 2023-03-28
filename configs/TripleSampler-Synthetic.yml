@@ -25,6 +25,23 @@ targets_for_TargettedSampler:
     where: "(C3 > 0) & (C4 > 0)"
     target_min_samples_proportion: 0.1
 
+DiversitySampler: 
+  # standardization or quantilization
+  normalization: standardization
+  # n_quantiles is only used if normalization=quantilization
+  n_quantiles: 20 
+  columns:
+    - nb_points_non_classes
+    - nb_points_sol
+    - nb_points_vegetation_basse
+    - nb_points_vegetation_moyenne
+    - nb_points_vegetation_haute
+    - nb_points_bati
+    - nb_points_pont
+    - nb_points_eau
+    - nb_points_sursol_perenne
+
+
 # kwargs for synthetic connector
 connector_kwargs:
   # Lower

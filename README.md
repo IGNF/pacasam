@@ -29,6 +29,7 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/
 
 <details>
 <summary><h3>Illustration QGIS - Echantillonnage par TripleSampler</h3></summary>
+
 - A partir de 40 dalles voisines, c'est-à-dire 16000 patches en tout, 893 patches sont échantillonnées, soit environ 6% de la zone.
 - Chaque sampler apporte sa contribution (`TargettedSampler`: jaune, `DiversitySampler`: violet, `CompletionSampler`: marron)
 - Les zones de bâti et d'eau sont bien représentées, conformément à la configuration de l'échantillonnage.
@@ -42,6 +43,7 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/
 - Sur la dalle suivante, le `DiversitySampler` (violet) se concentre sur les panneaux solaires au sud-est. Cet exemple illustre la capacité de ce sampler à identifier des scènes atypiques pour les inclures dans le jeu de données.
 - Les zones de bâti sont couverte par trois patches choisis par le `TargettedSampler` (jaune), dont une de test (quadrillage).
 - Au sein d'une seule dalle, le choix du `CompletionSampler` se fait de façon aléatoire, ce qui sélectionne des zones plus naturelles et forestières (marron). 
+
 ![](img/TripleSampler-example-0954_6338-by-sampler.png)
 
 </details>

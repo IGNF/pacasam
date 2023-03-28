@@ -7,12 +7,8 @@ channels:
 dependencies:
   - python==3.9.*
   - pip
-
-  # --------- linters --------- #
-  - pre-commit # hooks for applying linters on commit
-  - black # code formatting
-  - isort # import sorting
-  - flake8 # code analysis
+  - jupyterlab>=3 # better jupyter notebooks
+  - numpy
   # --------- BDs & Geo --------- #
   - sqlalchemy==2.0.4
   - psycopg2
@@ -20,11 +16,15 @@ dependencies:
   - geoalchemy2
   - s3fs
   - geopandas
-
-  - numpy
-  - jupyterlab>=3 # better jupyter notebooks
+  # --------- Dataviz --------- #
   - plotly
   - jupyter-dash 
   - ipywidgets>=7.6
+  - python-kaleido
+  # --------- linters --------- #
+  - pre-commit # hooks for applying linters on commit
+  - black # code formatting
+  - isort # import sorting
+  - flake8 # code analysis
   - pip:
     - black[jupyter]

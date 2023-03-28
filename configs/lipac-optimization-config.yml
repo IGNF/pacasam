@@ -4,6 +4,7 @@
 # Objectif de taille du dataset final.
 num_tiles_in_sampled_dataset: 5000  # 250km² = 100000 samples, 20x reduction.
 frac_test_set:  0.1 # float
+# TODO: set spatial sampling as the default method.
 use_spatial_sampling: true  # True : sampling itératif par dalle, avec une bonne couverture de la donnée.
 
 
@@ -37,10 +38,10 @@ targets_for_TargettedSampler:
     target_min_samples_proportion: 0.05
 
   nb_points_sursol_perenne:
-    target_min_samples_proportion: 0.02
+    target_min_samples_proportion: 0.05
 
   nb_points_pont:
-    target_min_samples_proportion: 0.02
+    target_min_samples_proportion: 0.05
 
   nb_points_bati_heq_500:
     where: "nb_points_bati >= 500"
@@ -50,23 +51,23 @@ targets_for_TargettedSampler:
 
   foret_via_vegetation_haute_heq_20000_points:
     where: "nb_points_vegetation_haute >= 20000"
-    target_min_samples_proportion: 0.05
+    target_min_samples_proportion: 0.02
 
   fort_devers_denivele_entre_30_45:
     where: "(denivele >= 30) AND (denivele < 45)"
-    target_min_samples_proportion: 0.02
+    target_min_samples_proportion: 0.04
 
   fort_devers_denivele_heq_45:
     where: "denivele >= 45"
-    target_min_samples_proportion: 0.02
+    target_min_samples_proportion: 0.04
 
   points_haute_altitude_entre_1000m_2000m:
     where: "(altitude >= 1000) AND (altitude < 2000)"
-    target_min_samples_proportion: 0.05
+    target_min_samples_proportion: 0.04
 
   points_haute_altitude_heq_2000m:
     where: "altitude > 2000"
-    target_min_samples_proportion: 0.05
+    target_min_samples_proportion: 0.04
 
 # Here are the criteria for which we would want a different behavior : diversity sampling ? Make buckets and sample from them?
 # FPS would not work when all the buckets are already selected.

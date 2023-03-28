@@ -36,8 +36,16 @@ def make_class_histogram(df):
 
 def make_boolean_descriptor_histogram(df, bool_descriptors_cols: List[str]):
     df_bool = df[["Split"] + bool_descriptors_cols].copy()
-    df_bool = df_bool.groupby("Split")[bool_descriptors_cols].sum().transpose().sort_values(by="Train", ascending=True)
-    fig = px.bar(df_bool, color="Split", barmode="relative", text_auto=True, title="Nombres de patches", orientation="h")
+    df_bool["all"] = 1
+    df_bool = df_bool.groupby("Split")[["total"] + bool_descriptors_cols].sum().transpose().sort_values(by="Train", ascending=True)
+    fig = px.bar(
+        df_bool,
+        color="Split",
+        barmode="relative",
+        text_auto=True,
+        title=f"Nombres de patches concernées - TOTAL={len(df)}",
+        orientation="h",
+    )
     return fig, df_bool
 
 
@@ -106,6 +114,7 @@ def make_all_graphs(gpkg_path: Path, output_path: Path):
     df["Split"] = df["is_test_set"].apply(lambda flag: "Test" if flag else "Train")
     fig_class_hist, df_bool_classes = make_class_histogram(df)
     fig_class_hist.write_html(output_path / "classes_histogram.html")
+    fig_class_hist.write_image(output_path / "classes_histogram.svg")
 
     # TODO: consolidation could be done at extract time to have a cleaner output
 
@@ -116,17 +125,22 @@ def make_all_graphs(gpkg_path: Path, output_path: Path):
     bool_desc_cols += [column for column in df if column.startswith(PREFIX_BOOL_DESCRIPTOR)]
     fig_bool_desc, df_bool_descriptors = make_boolean_descriptor_histogram(df, bool_desc_cols)
     fig_bool_desc.write_html(output_path / "descriptors_histogram.html")
+    fig_bool_desc.write_image(output_path / "descriptors_histogram.svg")
     fig_class_hist_nb_points = make_class_histograms(df)
     for colname, fig in zip(NB_POINTS_COLNAMES, fig_class_hist_nb_points):
         fig.write_html(output_path / f"distribution-{colname}.html")
+        fig.write_image(output_path / f"distribution-{colname}.svg")
 
     fig_scatter_matrix = make_scatter_matrix_classes(df, norm=None)
     fig_scatter_matrix_standard = make_scatter_matrix_classes(df, norm="Standardization")
     fig_scatter_matrix_quantile = make_scatter_matrix_classes(df, norm="Quantilization")
 
     fig_scatter_matrix.write_html(output_path / "scatter_matrix-nonorm.html")
+    fig_scatter_matrix.write_image(output_path / "scatter_matrix-nonorm.svg")
     fig_scatter_matrix_standard.write_html(output_path / "scatter_matrix-standardnorm.html")
+    fig_scatter_matrix_standard.write_image(output_path / "scatter_matrix-standardnorm.svg")
     fig_scatter_matrix_quantile.write_html(output_path / "scatter_matrix-quantilenorm.html")
+    fig_scatter_matrix_quantile.write_image(output_path / "scatter_matrix-quantilenorm.svg")
 
     first_plot_url = str((output_path / "descriptors_histogram.html").resolve())
     # cf. https://medium.com/analytics-vidhya/how-to-export-a-plotly-chart-as-html-3b5df568df4a

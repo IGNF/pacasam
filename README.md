@@ -46,6 +46,8 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/
 
 </details>
 
+<details>
+<summary><h2>Usage</h2></summary>
 
 ## Usage
 ### Mettre en place l'environnement virtual conda:
@@ -73,6 +75,8 @@ python ./src/pacasam/main.py --help
 conda activate pacasam
 python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
 ```
+</details>
+
 
 <details>
 <summary><h2>Roadmap de développement</h2></summary>

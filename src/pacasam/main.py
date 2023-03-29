@@ -14,16 +14,18 @@ log = setup_custom_logger()
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--config_file", default="configs/TripleSampler-Lipac.yml")
+parser.add_argument("--config_file", default="configs/Lipac.yml")
 
 parser.add_argument("--connector_class", default="LiPaCConnector", choices=CONNECTORS_LIBRARY.keys())
 parser.add_argument("--sampler_class", default="TripleSampler", choices=SAMPLERS_LIBRARY.keys())
+parser.add_argument("--output_path", default="outputs/sampling")
+parser.add_argument("--make_html_report", default="Y", choices=["Y","N"], type=lambda choice: choice == "Y")
 
 config_file = Path()
 
 
 def main():
-    # config_file = Path("configs/TripleSampler-Lipac.yml")
+    # config_file = Path("configs/Lipac.yml")
     args = parser.parse_args()
     conf = load_optimization_config(args.config_file)
 
@@ -45,10 +47,10 @@ def main():
     gpkg_path = outdir / f"{sampler.name}-{connector.name}-extract.gpkg"
     log.info(f"Saving N={len(gdf)} patches into {gpkg_path}...")
     gdf.to_file(gpkg_path)
-
-    output_path = outdir / f"{sampler.name}-{connector.name}-dataviz/"
-    log.info(f"Saving html report under {output_path}")
-    make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
+    if args.make_html_report:
+        output_path = outdir / f"{sampler.name}-{connector.name}-dataviz/"
+        log.info(f"Saving html report under {output_path}")
+        make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
 
 
 if __name__ == "__main__":

@@ -59,11 +59,11 @@ mamba env create -f environment.yml
 ### Lancer un échantillonnage "triple" sur des données synthétiques :
 ```python
 conda activate pacasam
-python ./src/pacasam/main.py --config_file=configs/TripleSampler-Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
+python ./src/pacasam/main.py --config_file=configs/Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
 ```
 ### Lancer un échantillonnage sur des données réelles - base PostGIS LiPaC:
 
-1. Créer sa configuration dans le dossier `configs` (cf. `configs/TripleSampler-Lipac.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
+1. Créer sa configuration dans le dossier `configs` (cf. `configs/Lipac.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
 
 2. Créer un fichier `credentials.ini` avec la section `[LIDAR_PATCH_CATALOGUE]` et les champs `DB_LOGIN` et `DB_PASSWORD`, contenant les éléments de connexion à au catalogue de patch (droits en lecture nécessaires.)
 
@@ -74,7 +74,7 @@ python ./src/pacasam/main.py --help
 4. Lancer le sampling.
 ```python
 conda activate pacasam
-python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
+python ./src/pacasam/main.py --config_file=lipac/Synthetic.yml
 ```
 </details>
 

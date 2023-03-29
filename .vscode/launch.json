@@ -20,7 +20,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--config_file=configs/TripleSampler-Synthetic.yml",
+                "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
                 "--sampler_class=TripleSampler",
             ]
@@ -44,7 +44,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--config_file=configs/TripleSampler-Synthetic.yml",
+                "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
                 "--sampler_class=DiversitySampler",
             ]
@@ -68,7 +68,21 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
+                "--connector_class=SyntheticConnector",
                 "--sampler_class=SpatialSampler",
+            ]
+        },
+        {
+            "name": "Run main (Random+Synthetic)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_file=configs/Synthetic.yml",
+                "--connector_class=SyntheticConnector",
+                "--sampler_class=RandomSampler",
             ]
         },
     ]

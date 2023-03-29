@@ -18,7 +18,6 @@ class Connector:
     def __init__(self):
         self.name: str = self.__class__.__name__
 
-    # TODO: add abstract decorator
     def request_tiles_by_condition(self, where: str) -> gpd.GeoDataFrame:
         """Requests tiles matching conditions. Output schema: [id, dalle_id, geometry]"""
         raise NotImplementedError()

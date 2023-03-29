@@ -33,11 +33,6 @@ class Sampler:
     def _set_test_set_flag_inplace(self, tiles: gpd.GeoDataFrame):
         """(Inplace) Set a binary flag for the test tiles, selected randomly or by slab."""
         num_samples_test_set = floor(self.cf["frac_test_set"] * len(tiles))
-
-        if self.cf["use_spatial_sampling"]:
-            test_ids = sample_spatially_by_slab(tiles, num_samples_test_set)["id"]
-        else:
-            test_ids = sample_randomly(tiles, num_samples_test_set)["id"]
-
+        test_ids = sample_spatially_by_slab(tiles, num_samples_test_set)["id"]
         tiles["split"] = "train"
         tiles.loc[tiles["id"].isin(test_ids), "split"] = "test"

@@ -19,7 +19,7 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
 - **Sampler**: interrogent les objets `Connector` suivant la configuration pour sélectionne des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
     - `TargettedSampler`: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale. NB: Si usage de ce sampler en isolation, la taille du jeu de données en sortie n'est pas garantie.
     - `DiversitySampler`: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. nombre de points de certaines classes, quantilisés).
-    - `CompletionSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
+    - `SpatialSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
     - `TripleSampler`: Succession des trois précédents samplers, commençant par `TargettedSampled`, suivi des deux autres à proportion égale.
 
 `TripleSampler` fait un compromis entre les différentes approches. Les autres samplers de base peuvent être utilisés en isolation également.
@@ -31,18 +31,18 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/
 <summary><h3>Illustration QGIS - Echantillonnage par TripleSampler</h3></summary>
 
 - A partir de 40 dalles voisines, c'est-à-dire 16000 patches en tout, 893 patches sont échantillonnées, soit environ 6% de la zone.
-- Chaque sampler apporte sa contribution (`TargettedSampler`: jaune, `DiversitySampler`: violet, `CompletionSampler`: marron)
+- Chaque sampler apporte sa contribution (`TargettedSampler`: jaune, `DiversitySampler`: violet, `SpatialSampler`: marron)
 - Les zones de bâti et d'eau sont bien représentées, conformément à la configuration de l'échantillonnage.
 - Les tuiles du jeu de test sont quadrillées (zoom nécessaire). Elles sont réparties de façon homogène dans le jeu de données, et ce pour chaque sampler :
     - Spatiallement `TargettedSampler`: on couvre un maximum de dalles pour chaque critère.
     - Par les histogrammes de classes pour le `DiversitySampler`, afin que le jeu de test couvre le même espace des histogrammes que le jeu de train, mais simplement de façon moins dense.
-    - Spatiallement pour le `CompletionSampler`: on couvre un maximum de dalles.
+    - Spatiallement pour le `SpatialSampler`: on couvre un maximum de dalles.
 
 ![](img/TripleSampler-example-by-sampler.png)
 
 - Sur la dalle suivante, le `DiversitySampler` (violet) se concentre sur les panneaux solaires au sud-est. Cet exemple illustre la capacité de ce sampler à identifier des scènes atypiques pour les inclures dans le jeu de données.
 - Les zones de bâti sont couverte par trois patches choisis par le `TargettedSampler` (jaune), dont une de test (quadrillage).
-- Au sein d'une seule dalle, le choix du `CompletionSampler` se fait de façon aléatoire, ce qui sélectionne des zones plus naturelles et forestières (marron). 
+- Au sein d'une seule dalle, le choix du `SpatialSampler` se fait de façon aléatoire, ce qui sélectionne des zones plus naturelles et forestières (marron). 
 
 ![](img/TripleSampler-example-0954_6338-by-sampler.png)
 

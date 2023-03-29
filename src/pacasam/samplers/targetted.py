@@ -24,10 +24,7 @@ class TargettedSampler(Sampler):
         num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * self.cf["num_tiles_in_sampled_dataset"])
         num_samples_to_sample = min(num_samples_target, len(tiles))  # cannot take more that there is.
 
-        if self.cf["use_spatial_sampling"]:
-            tiles = sample_spatially_by_slab(tiles, num_samples_to_sample)
-        else:
-            tiles = sample_randomly(tiles, num_samples_to_sample)
+        tiles = sample_spatially_by_slab(tiles, num_samples_to_sample)
 
         self.log.info(
             f"Sampling: {descriptor_name} "

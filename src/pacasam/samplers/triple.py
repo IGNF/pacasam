@@ -1,7 +1,7 @@
 import pandas as pd
 
 from pacasam.samplers.sampler import Sampler
-from pacasam.samplers.completion import CompletionSampler
+from pacasam.samplers.completion import SpatialSampler
 from pacasam.samplers.diversity import DiversitySampler
 from pacasam.samplers.targetted import TargettedSampler
 
@@ -29,7 +29,7 @@ class TripleSampler(Sampler):
 
         # Complete the dataset with the other tiles
         num_tiles_to_complete = self.cf["num_tiles_in_sampled_dataset"] - len(selection)
-        cs = CompletionSampler(connector=self.connector, optimization_config=self.cf, log=self.log)
+        cs = SpatialSampler(connector=self.connector, optimization_config=self.cf, log=self.log)
         others = cs.get_tiles(current_selection_ids=selection["id"], num_to_sample=num_tiles_to_complete)
         selection = pd.concat([selection, others])
 

@@ -44,11 +44,6 @@ DiversitySampler:
     - nb_points_eau
     - nb_points_sursol_perenne
 
-
-
-# Sampling itératif par dalle, avec une bonne couverture de la donnée (TargettedSampler & COmpletionSampler).
-# TODO: set spatial sampling as the default method.
-use_spatial_sampling: true  
 targets_for_TargettedSampler:
 # Syntaxe : PANDAS QUERY (i.e. "colonne == valeur" par exemple (double égal)).
 # cf. https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#indexing-query

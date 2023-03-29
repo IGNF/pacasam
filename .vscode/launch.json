@@ -57,7 +57,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--sampler_class=CompletionSampler",
+                "--sampler_class=SpatialSampler",
             ]
         },
         {
@@ -68,7 +68,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--sampler_class=CompletionSampler",
+                "--sampler_class=SpatialSampler",
             ]
         },
     ]

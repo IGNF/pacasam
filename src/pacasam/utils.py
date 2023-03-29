@@ -4,8 +4,9 @@ import yaml
 import sys
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
-from pacasam.samplers.completion import CompletionSampler
+from pacasam.samplers.completion import SpatialSampler
 from pacasam.samplers.diversity import DiversitySampler
+from pacasam.samplers.random import RandomSampler
 from pacasam.samplers.targetted import TargettedSampler
 from pacasam.samplers.triple import TripleSampler
 
@@ -48,8 +49,9 @@ def load_optimization_config(config_file):
 SAMPLERS_LIBRARY = {
     "TripleSampler": TripleSampler,
     "TargettedSampler": TargettedSampler,
-    "CompletionSampler": CompletionSampler,
     "DiversitySampler": DiversitySampler,
+    "SpatialSampler": SpatialSampler,
+    "RandomSampler": RandomSampler,
 }
 
 CONNECTORS_LIBRARY = {

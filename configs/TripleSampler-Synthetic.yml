@@ -1,12 +1,9 @@
 # Configuration pour l'optimisation de l'échantillonnage de patches.
-# Idées : liste de champs de la BD et des critères permettant de les requêter. Directement sous la forme SQL si plus simple :
-# Nota: on pourra passer à un format csv si plus simple à inspecter / manipuler, mais attention à la forme des requêtes sql!
 
-num_tiles_in_sampled_dataset: 500
 frac_test_set:  0.1 # float 
-use_spatial_sampling: true
 
 # 75km² = 30k tiles. 1% of 75km² = 300 tiles.
+num_tiles_in_sampled_dataset: 500
 # num_tiles_in_sampled_dataset: 30000
 
 targets_for_TargettedSampler:

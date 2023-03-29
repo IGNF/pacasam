@@ -37,7 +37,7 @@ class LiPaCOfflineConnector(Connector):
         self.db_name = db_lipac_name
         self.create_session(password)
         self.db_size = self.session.execute(text('SELECT count(*) FROM "vignette"')).all()[0][0]
-        self.df = self.extract_all(extraction_sql_query)
+        self.df = self.extract_all_samples_as_a_df(extraction_sql_query)
 
     def create_session(self, password):
         url = URL.create(

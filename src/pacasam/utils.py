@@ -3,6 +3,7 @@ from pathlib import Path
 import yaml
 import sys
 from pacasam.connectors.lipac import load_LiPaCConnector
+from pacasam.connectors.lipac_offline import load_LiPaCOfflineConnector
 from pacasam.connectors.synthetic import SyntheticConnector
 from pacasam.samplers.completion import CompletionSampler
 from pacasam.samplers.diversity import DiversitySampler
@@ -52,4 +53,8 @@ SAMPLERS_LIBRARY = {
     "DiversitySampler": DiversitySampler,
 }
 
-CONNECTORS_LIBRARY = {"LiPaCConnector": load_LiPaCConnector, "SyntheticConnector": SyntheticConnector}
+CONNECTORS_LIBRARY = {
+    "LiPaCConnector": load_LiPaCConnector,
+    "LiPaCOfflineConnector": load_LiPaCOfflineConnector,
+    "SyntheticConnector": SyntheticConnector,
+}

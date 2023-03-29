@@ -27,7 +27,7 @@ class Sampler:
         n_sampled = len(gdf)
         gdf = gdf.drop_duplicates(subset=["id"])
         n_distinct = len(gdf)
-        self.log.info(f"{self.name}: {n_sampled} ids --> {n_distinct} distinct ids (redundancy ratio: {n_distinct/n_sampled:.03f}) ")
+        self.log.info(f"{self.name}: {n_sampled} ids --> {n_distinct} distinct ids (uniqueness ratio: {n_distinct/n_sampled:.03f}) ")
         return gdf
 
     def _set_test_set_flag_inplace(self, tiles: gpd.GeoDataFrame):

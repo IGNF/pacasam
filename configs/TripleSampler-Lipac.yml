@@ -4,30 +4,50 @@
 # Objectif de taille du dataset final.
 num_tiles_in_sampled_dataset: 5000  # 250km² = 100000 samples, 20x reduction.
 frac_test_set:  0.1 # float
-# TODO: set spatial sampling as the default method.
-use_spatial_sampling: true  # True : sampling itératif par dalle, avec une bonne couverture de la donnée.
 
 
+# kwargs for lipac database
+connector_kwargs:
+  db_lipac_host: "lidar-ia-vm3"
+  db_lipac_name: "lidar_patch_catalogue"
+  # extraction_sql_query -> croisement unique des tables de Lipac. Accès aux informations nécessaires.
+  # extraction_sql_query: 'SELECT * FROM "vignette"'
+  extraction_sql_query: 'SELECT "id", "geometrie", "dalle_id", "nb_points_total",
+                        "nb_points_sol", "nb_points_bati",
+                        "nb_points_vegetation_basse", "nb_points_vegetation_moyenne",
+                        "nb_points_vegetation_haute", "nb_points_pont", "nb_points_eau",
+                        "nb_points_sursol_perenne", "nb_points_non_classes",
+                        "nb_points_artefacts", "denivele", "altitude",
+                        "presence_de_surfaces_d_eau", "presence_de_pylones",
+                        "presence_d_autoroutes"
+                        FROM vignette'
 # Critères de constitution du dataset.
 # Par défaut les critères sont "x > 0", mais une condition where peut être utiliser pour
+# TODO: remove the default of  x > 0, to nudge towards higher thresholds for targettedsampler.
 # gérer les booléens, faire des combinaisons, etc.
 
+
+# Sampling itératif par dalle, avec une bonne couverture de la donnée (TargettedSampler & COmpletionSampler).
+# TODO: set spatial sampling as the default method.
+use_spatial_sampling: true  
 targets_for_TargettedSampler:
+# Syntaxe : PANDAS QUERY (i.e. "colonne == valeur" par exemple (double égal)).
+# cf. https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#indexing-query
 
 # name_of_criteria_for_printing:
 #   where: Optional. Sql query to filter on table vignette in LiPaC. If absent, "x > 0" is used.
 #   target_min_samples_proportion: float. Target minimal proportion in the final dataset.
 
   presence_de_pylones:
-    where: "presence_de_pylones = true"
+    where: "presence_de_pylones"
     target_min_samples_proportion: 0.02
 
   presence_de_surfaces_d_eau:
-    where: "presence_de_surfaces_d_eau = true"
+    where: "presence_de_surfaces_d_eau"
     target_min_samples_proportion: 0.02
 
   presence_d_autoroutes:
-    where: "presence_d_autoroutes = true"
+    where: "presence_d_autoroutes"
     target_min_samples_proportion: 0.02
 
   # TODO: Decide if we should we enforce the config order instead of sorting elements by freq
@@ -54,7 +74,8 @@ targets_for_TargettedSampler:
     target_min_samples_proportion: 0.02
 
   fort_devers_denivele_entre_30_45:
-    where: "(denivele >= 30) AND (denivele < 45)"
+    # where: "(denivele >= 30) & (denivele < 45)"
+    where: "30 <=denivele < 45"
     target_min_samples_proportion: 0.04
 
   fort_devers_denivele_heq_45:
@@ -62,7 +83,7 @@ targets_for_TargettedSampler:
     target_min_samples_proportion: 0.04
 
   points_haute_altitude_entre_1000m_2000m:
-    where: "(altitude >= 1000) AND (altitude < 2000)"
+    where: "1000 <= altitude < 2000"
     target_min_samples_proportion: 0.04
 
   points_haute_altitude_heq_2000m:
@@ -72,7 +93,7 @@ targets_for_TargettedSampler:
 
 DiversitySampler:
   # Gestion par batch des patches consécutifs via FPS.
-  max_chunk_size_for_fps: 100000
+  max_chunk_size_for_fps: 20000
   # standardization or quantilization
   normalization: standardization
   # n_quantiles is only used if normalization=quantilization
@@ -87,10 +108,3 @@ DiversitySampler:
     - nb_points_pont
     - nb_points_eau
     - nb_points_sursol_perenne
-
-
-# kwargs for lipac database
-connector_kwargs:
-  # db_lipac_host: "localhost"
-  db_lipac_host: "lidar-ia-vm3"
-  db_lipac_name: "lidar_patch_catalogue"

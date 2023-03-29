@@ -1,7 +1,7 @@
 # copy of https://github.com/IGNF/panini/blob/main/connector.py
 
 import logging
-from typing import Generator, Iterable, Optional
+from typing import Any, Generator, Iterable, Optional, Union
 import pandas as pd
 import geopandas as gpd
 
@@ -9,24 +9,27 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
 from pacasam.connectors.connector import Connector
-from pacasam.samplers.sampler import TILE_INFO, TILE_INFO_SQL
+from pacasam.samplers.sampler import TILE_INFO
 
 log = logging.getLogger(__name__)
 
+# TODO: should be a lipac kwargs as well.
 CREDENTIALS_FILE_PATH = "credentials.ini"  # with credentials.
-
 CHUNKSIZE_FOR_POSTGIS_REQUESTS = 100000
 
 
-def geometrie_to_geometry_col(gdf):
+def geometrie_to_geometry_col(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf = gdf.rename(columns={"geometrie": "geometry"}).set_geometry("geometry")
     return gdf
 
 
+# TODO: abstract a GeoDataframeConnector that has everything to wokr on a geopandas, and inherit from it for SuyntheticConnector and LiPaCConnector
 class LiPaCConnector(Connector):
     lambert_93_crs = 2154
 
-    def __init__(self, username: str, password: str, db_lipac_host: str, db_lipac_name: str):
+    def __init__(
+        self, username: str, password: str, db_lipac_host: str, db_lipac_name: str, extraction_sql_query: str = 'SELECT * FROM "vignette"'
+    ):
         super().__init__()
 
         self.username = username
@@ -34,6 +37,7 @@ class LiPaCConnector(Connector):
         self.db_name = db_lipac_name
         self.create_session(password)
         self.db_size = self.session.execute(text('SELECT count(*) FROM "vignette"')).all()[0][0]
+        self.df = self.extract_all_samples_as_a_df(extraction_sql_query)
 
     def create_session(self, password):
         url = URL.create(
@@ -48,39 +52,40 @@ class LiPaCConnector(Connector):
         self.session = scoped_session(sessionmaker())
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
+    def extract_all_samples_as_a_df(self, extraction_sql_query: str) -> gpd.GeoDataFrame:
+        chunks: Generator = gpd.read_postgis(
+            text(extraction_sql_query), self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS
+        )
+        gdf: gpd.GeoDataFrame = pd.concat(chunks)
+        # TODO: DEBUG MODE: test de charge.
+        # x 40 -> 10km².
+        # gdf = pd.concat([gdf.copy() for _ in range(10)])
+        # gdf = pd.concat([gdf.copy() for _ in range(2)])
+        # gdf = pd.concat([gdf.copy() for _ in range(2)])
+        gdf["id"] = range(len(gdf))  # TODO: DEBUG MODE !!!
+        gdf = gdf.set_crs(self.lambert_93_crs)
+        gdf = geometrie_to_geometry_col(gdf)
+        return gdf
+
     def request_tiles_by_condition(self, where: str) -> gpd.GeoDataFrame:
-        query = text(f'Select {TILE_INFO_SQL} FROM "vignette" WHERE {where}')
-        chunks: Generator = gpd.read_postgis(query, self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS)
-        gdf = pd.concat(chunks)
-        # gdf = geometrie_to_geometry_col(gdf)
-        return gdf[TILE_INFO]
+        # dataframe need diff query than sql : use == instead of =,
+        return self.df.query(where)[TILE_INFO]
 
     def request_all_other_tiles(self, exclude_ids: Iterable):
         """Requests all other tiles."""
-        all_tiles = self.request_tiles_by_condition(where="true")
-        return all_tiles[~all_tiles["id"].isin(exclude_ids)]
+        other_tiles = self.df[TILE_INFO]
+        return other_tiles[~other_tiles["id"].isin(exclude_ids)]
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract using ids. If selection is None, select everything."""
-        # TODO: add a extract_all function to have clearer separation.
-        extract = []
-        query = text('Select * FROM "vignette"')
-        for chunk in gpd.read_postgis(
-            query,
-            self.engine.connect(),
-            geom_col="geometrie",
-            chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS,
-        ):
-            if selection is not None:
-                chunk = chunk.merge(
-                    selection,
-                    how="inner",
-                    on="id",
-                )
-            extract += [chunk]
-        extract: gpd.GeoDataFrame = pd.concat(extract)
-        extract = geometrie_to_geometry_col(extract)
-        extract = extract.set_crs(self.lambert_93_crs)
+        if selection is None:
+            return self.df
+
+        extract = self.df.merge(
+            selection,
+            how="inner",
+            on="id",
+        )
         return extract
 
 

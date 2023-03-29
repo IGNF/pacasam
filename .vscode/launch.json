@@ -5,31 +5,6 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run main (Diversity+LiPaCOffline)",
-            "type": "python",
-            "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "args": [
-                "--connector_class=LiPaCOfflineConnector",
-                "--sampler_class=DiversitySampler",
-                "--config_file=configs/TripleSampler-LipacOffline.yml",
-            ]
-        },
-        {
-            "name": "Run main (Triple+LiPaCOffline)",
-            "type": "python",
-            "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
-            "console": "integratedTerminal",
-            "justMyCode": false,
-            "args": [
-                "--connector_class=LiPaCOfflineConnector",
-                "--config_file=configs/TripleSampler-LipacOffline.yml",
-            ]
-        },
-        {
             "name": "Run main (Triple+LiPaC)",
             "type": "python",
             "request": "launch",
@@ -76,6 +51,17 @@
         },
         {
             "name": "Run main (Completion+Lipac)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampler_class=CompletionSampler",
+            ]
+        },
+        {
+            "name": "Run main (Completion+Synthetic)",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",

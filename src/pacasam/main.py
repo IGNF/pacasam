@@ -18,8 +18,8 @@ parser.add_argument("--config_file", default="configs/Lipac.yml")
 
 parser.add_argument("--connector_class", default="LiPaCConnector", choices=CONNECTORS_LIBRARY.keys())
 parser.add_argument("--sampler_class", default="TripleSampler", choices=SAMPLERS_LIBRARY.keys())
-parser.add_argument("--output_path", default="outputs/sampling")
-parser.add_argument("--make_html_report", default="Y", choices=["Y","N"], type=lambda choice: choice == "Y")
+parser.add_argument("--output_path", default="outputs/samplings", type= Path)
+parser.add_argument("--make_html_report", default="Y", choices=["Y","N"], type=lambda choice: choice == "N")
 
 config_file = Path()
 
@@ -38,17 +38,16 @@ def main():
     sampler = sampler_class(connector=connector, optimization_config=conf, log=log)
 
     # Prepare logging
-    outdir = Path(f"outputs/{connector.name}/")
-    set_log_text_handler(log, outdir, log_file_name=sampler.name + ".log")
+    set_log_text_handler(log, args.output_path, log_file_name=sampler.name + ".log")
 
     # Perform sampling
     selection: gpd.GeoDataFrame = sampler.get_tiles()
     gdf = connector.extract(selection)
-    gpkg_path = outdir / f"{sampler.name}-{connector.name}-extract.gpkg"
+    gpkg_path = args.output_path / f"{sampler.name}-{connector.name}-extract.gpkg"
     log.info(f"Saving N={len(gdf)} patches into {gpkg_path}...")
     gdf.to_file(gpkg_path)
     if args.make_html_report:
-        output_path = outdir / f"{sampler.name}-{connector.name}-dataviz/"
+        output_path = args.output_path / f"{sampler.name}-{connector.name}-dataviz/"
         log.info(f"Saving html report under {output_path}")
         make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
 

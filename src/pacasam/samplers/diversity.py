@@ -37,8 +37,7 @@ class DiversitySampler(Sampler):
                 if normalization is set to 'standardization'. Defaults to 50.
             targets (List[str]): The columns considered for patch-to-patch distance in FPS.
             max_chunk_size_for_fps (int): max num of (consecutive) patches to process by FPS. Lower chunks means that we look for diversity in
-            smaller sets of points, thus yielding les diverse points. In particular, lower chunks tend to exclude more rural areas since
-            the most diverse histograms arer primarly found in anthropogenic areas.
+            smaller sets of points, thus yielding a better spatial coverage.
 
         Returns:
             A list of length `num_diverse_to_sample` containing the indices of the sampled points.
@@ -62,7 +61,7 @@ class DiversitySampler(Sampler):
         self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
         df = self.connector.extract(selection=None)
-        df = df
+        df = df.sort_values(by="id")
         df = df[TILE_INFO + self.cols_for_fps]
         df = self.normalize_df(df, self.cols_for_fps)
 

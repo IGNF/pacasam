@@ -72,7 +72,7 @@ targets_for_TargettedSampler:
 
 DiversitySampler:
   # Gestion par batch des patches consécutifs via FPS.
-  max_chunk_size_for_fps: 20000
+  max_chunk_size_for_fps: 100000
   # standardization or quantilization
   normalization: standardization
   # n_quantiles is only used if normalization=quantilization

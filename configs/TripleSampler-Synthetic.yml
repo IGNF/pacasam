@@ -25,7 +25,8 @@ targets_for_TargettedSampler:
     where: "(C3 > 0) & (C4 > 0)"
     target_min_samples_proportion: 0.1
 
-DiversitySampler: 
+DiversitySampler:
+  max_chunk_size_for_fps: 5000
   # standardization or quantilization
   normalization: standardization
   # n_quantiles is only used if normalization=quantilization

@@ -58,24 +58,11 @@ class DiversitySampler(Sampler):
 
         if num_diverse_to_sample is None:
             num_diverse_to_sample = self.cf["num_tiles_in_sampled_dataset"]
-        cols_for_fps = self.cf["DiversitySampler"]["columns"]
+        self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
         df = self.connector.extract(selection=None)
-        df = df[TILE_INFO + cols_for_fps]
-        # 1/2 Set zeros as NaN to ignore them in the quantile transforms.
-        df = df.replace(to_replace=0, value=np.nan)
-
-        normalization = self.cf["DiversitySampler"]["normalization"]
-        if normalization == "standardization":
-            df.loc[:, cols_for_fps] = (df.loc[:, cols_for_fps] - df.loc[:, cols_for_fps].mean()) / df.loc[:, cols_for_fps].std()
-        else:
-            n_quantiles = self.cf["DiversitySampler"]["n_quantiles"]
-            # https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
-            qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, subsample=100_000)
-            df.loc[:, cols_for_fps] = qt.fit_transform(df[cols_for_fps].values)
-
-        # 2/2 Set back zeros where they were.
-        df = df.fillna(0)
+        df = df[TILE_INFO + self.cols_for_fps]
+        df = self.normalize_df(df, self.cols_for_fps)
 
         # Farthest Point Sampling
         # Nice property of FPS: using it on its own output starting from the same
@@ -85,7 +72,7 @@ class DiversitySampler(Sampler):
         # Set indices to a range to be sure that np indices = pandas indices.
         df = df.reset_index(drop=True)
         max_chunk_size = self.cf["DiversitySampler"]["max_chunk_size_for_fps"]
-        # Using
+
         if len(df) > max_chunk_size:
             proportion_to_sample = num_diverse_to_sample / len(df)
 
@@ -94,7 +81,7 @@ class DiversitySampler(Sampler):
             for chunk in self.chunker(df, max_chunk_size):
                 # select in chunk with FPS
                 num_diverse_to_sample_in_chunk = ceil(len(chunk) * proportion_to_sample)
-                idx_in_chunk = fps(arr=chunk.loc[:, cols_for_fps].values, num_to_sample=num_diverse_to_sample_in_chunk)
+                idx_in_chunk = fps(arr=chunk.loc[:, self.cols_for_fps].values, num_to_sample=num_diverse_to_sample_in_chunk)
                 idx_in_df = chunk.index[idx_in_chunk].values
 
                 # add to lists
@@ -108,7 +95,7 @@ class DiversitySampler(Sampler):
             # Warning: Use of loc is only possible because we reset the index earlier.
             diverse = df.loc[diverse_idx, TILE_INFO]
         else:
-            diverse_idx = fps(arr=df.loc[:, cols_for_fps].values, num_to_sample=num_diverse_to_sample)
+            diverse_idx = fps(arr=df.loc[:, self.cols_for_fps].values, num_to_sample=num_diverse_to_sample)
             diverse = df.loc[diverse_idx, TILE_INFO]
 
             num_samples_test_set = floor(self.cf["frac_test_set"] * len(diverse))
@@ -119,6 +106,27 @@ class DiversitySampler(Sampler):
 
         diverse["sampler"] = self.name
         return diverse[SELECTION_SCHEMA]
+
+    def normalize_df(self, df, cols_for_fps):
+        """Normalize columns defining the classes histogram, ignoring zeros values
+
+        Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
+        """
+        # 1/3 Set zeros as NaN to ignore them in the quantile transforms.
+        df = df.replace(to_replace=0, value=np.nan)
+
+        # 2/3 Normalize columns to define a meaningful distance between histogram patches.
+        normalization = self.cf["DiversitySampler"]["normalization"]
+        if normalization == "standardization":
+            df.loc[:, cols_for_fps] = (df.loc[:, cols_for_fps] - df.loc[:, cols_for_fps].mean()) / df.loc[:, cols_for_fps].std()
+        else:
+            n_quantiles = self.cf["DiversitySampler"]["n_quantiles"]
+            qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, subsample=100_000)
+            df.loc[:, cols_for_fps] = qt.fit_transform(df[cols_for_fps].values)
+
+        # 3/3 Set back zeros where they were.
+        df = df.fillna(0)
+        return df
 
     def chunker(self, df, max_chunk_size):
         """Generator for splitting the dataframe."""

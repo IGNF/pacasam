@@ -5,7 +5,6 @@
 num_tiles_in_sampled_dataset: 5000  # 250km² = 100000 samples, 20x reduction.
 frac_test_set:  0.1 # float
 
-
 # kwargs for lipac database
 connector_kwargs:
   db_lipac_host: "lidar-ia-vm3"
@@ -25,6 +24,26 @@ connector_kwargs:
 # Par défaut les critères sont "x > 0", mais une condition where peut être utiliser pour
 # TODO: remove the default of  x > 0, to nudge towards higher thresholds for targettedsampler.
 # gérer les booléens, faire des combinaisons, etc.
+
+
+DiversitySampler:
+  # Gestion par batch des patches consécutifs via FPS.
+  max_chunk_size_for_fps: 20000
+  # standardization or quantilization
+  normalization: standardization
+  # n_quantiles is only used if normalization=quantilization
+  n_quantiles: 20
+  columns:
+    - nb_points_non_classes
+    - nb_points_sol
+    - nb_points_vegetation_basse
+    - nb_points_vegetation_moyenne
+    - nb_points_vegetation_haute
+    - nb_points_bati
+    - nb_points_pont
+    - nb_points_eau
+    - nb_points_sursol_perenne
+
 
 
 # Sampling itératif par dalle, avec une bonne couverture de la donnée (TargettedSampler & COmpletionSampler).
@@ -91,20 +110,3 @@ targets_for_TargettedSampler:
     target_min_samples_proportion: 0.04
 
 
-DiversitySampler:
-  # Gestion par batch des patches consécutifs via FPS.
-  max_chunk_size_for_fps: 20000
-  # standardization or quantilization
-  normalization: standardization
-  # n_quantiles is only used if normalization=quantilization
-  n_quantiles: 20  
-  columns:
-    - nb_points_non_classes
-    - nb_points_sol
-    - nb_points_vegetation_basse
-    - nb_points_vegetation_moyenne
-    - nb_points_vegetation_haute
-    - nb_points_bati
-    - nb_points_pont
-    - nb_points_eau
-    - nb_points_sursol_perenne

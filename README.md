@@ -56,7 +56,7 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/{ConnectorName}/
 conda install mamba --yes -n base -c conda-forge
 mamba env create -f environment.yml
 ```
-### Lancer un échantillonnage "tripl" sur des données synthétiques :
+### Lancer un échantillonnage "triple" sur des données synthétiques :
 ```python
 conda activate pacasam
 python ./src/pacasam/main.py --config_file=configs/TripleSampler-Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
@@ -83,11 +83,11 @@ python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
 <summary><h2>Roadmap de développement</h2></summary>
 
 ### Points critiques : 
-- Passage à l'échelle : mise en mémoire de la base dans son intégralité pourra poser soucis. Tests avec données synthétiques et 4M de tuiles (et <10 variables) passent sur machine locale avec 7.2GB de RAM. Projection : 250km²=50MB actuellement (avec une vingtaine de descripteurs dans la base) -> 10000km²=4GB. Certaines opérations peuvent se faire par morceaux avec une perte minimale de qualité du sampling : sampling par dalle ; sampling par FPS.
+- Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machine locale avec 7.2GB de RAM --> 600MB environ. Le sampling FPS se fait par parties si nécessaires (p.ex. par 100k samples successifs). 
 
-- Possibilité d'ignorer certaines dalles en amont du processus. Par exemple avec des vues SQL, ou mieux : avec une vue temporaire (mais alors -> droits en écriture). Si possible, cela ouvre la possibilité d'appeler un sampler séquentiellement, par chantier par exemple. **Cela peut être une solution pour gérer le passage à l'échelle**. Un chantier = 2500km² -> 1GB (avec de la marge pour doubler, voire tripler le nombre de descripteurs).
-
-- Paramétrisation du DiversitySampling : pour l'instant, hardcodé. La quantilisation par attribut doit pouvoir être contrôlée. Peut-être remise en cause d'une quantilisation qui ne se calcule pas avec la valeur "0".
+- Possibilité d'ignorer certaines dalles en amont du processus : les données de travail s'obtiennent en amont du sampling via le paramètre `extraction_sql_query`. On peut y effectuer le filtre nécessaire. 
+    [ ] permettre de fournir un fichier SQL de consolidation au lieu d'un string. TODO:
+    [ ] Rédiger commande incluant les informations des tables liées (chemin vers fichier LAS pour extraction finale, dalles à exclure...)
 
 ### Tasks
 - Structure :
@@ -104,32 +104,26 @@ python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
         - [X] Requête spatialement distribuée. Si large base (> seuil), travailler par chunk, puis redistribution eventuelle dans la sélection.
     - [X] Connecteur "données synthétique"
     - [X] Connecteur LiPaC
-    - [ ] (**Si nécessaire face à volume de données important**) Connecteur données synthétiques pourrait dériver d'un connecteur "GeoDataFrame" avec des opérations de query. Et alors on peut envisager que toute la base Lipac soit mise en mémoire, pour des traitements plus rapides.
     - [X] *random* completion -> spatial sampling for completion.
 - [X] Prise en main PGADMIN ou BDBeaver pour anticipation des opérations copie+manipulation. Idée de "version de référence" maintenue dont partent des copies / enrichissements, qui se feraient avec des requêtes simples.
 - [X] API unique pour les samplers, dans run.py, avec config en argument.
 - [X] Renommer criteria dans config pour préciser qu'il s'agit de targetted sampling. Le nommer par le nom de la classe !
 - [ ] Possibilité d'un filtre en amont sur la BD. 
-    - [ ] Possibilité de créer une table "vignette_pool" temporaire basée sur ce filtre, et requêter là dessus ?
     - Filtre nb_points > 50. (Mais qu'en est-il de l'eau alors ?...)
     - Filtre sur les chantier, pour exclure ou inclure certains, et créer le **jeu de test de façon exclusive**.
     - (Peut-être mise en mémoire alors de la BD filtrée, avec un connecteur type GeoDataFrame ? (Vérifier que ça scalera). -6> pas très satisfaisant, enlève l'intérêt d'une base "online" facilement inspectable.
-    - Préférer l'option "on fait une copie locale de la BD" sur laquelle on a des droits d'écriture 
-        - Cf. pour faire une copie : https://stackoverflow.com/a/8815010/8086033 ; sinon en click boutont dans PGAdmin en faisant aussi un backup. Mais pas satisfaisant... Voir si on peut contrôler les rôles suffisamment pour autoriser tables temporaires.
-        - https://desertdba.com/what-permissions-are-required-for-temporary-tables/ --> possibilité de créer la base temporaire en amont, et que chaque use puisse la remplir avec "ses" vignettes au moment de la connexion ? Dans ce cas, on doit juste s'assurer que la connexion reste ouverte. A valider avec Marouane ?
-        - Now, the point of this exercise is not so much about the 40 MB space as it is this: by default, any user can consume any tempdb space, limited only by either maximum file size or available drive space. See here ; https://learn.microsoft.com/en-us/sql/relational-databases/databases/tempdb-database?view=sql-server-ver16 ; is this applicable ?
-    - [] Makefile
-        - [ ] Test données synthétiques
-        - [ ] Vider les sorties
-        - [ ] Test de tous les samplers pour comparaison, sur la données LiPaC --> avec pytest... mais pas immédiat.
+- [] Makefile
+    - [ ] Test données synthétiques
+    - [ ] Vider les sorties
+    - [ ] Test de tous les samplers pour comparaison, sur la données LiPaC --> avec pytest... mais pas immédiat.
 - Optimisation :
     - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
     - [X] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.
         On peut envisager une méthode effficae où on attribue un index à chaque patch au sein de chaque dalle, et ensuite on filtre avec un seuil ? Overkill, commencer simple : on devrait sélectionner max 5 patches en conditions réelles. MAIS : les patches ne seront pas optimisés spatialement entre des dalles adjacentes, juste bien répartie par grille. Semble OK.
         - [X] Version "in memory" qui nécessite de charger id et dalle en mémoire.
-    - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
+    - [ ] NTH: Seeds to have a reproductible dataset. Works with postgis as well?
     - [X] Diversity sampling : Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
-        - [ ] Contrôle et paramétrisation des éléments du diversity sampling. En gros, les différents indicators à définir par des requêter sql (si différent du nom de base, cf. targets_for_TargettedSampler). Être capable de faire une unique requete sql pour remplacer l'usage de sampler.extract qui n'est pas prévue pour ça.
+        - [X] Contrôle et paramétrisation des éléments du diversity sampling. En gros, les différents indicators à définir par des requêter sql (si différent du nom de base, cf. targets_for_TargettedSampler). Être capable de faire une unique requete sql pour remplacer l'usage de sampler.extract qui n'est pas prévue pour ça.
     - [ ] Get rid of unused random sampling / simplify its call and remove the if/else clause.
 - Extraction
     - [X] Extract geopackage des métadonnées

@@ -1,5 +1,5 @@
 import numpy as np
-from math import floor
+from math import ceil, floor
 from sklearn.preprocessing import QuantileTransformer
 
 from pacasam.samplers.algos import fps
@@ -35,6 +35,9 @@ class DiversitySampler(Sampler):
             n_quantiles (int): The number of quantiles to use when applying the 'quantilization' normalization. Ignored
                 if normalization is set to 'standardization'. Defaults to 50.
             targets (List[str]): The columns considered for patch-to-patch distance in FPS.
+            max_chunk_size_for_fps (int): max num of (consecutive) patches to process by FPS. Lower chunks means that we look for diversity in
+            smaller sets of points, thus yielding les diverse points. In particular, lower chunks tend to exclude more rural areas since
+            the most diverse histograms arer primarly found in anthropogenic areas.
 
         Returns:
             A list of length `num_diverse_to_sample` containing the indices of the sampled points.
@@ -57,43 +60,67 @@ class DiversitySampler(Sampler):
             num_diverse_to_sample = self.cf["num_tiles_in_sampled_dataset"]
         cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
-        # TODO: extract could be done in a single big sql formula, by chunk.
-        # TODO: clean out the comments once this is stable
-        # WARNING: Here we put everything in memory
-        # TODO: Might not scale with more than 100k tiles ! we need to do this by chunk...
-        # Or test with synthetic data, but we would need to create the fields.
-
-        extract = self.connector.extract(selection=None)
-        extract = extract[TILE_INFO + cols_for_fps]
+        df = self.connector.extract(selection=None)
+        df = df[TILE_INFO + cols_for_fps]
         # 1/2 Set zeros as NaN to ignore them in the quantile transforms.
-        extract = extract.replace(to_replace=0, value=np.nan)
+        df = df.replace(to_replace=0, value=np.nan)
 
         normalization = self.cf["DiversitySampler"]["normalization"]
         if normalization == "standardization":
-            extract.loc[:, cols_for_fps] = (extract.loc[:, cols_for_fps] - extract.loc[:, cols_for_fps].mean()) / extract.loc[
-                :, cols_for_fps
-            ].std()
+            df.loc[:, cols_for_fps] = (df.loc[:, cols_for_fps] - df.loc[:, cols_for_fps].mean()) / df.loc[:, cols_for_fps].std()
         else:
             n_quantiles = self.cf["DiversitySampler"]["n_quantiles"]
             # https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
             qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, subsample=100_000)
-            extract.loc[:, cols_for_fps] = qt.fit_transform(extract[cols_for_fps].values)
+            df.loc[:, cols_for_fps] = qt.fit_transform(df[cols_for_fps].values)
 
         # 2/2 Set back zeros where they were.
-        extract = extract.fillna(0)
+        df = df.fillna(0)
 
         # Farthest Point Sampling
-        # Set indices to a range to be sure that np indices = pandas indices.
-        extract = extract.reset_index(drop=True)
-        diverse_idx = fps(arr=extract.loc[:, cols_for_fps].values, num_to_sample=num_diverse_to_sample)
-        diverse = extract.loc[diverse_idx, TILE_INFO]
-
         # Nice property of FPS: using it on its own output starting from the same
         # point would yield the same order. So we take the first n points as test_set
         # so that they are well distributed.
-        num_samples_test_set = floor(self.cf["frac_test_set"] * len(diverse))
+
+        # Set indices to a range to be sure that np indices = pandas indices.
+        df = df.reset_index(drop=True)
+        max_chunk_size = self.cf["DiversitySampler"]["max_chunk_size_for_fps"]
+        # Using
+        if len(df) > max_chunk_size:
+            proportion_to_sample = num_diverse_to_sample / len(df)
+
+            diverse_idx = []
+            test_set_idx = []
+            for chunk in self.chunker(df, max_chunk_size):
+                # select in chunk with FPS
+                num_diverse_to_sample_in_chunk = ceil(len(chunk) * proportion_to_sample)
+                idx_in_chunk = fps(arr=chunk.loc[:, cols_for_fps].values, num_to_sample=num_diverse_to_sample_in_chunk)
+                idx_in_df = chunk.index[idx_in_chunk].values
+
+                # add to lists
+                diverse_idx += [idx_in_df]
+                num_samples_test_set_in_chunk = floor(self.cf["frac_test_set"] * num_diverse_to_sample_in_chunk)
+                test_set_idx += [idx_in_df[:num_samples_test_set_in_chunk]]
+
+            # concatenate
+            diverse_idx = np.concatenate(diverse_idx)
+            test_set_idx = np.concatenate(test_set_idx)
+            # Warning: Use of loc is only possible because we reset the index earlier.
+            diverse = df.loc[diverse_idx, TILE_INFO]
+        else:
+            diverse_idx = fps(arr=df.loc[:, cols_for_fps].values, num_to_sample=num_diverse_to_sample)
+            diverse = df.loc[diverse_idx, TILE_INFO]
+
+            num_samples_test_set = floor(self.cf["frac_test_set"] * len(diverse))
+            test_set_idx = diverse.index[:num_samples_test_set]
+
         diverse["split"] = "train"
-        diverse.loc[diverse.index[:num_samples_test_set], ("split",)] = "test"
+        diverse.loc[test_set_idx, ("split",)] = "test"
 
         diverse["sampler"] = self.name
         return diverse[SELECTION_SCHEMA]
+
+    def chunker(self, df, max_chunk_size):
+        """Generator for splitting the dataframe."""
+        for pos in range(0, len(df), max_chunk_size):
+            yield df.iloc[pos : pos + max_chunk_size]

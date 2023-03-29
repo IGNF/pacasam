@@ -1,5 +1,6 @@
 import numpy as np
 from math import ceil, floor
+import pandas as pd
 from sklearn.preprocessing import QuantileTransformer
 
 from pacasam.samplers.algos import fps
@@ -61,51 +62,39 @@ class DiversitySampler(Sampler):
         self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
         df = self.connector.extract(selection=None)
+        df = df
         df = df[TILE_INFO + self.cols_for_fps]
         df = self.normalize_df(df, self.cols_for_fps)
 
         # Farthest Point Sampling
-        # Nice property of FPS: using it on its own output starting from the same
-        # point would yield the same order. So we take the first n points as test_set
-        # so that they are well distributed.
+        diverse_tiles = list(self._get_tiles_via_fps(df, num_diverse_to_sample))
+        diverse_tiles = pd.concat(diverse_tiles, ignore_index=True)
+        return diverse_tiles
 
-        # Set indices to a range to be sure that np indices = pandas indices.
-        df = df.reset_index(drop=True)
+    def _get_tiles_via_fps(self, df, num_to_sample):
         max_chunk_size = self.cf["DiversitySampler"]["max_chunk_size_for_fps"]
-
         if len(df) > max_chunk_size:
-            proportion_to_sample = num_diverse_to_sample / len(df)
-
-            diverse_idx = []
-            test_set_idx = []
+            target_proportion = num_to_sample / len(df)
             for chunk in self.chunker(df, max_chunk_size):
-                # select in chunk with FPS
-                num_diverse_to_sample_in_chunk = ceil(len(chunk) * proportion_to_sample)
-                idx_in_chunk = fps(arr=chunk.loc[:, self.cols_for_fps].values, num_to_sample=num_diverse_to_sample_in_chunk)
-                idx_in_df = chunk.index[idx_in_chunk].values
-
-                # add to lists
-                diverse_idx += [idx_in_df]
-                num_samples_test_set_in_chunk = floor(self.cf["frac_test_set"] * num_diverse_to_sample_in_chunk)
-                test_set_idx += [idx_in_df[:num_samples_test_set_in_chunk]]
-
-            # concatenate
-            diverse_idx = np.concatenate(diverse_idx)
-            test_set_idx = np.concatenate(test_set_idx)
-            # Warning: Use of loc is only possible because we reset the index earlier.
-            diverse = df.loc[diverse_idx, TILE_INFO]
+                num_to_sample_in_chunk = ceil(len(chunk) * target_proportion)
+                yield from self._get_tiles_via_fps(chunk, num_to_sample=num_to_sample_in_chunk)
         else:
-            diverse_idx = fps(arr=df.loc[:, self.cols_for_fps].values, num_to_sample=num_diverse_to_sample)
-            diverse = df.loc[diverse_idx, TILE_INFO]
+            diverse_idx = fps(arr=df[self.cols_for_fps].values, num_to_sample=num_to_sample)
+            # Reset index to be sure our np indices can index the dataframe.
+            diverse = df.reset_index(drop=True).loc[diverse_idx, TILE_INFO]
 
+            # Nice property of FPS: using it on its own output starting from the same
+            # point would yield the same order. So we take the first n points as test_set
+            # so that they are well distributed.
+            diverse["split"] = "train"
+            # Reset index to be sure our np indices can index the dataframe.
             num_samples_test_set = floor(self.cf["frac_test_set"] * len(diverse))
-            test_set_idx = diverse.index[:num_samples_test_set]
+            diverse = diverse.reset_index(drop=True)
+            diverse.loc[:num_samples_test_set, ("split",)] = "test"
 
-        diverse["split"] = "train"
-        diverse.loc[test_set_idx, ("split",)] = "test"
-
-        diverse["sampler"] = self.name
-        return diverse[SELECTION_SCHEMA]
+            diverse["sampler"] = self.name
+            diverse = diverse[SELECTION_SCHEMA]
+            yield diverse
 
     def normalize_df(self, df, cols_for_fps):
         """Normalize columns defining the classes histogram, ignoring zeros values

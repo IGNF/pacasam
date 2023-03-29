@@ -13,13 +13,13 @@ connector_kwargs:
   # extraction_sql_query -> croisement unique des tables de Lipac. Accès aux informations nécessaires.
   # extraction_sql_query: 'SELECT * FROM "vignette"'
   extraction_sql_query: 'SELECT "id", "geometrie", "dalle_id", "nb_points_total",
-                          "nb_points_sol", "nb_points_bati",
-                          "nb_points_vegetation_basse", "nb_points_vegetation_moyenne",
-                          "nb_points_vegetation_haute", "nb_points_pont", "nb_points_eau",
-                          "nb_points_sursol_perenne", "nb_points_non_classes",
-                          "nb_points_artefacts", "denivele", "altitude",
-                          "presence_de_surfaces_d_eau", "presence_de_pylones",
-                          "presence_d_autoroutes"
+                        "nb_points_sol", "nb_points_bati",
+                        "nb_points_vegetation_basse", "nb_points_vegetation_moyenne",
+                        "nb_points_vegetation_haute", "nb_points_pont", "nb_points_eau",
+                        "nb_points_sursol_perenne", "nb_points_non_classes",
+                        "nb_points_artefacts", "denivele", "altitude",
+                        "presence_de_surfaces_d_eau", "presence_de_pylones",
+                        "presence_d_autoroutes"
                         FROM vignette'
 # Critères de constitution du dataset.
 # Par défaut les critères sont "x > 0", mais une condition where peut être utiliser pour
@@ -92,8 +92,8 @@ targets_for_TargettedSampler:
 
 
 DiversitySampler:
-  # FPS is applied by chunk. Alternatively we could use torch.cluster.fps... if it scales! And would need a GPU?
-  max_chunk_size_for_fps: 25000
+  # Gestion par batch des patches consécutifs via FPS.
+  max_chunk_size_for_fps: 20000
   # standardization or quantilization
   normalization: standardization
   # n_quantiles is only used if normalization=quantilization

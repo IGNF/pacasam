@@ -43,7 +43,9 @@ def main():
     selection: gpd.GeoDataFrame = sampler.get_tiles()
     gdf = connector.extract(selection)
     gpkg_path = outdir / f"{sampler.name}-{connector.name}-extract.gpkg"
+    log.info(f"Saving N={len(gdf)} patches into {gpkg_path}...")
     gdf.to_file(gpkg_path)
+    log.info(f"Saving html report under {output_path}")
 
     output_path = outdir / f"{sampler.name}-{connector.name}-dataviz/"
     make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)

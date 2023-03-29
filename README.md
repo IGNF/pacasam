@@ -127,7 +127,6 @@ python ./src/pacasam/main.py --config_file=lipac/TripleSampler-Synthetic.yml
     - [ ] Get rid of unused random sampling / simplify its call and remove the if/else clause.
 - Extraction
     - [X] Extract geopackage des métadonnées
-    - [ ] Rechercher un format hybride intégrant les données Lidar et permettant affichage dans QGIS. PostGreSQL-3D.
 
 
 # Panini - évolutions souhaitées pour la base LiPaC

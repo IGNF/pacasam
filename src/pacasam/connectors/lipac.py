@@ -57,12 +57,6 @@ class LiPaCConnector(Connector):
             text(extraction_sql_query), self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS
         )
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
-        # TODO: DEBUG MODE: test de charge.
-        # x 40 -> 10km².
-        # gdf = pd.concat([gdf.copy() for _ in range(10)])
-        # gdf = pd.concat([gdf.copy() for _ in range(2)])
-        # gdf = pd.concat([gdf.copy() for _ in range(2)])
-        gdf["id"] = range(len(gdf))  # TODO: DEBUG MODE !!!
         gdf = gdf.set_crs(self.lambert_93_crs)
         gdf = geometrie_to_geometry_col(gdf)
         return gdf

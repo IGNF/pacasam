@@ -36,8 +36,8 @@ class LiPaCConnector(Connector):
         self.host = db_lipac_host
         self.db_name = db_lipac_name
         self.create_session(password)
-        self.db_size = self.session.execute(text('SELECT count(*) FROM "vignette"')).all()[0][0]
         self.df = self.extract_all_samples_as_a_df(extraction_sql_query)
+        self.db_size = len(df)
 
     def create_session(self, password):
         url = URL.create(

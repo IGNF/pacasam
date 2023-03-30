@@ -37,7 +37,7 @@ class LiPaCConnector(Connector):
         self.db_name = db_lipac_name
         self.create_session(password)
         self.df = self.extract_all_samples_as_a_df(extraction_sql_query)
-        self.db_size = len(df)
+        self.db_size = len(self.df)
 
     def create_session(self, password):
         url = URL.create(

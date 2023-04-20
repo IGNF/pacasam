@@ -4,7 +4,6 @@
 # Objectif de taille du dataset final.
 target_total_num_tiles: 5000  # 250km² = 100000 samples, 20x reduction.
 frac_validation_set:  0.1 # float
-# TODO: deal with edge case where value is 0
 
 # kwargs for lipac database
 connector_kwargs:

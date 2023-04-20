@@ -120,7 +120,7 @@ python ./src/pacasam/main.py --config_file=lipac/Synthetic.yml
     - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
     - [X] Diversity sampling : Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
         - [X] Contrôle et paramétrisation des éléments du diversity sampling. En gros, les différents indicators à définir par des requêter sql (si différent du nom de base, cf. targets_for_TargettedSampler). Être capable de faire une unique requete sql pour remplacer l'usage de sampler.extract qui n'est pas prévue pour ça.
-    - [ ] Get rid of unused random sampling / simplify its call and remove the if/else clause.
+    - [X] Separate spatial and random samplers.
 - Extraction
     - [X] Extract geopackage des métadonnées
 

@@ -17,6 +17,6 @@ class RandomSampler(Sampler):
         tiles = sample_randomly(tiles=tiles, num_to_sample=num_to_sample)
         self.log.info(f"RandomSampler: Completing with {num_to_sample} samples.")
 
-        self._set_test_set_flag_inplace(tiles=tiles)
+        self._set_validation_tiles_with_spatial_stratification(tiles=tiles)
         tiles["sampler"] = self.name
         return tiles[SELECTION_SCHEMA]

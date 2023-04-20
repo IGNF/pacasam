@@ -43,7 +43,7 @@ class TargettedSampler(Sampler):
                 f"| Found: {(num_samples_to_sample/self.cf['target_total_num_tiles']):.03f} (n={num_samples_to_sample})."
             )
 
-        self._set_test_set_flag_inplace(tiles=tiles)
+        self._set_validation_tiles_with_spatial_stratification(tiles=tiles)
         tiles["sampler"] = self.name
         return tiles[SELECTION_SCHEMA]
 

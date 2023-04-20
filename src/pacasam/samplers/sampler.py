@@ -31,7 +31,7 @@ class Sampler:
         self.log.info(f"{self.name}: {n_sampled} ids --> {n_distinct} distinct ids (uniqueness ratio: {n_distinct/n_sampled:.03f}) ")
         return gdf
 
-    def _set_test_set_flag_inplace(self, tiles: gpd.GeoDataFrame):
+    def _set_validation_tiles_with_spatial_stratification(self, tiles: gpd.GeoDataFrame):
         """(Inplace) Set a binary flag for the test tiles, selected randomly or by slab."""
         num_samples_test_set = floor(self.cf["frac_validation_set"] * len(tiles))
         test_ids = sample_spatially_by_slab(tiles, num_samples_test_set)["id"]

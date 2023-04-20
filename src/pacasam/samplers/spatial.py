@@ -17,6 +17,6 @@ class SpatialSampler(Sampler):
         sampled_others = sample_spatially_by_slab(tiles, num_to_sample)
         self.log.info(f"SpatialSampler: Completing with {num_to_sample} samples.")
 
-        self._set_test_set_flag_inplace(tiles=sampled_others)
+        self._set_validation_tiles_with_spatial_stratification(tiles=sampled_others)
         sampled_others["sampler"] = self.name
         return sampled_others[SELECTION_SCHEMA]

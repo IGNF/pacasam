@@ -19,7 +19,13 @@ class TargettedSampler(Sampler):
 
     def _get_matching_tiles(self, descriptor_name: str, descriptor_objectives: Dict):
         """Query the tiles info based on a descriptor name + objective."""
-        query = descriptor_objectives.get("where", f"{descriptor_name} > 0")
+        try:
+            query = descriptor_objectives.get("where")
+        except:
+            raise KeyError(
+                f"Parameter `where` is not defined for descriptor {descriptor_name}. "
+                'Expected something like where:"criteria_name > 0"'
+            )
         tiles = self.connector.request_tiles_by_condition(where=query)
         num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * self.cf["num_tiles_in_sampled_dataset"])
         num_samples_to_sample = min(num_samples_target, len(tiles))  # cannot take more that there is.
@@ -45,8 +51,8 @@ class TargettedSampler(Sampler):
     def _get_sorted_criteria(self, criteria: Dict):
         """Sort criteria target_min_samples_proportion.
 
-        TODO: DECISION: This may be removed if having control over order is better...
-        criteria is a dict {name: {where: sql_expression_not_used_now, target: float_value_to_reach}}
+        Criteria is a dict {name: {where: sql_expression_not_used_now, target: float_value_to_reach}}
+
         """
         return dict(
             sorted(

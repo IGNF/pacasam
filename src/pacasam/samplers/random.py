@@ -16,7 +16,7 @@ class RandomSampler(Sampler):
 
         tiles = self.connector.request_all_other_tiles(exclude_ids=current_selection_ids)
         tiles = sample_randomly(tiles=tiles, num_to_sample=num_to_sample)
-        self.log.info(f"Completing with {num_to_sample} samples.")
+        self.log.info(f"RandomSampler: Completing with {num_to_sample} samples.")
 
         self._set_test_set_flag_inplace(tiles=tiles)
         tiles["sampler"] = self.name

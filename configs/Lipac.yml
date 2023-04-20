@@ -20,11 +20,6 @@ connector_kwargs:
                         "presence_de_surfaces_d_eau", "presence_de_pylones",
                         "presence_d_autoroutes"
                         FROM vignette'
-# Critères de constitution du dataset.
-# Par défaut les critères sont "x > 0", mais une condition where peut être utiliser pour
-# TODO: remove the default of  x > 0, to nudge towards higher thresholds for targettedsampler.
-# gérer les booléens, faire des combinaisons, etc.
-
 
 DiversitySampler:
   # Gestion par batch des patches consécutifs via FPS.
@@ -45,12 +40,12 @@ DiversitySampler:
     - nb_points_sursol_perenne
 
 targets_for_TargettedSampler:
-# Syntaxe : PANDAS QUERY (i.e. "colonne == valeur" par exemple (double égal)).
+# Syntaxe : PANDAS QUERY ("colonne == valeur" par exemple (double égal)).
 # cf. https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#indexing-query
 
-# name_of_criteria_for_printing:
-#   where: Optional. Sql query to filter on table vignette in LiPaC. If absent, "x > 0" is used.
-#   target_min_samples_proportion: float. Target minimal proportion in the final dataset.
+# nom_du_critère_pour_les_logs:
+#   where: Optionnel. Requête SQL pour filtrer la table vignette dans LiPaC.
+#   target_min_samples_proportion: float. Proportion minimale cible dans le jeu de données final.
 
   presence_de_pylones:
     where: "presence_de_pylones"
@@ -64,17 +59,16 @@ targets_for_TargettedSampler:
     where: "presence_d_autoroutes"
     target_min_samples_proportion: 0.02
 
-  # TODO: Decide if we should we enforce the config order instead of sorting elements by freq
-  # Really depends if we expect high correlation between elements. Depends on sum of targets.
-
-  # Sanity check ; prefer surface/linear of water first. 
   nb_points_eau:
+    where: "nb_points_eau >= 50"
     target_min_samples_proportion: 0.05
 
   nb_points_sursol_perenne:
+    where: "nb_points_sursol_perenne >= 500"
     target_min_samples_proportion: 0.05
 
   nb_points_pont:
+    where: "nb_points_pont >= 50"
     target_min_samples_proportion: 0.05
 
   nb_points_bati_heq_500:
@@ -88,7 +82,6 @@ targets_for_TargettedSampler:
     target_min_samples_proportion: 0.02
 
   fort_devers_denivele_entre_30_45:
-    # where: "(denivele >= 30) & (denivele < 45)"
     where: "30 <=denivele < 45"
     target_min_samples_proportion: 0.04
 

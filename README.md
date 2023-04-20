@@ -67,15 +67,25 @@ python ./src/pacasam/main.py --config_file=configs/Synthetic.yml --connector_cla
 
 2. Créer un fichier `credentials.yml` avec les champs `DB_LOGIN` et `DB_PASSWORD`, contenant les éléments de connexion à au catalogue de patch (droits en lecture nécessaires).
 
-3. (Optionnel) Afficher les options de sampling.
-```python
+3. (Optionnel) Afficher les options de sampling. 
+
+```bash
 python ./src/pacasam/main.py --help
 ```
+Par défaut la base LiPaC est interrogée.
+
 4. Lancer le sampling.
-```python
+```bash
 conda activate pacasam
 python ./src/pacasam/main.py --config_file=lipac/Synthetic.yml
 ```
+Pour produire un rapport html interactif de statistiques descriptives, deux options:
+- Précisier `make_html_report=Y` lors de l'échantillonnage.
+- Décrire un geopackage existant. Afficher les options avec:
+    ```bash
+    python ./src/pacasam/dataviz/describe.py --help
+    ```
+
 </details>
 
 

@@ -108,45 +108,20 @@ python ./src/pacasam/main.py --config_file=lipac/Synthetic.yml
 - [X] Prise en main PGADMIN ou BDBeaver pour anticipation des opérations copie+manipulation. Idée de "version de référence" maintenue dont partent des copies / enrichissements, qui se feraient avec des requêtes simples.
 - [X] API unique pour les samplers, dans run.py, avec config en argument.
 - [X] Renommer criteria dans config pour préciser qu'il s'agit de targetted sampling. Le nommer par le nom de la classe !
-- [ ] Possibilité d'un filtre en amont sur la BD. 
+- [X] Possibilité d'un filtre en amont sur la BD. 
     - Filtre nb_points > 50. (Mais qu'en est-il de l'eau alors ?...)
     - Filtre sur les chantier, pour exclure ou inclure certains, et créer le **jeu de test de façon exclusive**.
     - (Peut-être mise en mémoire alors de la BD filtrée, avec un connecteur type GeoDataFrame ? (Vérifier que ça scalera). -6> pas très satisfaisant, enlève l'intérêt d'une base "online" facilement inspectable.
-- [] Makefile
-    - [ ] Test données synthétiques
-    - [ ] Vider les sorties
-    - [ ] Test de tous les samplers pour comparaison, sur la données LiPaC --> avec pytest... mais pas immédiat.
 - Optimisation :
     - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
     - [X] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.
         On peut envisager une méthode effficae où on attribue un index à chaque patch au sein de chaque dalle, et ensuite on filtre avec un seuil ? Overkill, commencer simple : on devrait sélectionner max 5 patches en conditions réelles. MAIS : les patches ne seront pas optimisés spatialement entre des dalles adjacentes, juste bien répartie par grille. Semble OK.
         - [X] Version "in memory" qui nécessite de charger id et dalle en mémoire.
-    - [ ] NTH: Seeds to have a reproductible dataset. Works with postgis as well?
+    - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
     - [X] Diversity sampling : Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
         - [X] Contrôle et paramétrisation des éléments du diversity sampling. En gros, les différents indicators à définir par des requêter sql (si différent du nom de base, cf. targets_for_TargettedSampler). Être capable de faire une unique requete sql pour remplacer l'usage de sampler.extract qui n'est pas prévue pour ça.
     - [ ] Get rid of unused random sampling / simplify its call and remove the if/else clause.
 - Extraction
     - [X] Extract geopackage des métadonnées
-
-
-# Panini - évolutions souhaitées pour la base LiPaC
-- correction de "nb_points_artefats" -> nb_points_artefacts
-- Nomenclature avec préfixe défini pour les descripteurs booléens (p.ex. "presence_" ou "FLAG_")
-- Enlever nb_points_bati_incertains.
-- Documentation des noms de variables et de leur définition (altitude, dénivelés) dans un xslx (Databook)
-- Gestion des valeurs manquantes à la création (e.g. dénivelé=NaN)
-- Dans zones d'eau, sans point sol, le dénivelé vaut -18446744073709551616. Passer à 0. 
-- Indexation spatiale de la base, et rajout des descripteurs directement avec une unique requête SQL.
-- Nom complet des fichiers LAS dans le Store vers la base smb://store.ign.fr/store-lidarhd/production/reception/QO/donnees_classees/livraison10p/Livraison_20230116/02_SemisClasse --> remonter a moins jusqu'à réception, à partir du nom du bloc, voire à "production".
-- Table Blocs sans géométrie ?
-- Backup de Lipac:  pg_dump dbname > outfile
-- Table spécifiant la redondance avec jeux de données pré-existants : 151proto, 201evalmanuel, 68evalauto, Annecy. Fournir les emprises en format standard.
-- Ref sur les ORMS : https://stackoverflow.com/a/56992364/8086033
-
-
-# Analyses 
-- Tets de charge sur données synthétique, pour étudier la répartition d'après différents sampling (aléatoire ou spatiel éventuel).
-    --> Passe en mémoire (id et géométrie au moins). Sampling possible. A voir pour l'extract avec tous les attributs, besoin probable de chunker la données requêtée pour sauvegarde. 
-    --> Analyse des KNN - 288m attendu de distance moyenne). Problème de projection! A refaire en enregistrant le geopackage avec cf. [QGIS doc](https://docs.qgis.org/3.22/en/docs/user_manual/processing_algs/qgis/vectoranalysis.html#nearest-neighbour-analysis). Largeur des polygones fake n'est pas bonne. peut-être lié à enregistrement / projection... (35m de coté dans qgis).
 
 </details>

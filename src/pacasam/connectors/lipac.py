@@ -53,12 +53,21 @@ class LiPaCConnector(Connector):
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
     def extract_all_samples_as_a_df(self, extraction_sql_query: str) -> gpd.GeoDataFrame:
+        """This function extracts all data from a PostGIS database.
+
+        It uses using the SQL query provided as a parameter, and returns a
+        GeoDataFrame containing the results.
+
+        Data is read data the database in blocks of size `CHUNKSIZE_FOR_POSTGIS_REQUESTS`.
+        This allows processing the data in blocks rather than loading all of it into memory at once.
+        """
         chunks: Generator = gpd.read_postgis(
             text(extraction_sql_query), self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS
         )
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
         gdf = gdf.set_crs(self.lambert_93_crs)
         gdf = geometrie_to_geometry_col(gdf)
+        gdf = gdf.sort_values(by="id")
         return gdf
 
     def request_tiles_by_condition(self, where: str) -> gpd.GeoDataFrame:

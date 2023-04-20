@@ -1,4 +1,5 @@
-# Environnement pacasam à activer avec: conda activate pacasam avant.
+# /!\ Environnement pacasam à activer avec: conda activate pacasam
+# Echantillonnages sauvegardés sous /outputs/samplings/{sampler_class}-{connector_class}
 
 CONNECTOR ?= LiPaCConnector  # LiPaCConnector ou SyntheticConnector
 CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml - Should match the Connector!

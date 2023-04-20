@@ -2,7 +2,7 @@
 # Idées : liste de champs de la BD et des critères permettant de les requêter. Directement sous la forme SQL si plus simple :
 # Nota: on pourra passer à un format csv si plus simple à inspecter / manipuler, mais attention à la forme des requêtes sql!
 # Objectif de taille du dataset final.
-num_tiles_in_sampled_dataset: 5000  # 250km² = 100000 samples, 20x reduction.
+target_total_num_tiles: 5000  # 250km² = 100000 samples, 20x reduction.
 frac_validation_set:  0.1 # float
 # TODO: deal with edge case where value is 0
 

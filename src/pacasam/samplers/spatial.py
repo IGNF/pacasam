@@ -8,9 +8,11 @@ from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 class SpatialSampler(Sampler):
     """Spatial sampling by slab - With option to exclude ids via current_selection_ids."""
 
-    def get_tiles(self, **kwargs) -> gpd.GeoDataFrame:
-        current_selection_ids: Iterable = kwargs.get("current_selection_ids", set())
-        num_to_sample: int = kwargs.get("num_to_sample", self.cf["num_tiles_in_sampled_dataset"])
+    def get_tiles(self, num_to_sample: int = None, current_selection_ids: Iterable = {}, **kwargs) -> gpd.GeoDataFrame:
+        # If num_to_sample was not defined, sample the full final dataset with this sampler.
+        if not num_to_sample:
+            num_to_sample = self.cf["target_total_num_tiles"]
+
         tiles = self.connector.request_all_other_tiles(exclude_ids=current_selection_ids)
         sampled_others = sample_spatially_by_slab(tiles, num_to_sample)
         self.log.info(f"SpatialSampler: Completing with {num_to_sample} samples.")

@@ -23,11 +23,10 @@ class TargettedSampler(Sampler):
             query = descriptor_objectives.get("where")
         except:
             raise KeyError(
-                f"Parameter `where` is not defined for descriptor {descriptor_name}. "
-                'Expected something like where:"criteria_name > 0"'
+                f"Parameter `where` is not defined for descriptor {descriptor_name}. " 'Expected something like where:"criteria_name > 0"'
             )
         tiles = self.connector.request_tiles_by_condition(where=query)
-        num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * self.cf["num_tiles_in_sampled_dataset"])
+        num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * self.cf["target_total_num_tiles"])
         num_samples_to_sample = min(num_samples_target, len(tiles))  # cannot take more that there is.
 
         tiles = sample_spatially_by_slab(tiles, num_samples_to_sample)
@@ -41,7 +40,7 @@ class TargettedSampler(Sampler):
         if num_samples_to_sample < num_samples_target:
             self.log.warning(
                 f"Could not reach target for {descriptor_name}. "
-                f"| Found: {(num_samples_to_sample/self.cf['num_tiles_in_sampled_dataset']):.03f} (n={num_samples_to_sample})."
+                f"| Found: {(num_samples_to_sample/self.cf['target_total_num_tiles']):.03f} (n={num_samples_to_sample})."
             )
 
         self._set_test_set_flag_inplace(tiles=tiles)

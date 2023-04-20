@@ -6,10 +6,11 @@ import geopandas as gpd
 from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
 from pacasam.connectors.connector import Connector
 
+# split and sampler attributes are created during sampling
 SELECTION_SCHEMA = ["id", "split", "sampler"]
+
+# We need at least these information to perform sampling
 TILE_INFO = ["id", "dalle_id"]
-# need the geometrie for sql requests.
-TILE_INFO_SQL = '"' + '", "'.join(TILE_INFO + ["geometrie"]) + '"'
 
 
 class Sampler:
@@ -19,7 +20,7 @@ class Sampler:
         self.cf = optimization_config
         self.log = log
 
-    def get_tiles(self, *args, **kwargs) -> gpd.GeoDataFrame:
+    def get_tiles(self, **kwargs) -> gpd.GeoDataFrame:
         """Get tiles - output must have schema SELECTION_SCHEMA."""
         raise NotImplementedError("This is an abstract class. use child class for specific sampling approaches.")
 

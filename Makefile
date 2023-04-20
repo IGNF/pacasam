@@ -6,6 +6,8 @@
 
 # Exécutez toutes les tâches en une seule fois en utilisant la commande make all.
 # Exécutez une tâche spécifique en utilisant le nom de la tâche en tant que cible: make RandomSampler, make SpatialSampler, etc.
+# Exécutez sur le jeu de données synthtéiques avec 
+#	CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml make all
 
 # Les échantillonnages sont sauvegardés sous /outputs/samplings/\{sampler_class\}-\{connector_class\}
 
@@ -17,6 +19,8 @@ SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler Triple
 .PHONY: all help $(SAMPLERS)
 
 all: $(SAMPLERS)
+
+
 
 help:
 	@echo "Liste des cibles disponibles :"

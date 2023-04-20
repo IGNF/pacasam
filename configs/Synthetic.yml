@@ -2,8 +2,8 @@
 
 
 # 75km² = 30k tiles. 1% of 75km² = 300 tiles.
-num_tiles_in_sampled_dataset: 500
-# num_tiles_in_sampled_dataset: 30000
+target_total_num_tiles: 500
+# target_total_num_tiles: 30000
 
 frac_validation_set:  0.0 # float 
 

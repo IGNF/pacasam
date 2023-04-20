@@ -57,7 +57,7 @@ class DiversitySampler(Sampler):
         """
 
         if num_diverse_to_sample is None:
-            num_diverse_to_sample = self.cf["num_tiles_in_sampled_dataset"]
+            num_diverse_to_sample = self.cf["target_total_num_tiles"]
         self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
         df = self.connector.extract(selection=None)

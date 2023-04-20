@@ -97,9 +97,10 @@ Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machin
 
 
 - Tests à venir :
-    - Tout lancer sur jeu synthetic (cf. makefile)
+    - Tout lancer sur jeu synthetic (cf. makefile) -> ok actuellement avec 
     - Cas "pas de jeu de validation" : frac_validation_set=0
-    - Cas "un critère totalement absent" -> ok actuellement
+    - Cas "un critère totalement absent" -> ok actuellement Diversity & Random & Spatial, bug Triple!
+        make all  CONNECTOR=SyntheticConnector CONFIG="configs/Synthetic.yml"
     - Cas "la somme des critères dépasse 100%" -> prévenu ?? FAIL!
 
 </details>

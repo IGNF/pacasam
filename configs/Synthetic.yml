@@ -1,25 +1,37 @@
 # Configuration pour l'optimisation de l'échantillonnage de patches.
 
-frac_validation_set:  0.1 # float 
 
 # 75km² = 30k tiles. 1% of 75km² = 300 tiles.
 num_tiles_in_sampled_dataset: 500
 # num_tiles_in_sampled_dataset: 30000
 
+frac_validation_set:  0.0 # float 
+
+# Définition du jeu de données synthétique
+connector_kwargs:
+  # Lower
+  # Création pour chaque prévalence d'un indicateur binaire C0, C1, etc.
+  binary_descriptors_prevalence: [0.005, 0.005, 0.005, 0.7, 0.7]
+  db_size: 10000
+
+  # 2500km²=4M tiles
+  # db_size: 4000000
+
 targets_for_TargettedSampler:
   C0:
+    where: "C0 > 0"
     target_min_samples_proportion: 0.01
   C1:
+    where: "C1 > 0"
     target_min_samples_proportion: 0.05
   C2:
+    where: "C2 > C1"
     target_min_samples_proportion: 0.05
-  # Order of criteria has no impact: they are sorted in code by target.
-  C4:
-    target_min_samples_proportion: 0.2
   C3:
-    target_min_samples_proportion: 0.3
-  C3C4:
-    where: "(C3 > 0) & (C4 > 0)"
+    where: "C3 > 0"
+    target_min_samples_proportion: 0.2
+  C2_et_C3_sup_a_zero:
+    where: "(C2 > 0) & (C3 > 0)"
     target_min_samples_proportion: 0.1
 
 DiversitySampler:
@@ -40,11 +52,3 @@ DiversitySampler:
     - nb_points_sursol_perenne
 
 
-# kwargs for synthetic connector
-connector_kwargs:
-  # Lower
-  binary_descriptors_prevalence: [0.005, 0.005, 0.005, 0.7, 0.7]
-  db_size: 10000
-
-  # 2500km²=4M tiles
-  # db_size: 4000000

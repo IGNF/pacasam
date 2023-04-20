@@ -1,7 +1,7 @@
 import pandas as pd
 
 from pacasam.samplers.sampler import Sampler
-from pacasam.samplers.completion import SpatialSampler
+from pacasam.samplers.spatial import SpatialSampler
 from pacasam.samplers.diversity import DiversitySampler
 from pacasam.samplers.targetted import TargettedSampler
 

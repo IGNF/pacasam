@@ -9,6 +9,8 @@ from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_han
 from pacasam.dataviz.describe import make_all_graphs_and_a_report
 
 log = setup_custom_logger()
+# Make sure that random operations in numpy (and pandas!) are deterministic.
+np.random.seed(0)
 
 # PARAMETERS
 import argparse

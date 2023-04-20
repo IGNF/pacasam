@@ -4,7 +4,7 @@ import yaml
 import sys
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
-from pacasam.samplers.completion import SpatialSampler
+from pacasam.samplers.spatial import SpatialSampler
 from pacasam.samplers.diversity import DiversitySampler
 from pacasam.samplers.random import RandomSampler
 from pacasam.samplers.targetted import TargettedSampler

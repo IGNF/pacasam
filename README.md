@@ -80,16 +80,24 @@ python ./src/pacasam/main.py --config_file=lipac/Synthetic.yml
 
 
 <details>
-<summary><h2>Roadmap de développement</h2></summary>
+<summary><h2>Performances & Tests</h2></summary>
 
-### Points critiques : 
-- Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machine locale avec 7.2GB de RAM --> 600MB environ. Le sampling FPS se fait par parties si nécessaires (p.ex. par 100k samples successifs). 
+Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale fait 600MB environ. Le sampling FPS se fait par parties si nécessaires (p.ex. par 100k samples successifs). 
+</details>
 
-- Possibilité d'ignorer certaines dalles en amont du processus : les données de travail s'obtiennent en amont du sampling via le paramètre `extraction_sql_query`. On peut y effectuer le filtre nécessaire. 
-    [ ] permettre de fournir un fichier SQL de consolidation au lieu d'un string. TODO:
-    [ ] Rédiger commande incluant les informations des tables liées (chemin vers fichier LAS pour extraction finale, dalles à exclure...)
+<details>
+<summary><h2> Roadmap < 20230420</h2></summary>
+- [] Redéfinir frac_test_set et associés vers notion de jeu de validation.
+- [] Enlever le comportement par défaut "critere > 0". Toujours mettre commande sql pour être explicite.
+- [] Option de télécharger une fois en un geopackage le jeu de données complet. C'est un extract (lourd) de la base, permet analyse descriptive...
+- [] Revoir ce que je veux inclure dans describe.py. Simplifier / rendre scalable ? Export du html vers pdf?
+- S'assurer que les logs de chaque échantillonnage s'enregistrent, et incluent en plus de stats desc / quanti sur les éléments. Eventuellement un json avec le nombre de patches concernés pour Targetted ; et pareil pour les autres sampler.
 
-### Tasks
+</details>
+
+
+<details>
+<summary><h2> Roadmap < 20230420</h2></summary>
 - Structure :
     - [X] mise en place espace de travail
         - [X] repo github, env, connector, structure... attention aux credentials.
@@ -117,7 +125,7 @@ python ./src/pacasam/main.py --config_file=lipac/Synthetic.yml
     - [X] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.
         On peut envisager une méthode effficae où on attribue un index à chaque patch au sein de chaque dalle, et ensuite on filtre avec un seuil ? Overkill, commencer simple : on devrait sélectionner max 5 patches en conditions réelles. MAIS : les patches ne seront pas optimisés spatialement entre des dalles adjacentes, juste bien répartie par grille. Semble OK.
         - [X] Version "in memory" qui nécessite de charger id et dalle en mémoire.
-    - [ ] Seeds to have a reproductible dataset. Works with postgis as well?
+    - [X] Seeds to have a reproductible dataset. Works with postgis as well?
     - [X] Diversity sampling : Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
         - [X] Contrôle et paramétrisation des éléments du diversity sampling. En gros, les différents indicators à définir par des requêter sql (si différent du nom de base, cf. targets_for_TargettedSampler). Être capable de faire une unique requete sql pour remplacer l'usage de sampler.extract qui n'est pas prévue pour ça.
     - [X] Separate spatial and random samplers.

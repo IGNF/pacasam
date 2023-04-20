@@ -47,10 +47,11 @@ class SyntheticConnector(Connector):
         self.synthetic_df["dalle_id"] = df_dalle_id
 
     def request_tiles_by_condition(self, where: str) -> pd.Series:
-        """Requests id based on a where sql-like query.
+        """Requests id based on a where sql-like query, using pandas syntax
 
-        For instance: query = 'C0 > 0'.
+        For instance: query = 'C0 == 1' or "C1 >= 57"
         Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html
+
         """
         print(where)
         return self.synthetic_df.query(where)

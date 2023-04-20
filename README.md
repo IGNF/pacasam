@@ -65,7 +65,7 @@ python ./src/pacasam/main.py --config_file=configs/Synthetic.yml --connector_cla
 
 1. Créer sa configuration dans le dossier `configs` (cf. `configs/Lipac.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
 
-2. Créer un fichier `credentials.ini` avec la section `[LIDAR_PATCH_CATALOGUE]` et les champs `DB_LOGIN` et `DB_PASSWORD`, contenant les éléments de connexion à au catalogue de patch (droits en lecture nécessaires.)
+2. Créer un fichier `credentials.yml` avec les champs `DB_LOGIN` et `DB_PASSWORD`, contenant les éléments de connexion à au catalogue de patch (droits en lecture nécessaires).
 
 3. (Optionnel) Afficher les options de sampling.
 ```python

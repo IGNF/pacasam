@@ -8,14 +8,11 @@ import geopandas as gpd
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
+import yaml
 from pacasam.connectors.connector import Connector
 from pacasam.samplers.sampler import TILE_INFO
 
 log = logging.getLogger(__name__)
-
-# TODO: should be a lipac kwargs as well.
-CREDENTIALS_FILE_PATH = "credentials.ini"  # with credentials.
-CHUNKSIZE_FOR_POSTGIS_REQUESTS = 100000
 
 
 def geometrie_to_geometry_col(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -28,7 +25,13 @@ class LiPaCConnector(Connector):
     lambert_93_crs = 2154
 
     def __init__(
-        self, username: str, password: str, db_lipac_host: str, db_lipac_name: str, extraction_sql_query: str = 'SELECT * FROM "vignette"'
+        self,
+        username: str,
+        password: str,
+        db_lipac_host: str,
+        db_lipac_name: str,
+        extraction_sql_query: str,
+        max_chunksize_for_postgis_extraction: int = 100000,
     ):
         super().__init__()
 
@@ -36,7 +39,7 @@ class LiPaCConnector(Connector):
         self.host = db_lipac_host
         self.db_name = db_lipac_name
         self.create_session(password)
-        self.df = self.extract_all_samples_as_a_df(extraction_sql_query)
+        self.df = self.extract_all_samples_as_a_df(extraction_sql_query, max_chunksize_for_postgis_extraction)
         self.db_size = len(self.df)
 
     def create_session(self, password):
@@ -52,7 +55,7 @@ class LiPaCConnector(Connector):
         self.session = scoped_session(sessionmaker())
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
-    def extract_all_samples_as_a_df(self, extraction_sql_query: str) -> gpd.GeoDataFrame:
+    def extract_all_samples_as_a_df(self, extraction_sql_query: str, max_chunksize_for_postgis_extraction: int) -> gpd.GeoDataFrame:
         """This function extracts all data from a PostGIS database.
 
         It uses using the SQL query provided as a parameter, and returns a
@@ -62,7 +65,7 @@ class LiPaCConnector(Connector):
         This allows processing the data in blocks rather than loading all of it into memory at once.
         """
         chunks: Generator = gpd.read_postgis(
-            text(extraction_sql_query), self.engine.connect(), geom_col="geometrie", chunksize=CHUNKSIZE_FOR_POSTGIS_REQUESTS
+            text(extraction_sql_query), self.engine.connect(), geom_col="geometrie", chunksize=max_chunksize_for_postgis_extraction
         )
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
         gdf = gdf.set_crs(self.lambert_93_crs)
@@ -93,10 +96,9 @@ class LiPaCConnector(Connector):
 
 
 def load_LiPaCConnector(**lipac_kwargs) -> LiPaCConnector:
-    import configparser
-
-    config = configparser.ConfigParser()
-    config.read(CREDENTIALS_FILE_PATH)
-    lipac_username = config["LIDAR_PATCH_CATALOGUE"]["DB_LOGIN"]
-    lipac_password = config["LIDAR_PATCH_CATALOGUE"]["DB_PASSWORD"]
+    with open(lipac_kwargs["credentials_file_path"], "r") as credentials_file:
+        credentials = yaml.safe_load(credentials_file)
+    lipac_username = credentials["DB_LOGIN"]
+    lipac_password = credentials["DB_PASSWORD"]
+    del lipac_kwargs["credentials_file_path"]  # not needed anymore
     return LiPaCConnector(username=lipac_username, password=lipac_password, **lipac_kwargs)

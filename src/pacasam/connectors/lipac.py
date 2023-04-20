@@ -64,6 +64,7 @@ class LiPaCConnector(Connector):
         Data is read data the database in blocks of size `CHUNKSIZE_FOR_POSTGIS_REQUESTS`.
         This allows processing the data in blocks rather than loading all of it into memory at once.
         """
+        log.info(f"Requesting the LiPaC database via the following SQL command: \n {extraction_sql_query}")
         chunks: Generator = gpd.read_postgis(
             text(extraction_sql_query), self.engine.connect(), geom_col="geometrie", chunksize=max_chunksize_for_postgis_extraction
         )

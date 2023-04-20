@@ -3,7 +3,7 @@ from math import floor
 from typing import Dict
 import geopandas as gpd
 
-from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
+from pacasam.samplers.algos import sample_spatially_by_slab
 from pacasam.connectors.connector import Connector
 
 # split and sampler attributes are created during sampling

@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 from typing import List
 import geopandas as gpd
@@ -173,3 +174,13 @@ def make_all_graphs_and_a_report(gpkg_path: Path, output_path: Path):
     template = template.replace(HTML_PLOTS_PLACEHOLDER, "")
     with open(output_path / "pacasam-sampling-dataviz.html", "w") as f:
         f.write(template)
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--gpkg_path", type=Path)
+    parser.add_argument("--output_path", type=Path)
+    args = parser.parse_args()
+
+    make_all_graphs_and_a_report(gpkg_path=args.gpkg_path, output_path=args.output_path)

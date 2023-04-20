@@ -87,9 +87,9 @@ class DiversitySampler(Sampler):
             # so that they are well distributed.
             diverse["split"] = "train"
             # Reset index to be sure our np indices can index the dataframe.
-            num_samples_test_set = floor(self.cf["frac_test_set"] * len(diverse))
+            num_samples_test_set = floor(self.cf["frac_validation_set"] * len(diverse))
             diverse = diverse.reset_index(drop=True)
-            diverse.loc[:num_samples_test_set, ("split",)] = "test"
+            diverse.loc[:num_samples_test_set, ("split",)] = "val"
 
             diverse["sampler"] = self.name
             diverse = diverse[SELECTION_SCHEMA]

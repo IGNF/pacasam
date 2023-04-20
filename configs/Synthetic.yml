@@ -1,6 +1,6 @@
 # Configuration pour l'optimisation de l'échantillonnage de patches.
 
-frac_test_set:  0.1 # float 
+frac_validation_set:  0.1 # float 
 
 # 75km² = 30k tiles. 1% of 75km² = 300 tiles.
 num_tiles_in_sampled_dataset: 500

@@ -1,7 +1,7 @@
 # Environnement pacasam à activer avec: conda activate pacasam avant.
 
 CONNECTOR ?= LiPaCConnector  # LiPaCConnector ou SyntheticConnector
-CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml
+CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml - Should match the Connector!
 REPORTS ?= N # N(o) ou Y(es). No for faster results.
 
 .PHONY: all

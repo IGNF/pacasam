@@ -1,6 +1,5 @@
 # Configuration pour l'optimisation de l'échantillonnage de patches.
-# Idées : liste de champs de la BD et des critères permettant de les requêter. Directement sous la forme SQL si plus simple :
-# Nota: on pourra passer à un format csv si plus simple à inspecter / manipuler, mais attention à la forme des requêtes sql!
+
 # Objectif de taille du dataset final.
 target_total_num_tiles: 5000  # 250km² = 100000 samples, 20x reduction.
 frac_validation_set:  0.1 # float
@@ -21,12 +20,13 @@ connector_kwargs:
                         "presence_de_surfaces_d_eau", "presence_de_pylones",
                         "presence_d_autoroutes"
                         FROM vignette'
-
   max_chunksize_for_postgis_extraction: 100000
 
-
 DiversitySampler:
-  # Gestion par batch des patches consécutifs via FPS.
+  # Gestion par parties (chunk) des vignettes via FPS.
+  # Les vignettes sont ordonnées par leur identifiant "id", et l'id est supposé avoir été choisi incrémentalement
+  # à mesure que la base LiPaC est peuplée. D'où un notion de diversité qui va être également spatialisée.
+  # On pourrait rendre cela plus robuste. Comment ?
   max_chunk_size_for_fps: 20000
   # standardization or quantilization
   normalization: standardization

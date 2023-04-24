@@ -61,6 +61,8 @@ class DiversitySampler(Sampler):
         self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
         df = self.connector.extract(selection=None)
+        # We sort by id with the assumption that the chunks are consecutive patches, from consecutive slabs.
+        # This enables FPS to have a notion of "diversity" that is spatially specific.
         df = df.sort_values(by="id")
         df = df[TILE_INFO + self.cols_for_fps]
         df = self.normalize_df(df, self.cols_for_fps)

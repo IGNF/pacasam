@@ -7,8 +7,19 @@ import geopandas as gpd
 from shapely.geometry import box
 
 from pacasam.connectors.connector import Connector
-from pacasam.dataviz.describe import NB_POINTS_COLNAMES
-from pacasam.samplers.sampler import TILE_INFO
+
+NB_POINTS_COLNAMES = [
+    "nb_points_total",
+    "nb_points_sol",
+    "nb_points_bati",
+    "nb_points_vegetation_basse",
+    "nb_points_vegetation_moyenne",
+    "nb_points_vegetation_haute",
+    "nb_points_pont",
+    "nb_points_eau",
+    "nb_points_sursol_perenne",
+    "nb_points_non_classes",
+]
 
 log = logging.getLogger(__name__)
 

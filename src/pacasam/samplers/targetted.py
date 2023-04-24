@@ -1,7 +1,7 @@
 import geopandas as gpd
 import pandas as pd
 from typing import Dict
-from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
+from pacasam.samplers.algos import sample_spatially_by_slab
 from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 
 
@@ -21,7 +21,7 @@ class TargettedSampler(Sampler):
         """Query the tiles info based on a descriptor name + objective."""
         try:
             query = descriptor_objectives.get("where")
-        except:
+        except KeyError:
             raise KeyError(
                 f"Parameter `where` is not defined for descriptor {descriptor_name}. " 'Expected something like where:"criteria_name > 0"'
             )

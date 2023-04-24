@@ -1,7 +1,7 @@
 from typing import Iterable
 import geopandas as gpd
 
-from pacasam.samplers.algos import sample_randomly, sample_spatially_by_slab
+from pacasam.samplers.algos import sample_randomly
 from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 
 

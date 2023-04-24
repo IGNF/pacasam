@@ -1,7 +1,7 @@
 # copy of https://github.com/IGNF/panini/blob/main/connector.py
 
 import logging
-from typing import Any, Generator, Iterable, Optional, Union
+from typing import Generator, Iterable, Optional
 import pandas as pd
 import geopandas as gpd
 
@@ -20,7 +20,7 @@ def geometrie_to_geometry_col(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return gdf
 
 
-# TODO: abstract a GeoDataframeConnector that has everything to wokr on a geopandas, and inherit from it for SuyntheticConnector and LiPaCConnector
+# TODO: abstract a GeoDataframeConnector that wokr on a geopandas, and inherit from it for SuyntheticConnector and LiPaCConnector
 class LiPaCConnector(Connector):
     lambert_93_crs = 2154
 

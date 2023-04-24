@@ -6,22 +6,11 @@ import pandas as pd
 import plotly.express as px
 import numpy as np
 
-import plotly.express as px
 from sklearn.preprocessing import QuantileTransformer
 
+from pacasam.connectors.synthetic import NB_POINTS_COLNAMES
+
 PREFIX_BOOL_DESCRIPTOR = "presence"
-NB_POINTS_COLNAMES = [
-    "nb_points_total",
-    "nb_points_sol",
-    "nb_points_bati",
-    "nb_points_vegetation_basse",
-    "nb_points_vegetation_moyenne",
-    "nb_points_vegetation_haute",
-    "nb_points_pont",
-    "nb_points_eau",
-    "nb_points_sursol_perenne",
-    "nb_points_non_classes",
-]
 
 HTML_PLOTS_PLACEHOLDER = "{{next_div}}"
 REPORT_HTML_TEMPLATE_PATH = "./src/pacasam/dataviz/sampling_dataviz_template.html"

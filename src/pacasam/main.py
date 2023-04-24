@@ -4,10 +4,10 @@ import numpy as np
 import geopandas as gpd
 import yaml
 
-directory = Path(__file__).resolve().parent.parent
-sys.path.append(str(directory))
+root_dir = Path(__file__).resolve().parent.parent
+sys.path.append(str(root_dir))
 from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_optimization_config, setup_custom_logger
-from pacasam.dataviz.describe import make_all_graphs_and_a_report
+from pacasam.describe.report import make_all_graphs_and_a_report
 
 log = setup_custom_logger()
 # Make sure that random operations in numpy (and pandas!) are deterministic.

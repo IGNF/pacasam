@@ -101,7 +101,7 @@ Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machin
 - Tasks:
     - [X] Redéfinir frac_validation_set et associés vers notion de jeu de validation.
     - [X] Enlever le comportement par défaut "critere > 0". Toujours mettre commande sql pour être explicite.
-    - [ ] Option de télécharger une fois en un geopackage le jeu de données complet. C'est un extract (lourd) de la base, permet analyse descriptive... --> passer par un sampler "SelectAllSampler"
+    - [ ] Option de télécharger une fois en un geopackage le jeu de données complet. C'est un extract (lourd) de la base, permet analyse descriptive... --> passer par un sampler "SelectAllSampler" ou bien possible avec le randomsampler en précisant target_total_num_tiles=db_size (il faut avoir en tête la taille de la db, mais ça marche si sampling sans remise) --> documenter cet usage, ou bien faire un 
     - [ ] Revoir ce que je veux inclure dans describe.py. Simplifier / rendre scalable ? Export du html vers pdf?
     - [ ] S'assurer que les logs de chaque échantillonnage s'enregistrent, et incluent en plus de stats desc / quanti sur les éléments. Eventuellement un json avec le nombre de patches concernés pour Targetted ; et pareil pour les autres sampler.
 

@@ -32,7 +32,7 @@ class TargettedSampler(Sampler):
         tiles = sample_spatially_by_slab(tiles, num_samples_to_sample)
 
         self.log.info(
-            f"Sampling: {descriptor_name} "
+            f"TargettedSampler: {descriptor_name} "
             f'| Target: {(descriptor_objectives["target_min_samples_proportion"])} (n={num_samples_target}). '
             f"| Query: {query}"
         )

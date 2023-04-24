@@ -21,7 +21,7 @@ parser.add_argument("--config_file", default="configs/Lipac.yml")
 
 parser.add_argument("--connector_class", default="LiPaCConnector", choices=CONNECTORS_LIBRARY.keys())
 parser.add_argument("--sampler_class", default="TripleSampler", choices=SAMPLERS_LIBRARY.keys())
-parser.add_argument("--output_path", default="outputs/samplings", type=Path)
+parser.add_argument("--output_path", default="outputs/samplings", type=lambda p: Path(p).absolute())
 parser.add_argument("--make_html_report", default="Y", choices=[True, False], type=lambda choice: choice == "Y")
 
 

@@ -53,7 +53,6 @@ class SyntheticConnector(Connector):
         Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html
 
         """
-        print(where)
         return self.synthetic_df.query(where)
 
     def request_all_other_tiles(self, exclude_ids: Iterable):

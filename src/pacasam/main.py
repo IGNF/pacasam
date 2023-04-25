@@ -1,3 +1,4 @@
+import shutil
 import sys
 from pathlib import Path
 import numpy as np
@@ -17,10 +18,11 @@ np.random.seed(0)
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--config_file", default="configs/Lipac.yml")
+parser.add_argument("--config_file", default="configs/Lipac.yml", type=lambda p: Path(p).absolute())
 
 parser.add_argument("--connector_class", default="LiPaCConnector", choices=CONNECTORS_LIBRARY.keys())
 parser.add_argument("--sampler_class", default="TripleSampler", choices=SAMPLERS_LIBRARY.keys())
+
 parser.add_argument("--output_path", default="outputs/samplings", type=lambda p: Path(p).absolute())
 parser.add_argument("--make_html_report", default="Y", choices=[True, False], type=lambda choice: choice == "Y")
 
@@ -36,6 +38,9 @@ def main():
     log.info("Performing a sampling with pacasam (https://github.com/IGNF/pacasam)\n")
     log.info(f"COMMAND: {' '.join(sys.argv)}")
     log.info(f"CONFIGURATION FILE: {args.config_file}")
+    copy_to = args.output_path / args.config_file.name
+    shutil.copy(args.config_file, copy_to)
+    log.info(f"CONFIGURATION FILE COPY: {copy_to}")
     log.info(f"CONFIGURATION: \n {yaml.dump(conf, indent=4)}\n")
 
     # Connector

@@ -4,10 +4,11 @@
 # La cible all dépend de toutes les cibles définies dans $(SAMPLERS). 
 # Une règle générique permet d'exécuter chaque échantillonneur en utilisant la variable $@ qui contient le nom de la cible actuelle.
 
-# Exécutez toutes les tâches en une seule fois en utilisant la commande make all.
+# Exécutez toutes les tâches en une seule fois en utilisant la commande:
+# 	make all.
 # Exécutez une tâche spécifique en utilisant le nom de la tâche en tant que cible: make RandomSampler, make SpatialSampler, etc.
 # Exécutez sur le jeu de données synthtéiques avec 
-#	CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml make all
+#	make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 
 # Les échantillonnages sont sauvegardés sous /outputs/samplings/\{sampler_class\}-\{connector_class\}
 

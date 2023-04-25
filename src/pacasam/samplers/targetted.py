@@ -11,7 +11,8 @@ class TargettedSampler(Sampler):
     def get_tiles(self) -> gpd.GeoDataFrame:
         selection = []
         # Meet target requirements for each criterium
-        for descriptor_name, descriptor_objectives in self._get_sorted_criteria(self.cf["targets_for_TargettedSampler"]).items():
+        targets = self.cf["TargettedSampler"]["targets"]
+        for descriptor_name, descriptor_objectives in self.sorted_targets(targets).items():
             tiles = self._get_matching_tiles(descriptor_name, descriptor_objectives)
             selection += [tiles]
         selection = pd.concat(selection)
@@ -41,7 +42,7 @@ class TargettedSampler(Sampler):
         tiles["sampler"] = self.name
         return tiles[SELECTION_SCHEMA]
 
-    def _get_sorted_criteria(self, criteria: Dict):
+    def sorted_targets(self, criteria: Dict):
         """Sort criteria target_min_samples_proportion.
 
         Criteria is a dict {name: {where: sql_expression_not_used_now, target: float_value_to_reach}}

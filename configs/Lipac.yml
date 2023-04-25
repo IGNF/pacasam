@@ -48,7 +48,7 @@ DiversitySampler:
   # Gestion par parties (chunk) des vignettes via FPS.
   # Les vignettes sont ordonnées par leur identifiant "id", et l'id est supposé avoir été choisi incrémentalement
   # à mesure que la base LiPaC est peuplée. D'où un notion de diversité qui va être également spatialisée.
-  # On pourrait rendre cela plus robuste. Comment ?
+  # TODO: On pourrait rendre cela plus robuste. Comment ?
   max_chunk_size_for_fps: 20000
   # standardization or quantilization
   normalization: standardization
@@ -65,48 +65,46 @@ DiversitySampler:
     - nb_points_eau
     - nb_points_sursol_perenne
 
-targets_for_TargettedSampler:
-# Syntaxe : PANDAS QUERY ("colonne == valeur" par exemple (double égal)).
-# cf. https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#indexing-query
+TargettedSampler:
+  # nom_du_critère_pour_les_logs:
+  #   target_min_samples_proportion: float. Proportion minimale cible dans le jeu de données final.
+  targets:
+    presence_de_pylones:
+      target_min_samples_proportion: 0.02
 
-# nom_du_critère_pour_les_logs:
-#   where: Optionnel. Requête SQL pour filtrer la table vignette dans LiPaC.
-#   target_min_samples_proportion: float. Proportion minimale cible dans le jeu de données final.
+    presence_de_surfaces_d_eau:
+      target_min_samples_proportion: 0.02
 
-  presence_de_pylones:
-    target_min_samples_proportion: 0.02
+    presence_d_autoroutes:
+      target_min_samples_proportion: 0.02
 
-  presence_de_surfaces_d_eau:
-    target_min_samples_proportion: 0.02
+    # Custom - Based on points
 
-  presence_d_autoroutes:
-    target_min_samples_proportion: 0.02
+    nb_points_eau_heq_50:
+      target_min_samples_proportion: 0.05
 
-  nb_points_eau_heq_50:
-    target_min_samples_proportion: 0.05
+    nb_points_sursol_perenne_heq_500:
+      target_min_samples_proportion: 0.05
 
-  nb_points_sursol_perenne_heq_500:
-    target_min_samples_proportion: 0.05
+    nb_points_pont_heq_50:
+      target_min_samples_proportion: 0.05
 
-  nb_points_pont_heq_50:
-    target_min_samples_proportion: 0.05
+    nb_points_bati_heq_500:
+      target_min_samples_proportion: 0.15
 
-  nb_points_bati_heq_500:
-    target_min_samples_proportion: 0.15
+    nb_points_bati_heq_half_of_all_points:
+      target_min_samples_proportion: 0.05
 
-  nb_points_bati_heq_half_of_all_points:
-    target_min_samples_proportion: 0.05
+    # Custom - others
 
-  # Custom
+    fort_devers_denivele_entre_30_45:
+      target_min_samples_proportion: 0.04
 
-  fort_devers_denivele_entre_30_45:
-    target_min_samples_proportion: 0.04
+    fort_devers_denivele_heq_45:
+      target_min_samples_proportion: 0.04
 
-  fort_devers_denivele_heq_45:
-    target_min_samples_proportion: 0.04
+    points_haute_altitude_entre_1000m_2000m:
+      target_min_samples_proportion: 0.04
 
-  points_haute_altitude_entre_1000m_2000m:
-    target_min_samples_proportion: 0.04
-
-  points_haute_altitude_heq_2000m:
-    target_min_samples_proportion: 0.04
+    points_haute_altitude_heq_2000m:
+      target_min_samples_proportion: 0.04

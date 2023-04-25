@@ -17,15 +17,16 @@ connector_kwargs:
   # 2500km²=4M tiles
   # db_size: 4000000
 
-targets_for_TargettedSampler:
-  C0:
-    target_min_samples_proportion: 0.01
-  C1:
-    target_min_samples_proportion: 0.05
-  C2:
-    target_min_samples_proportion: 0.05
-  C3:
-    target_min_samples_proportion: 0.2
+TargettedSampler:
+  targets:
+    C0:
+      target_min_samples_proportion: 0.01
+    C1:
+      target_min_samples_proportion: 0.05
+    C2:
+      target_min_samples_proportion: 0.05
+    C3:
+      target_min_samples_proportion: 0.2
 
 DiversitySampler:
   max_chunk_size_for_fps: 5000

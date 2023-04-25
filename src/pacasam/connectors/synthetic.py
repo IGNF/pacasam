@@ -8,6 +8,7 @@ from shapely.geometry import box
 
 from pacasam.connectors.connector import Connector
 
+# Should match what is in the database. Also used for histograms.
 NB_POINTS_COLNAMES = [
     "nb_points_total",
     "nb_points_sol",

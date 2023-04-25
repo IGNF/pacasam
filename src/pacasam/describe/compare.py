@@ -23,10 +23,11 @@ class Comparer:
         comparison_df = self.compare_bools(df_database, df_sampling)
         comparison_df.to_csv(output_csv, index=False)
 
-        # Compara areas
-        df_database["area_km2"] = df_database.area / SURFACE_OF_A_KM2
-        df_sampling["area_km2"] = df_sampling.area / SURFACE_OF_A_KM2
-        comparison_df = self.compare_area(df_database, df_sampling)
+        # Prepare to compare areas and couts of patches.
+        for df in [df_database, df_sampling]:
+            df["area_km2"] = df.area / SURFACE_OF_A_KM2
+            df["num_patches"] = 1
+        comparison_df = self.compare_sizes(df_database, df_sampling)
         output_csv = self.output_path / "comparison-areas.csv"
 
         # With some stratification
@@ -39,8 +40,8 @@ class Comparer:
             comparison_df_by_key.to_csv(output_csv)
 
             # Compara areas
-            comparison_df_by_key = self.compare_by_key(df_database, df_sampling, key, self.compare_area)
-            output_csv = self.output_path / f"comparison-areas-by_{key}.csv"
+            comparison_df_by_key = self.compare_by_key(df_database, df_sampling, key, self.compare_sizes)
+            output_csv = self.output_path / f"comparison-sizes-by_{key}.csv"
             comparison_df_by_key.to_csv(output_csv)
 
     def compare_bools(self, df_database: pd.DataFrame, df_sampling: pd.DataFrame):
@@ -68,10 +69,10 @@ class Comparer:
         comparison_df["ratio"] = (comparison_df["df_sampling"] / comparison_df["df_database"]).round(decimals=2)
         return comparison_df
 
-    def compare_area(self, df_database: pd.DataFrame, df_sampling: pd.DataFrame):
-        area_base = pd.DataFrame(df_database[["area_km2"]].sum(), columns=["df_database"])
-        area_sampling = pd.DataFrame(df_sampling[["area_km2"]].sum(), columns=["df_sampling"])
-        comparison_df = pd.concat([area_base, area_sampling], axis=1)
+    def compare_sizes(self, df_database: pd.DataFrame, df_sampling: pd.DataFrame):
+        sizes_base = pd.DataFrame(df_database[["area_km2", "num_patches"]].sum(), columns=["df_database"])
+        sizes_sampling = pd.DataFrame(df_sampling[["area_km2", "num_patches"]].sum(), columns=["df_sampling"])
+        comparison_df = pd.concat([sizes_base, sizes_sampling], axis=1)
         comparison_df["ratio"] = (comparison_df["df_sampling"] / comparison_df["df_database"]).round(decimals=2)
         return comparison_df
 

@@ -105,7 +105,7 @@ Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machin
         - [X] Changer la logique pour que la requête SQL initiale permettre de créer des indicateurs plus complexe, type SELECT (nb_points_bati >=500) as nb_points_bati_heq500. Les indicateurs seront alors *toujours des booléens*. D'où simplification dans le code où on n'a plus besoin de clause "where". La requête SQL dans la config documente efficacement la définition de chaque indicateur, et laisse de la flexibilité.
         - [X] Viser fichier csv avec un ligne par indicateur, une colonne par jeu de données. Décrire les indicateurs présents dans le df, puisqu'ils correspondent à tous les indicateurs utilisés dans le sampling. On a simplemet besoin de lister tous les indicateurs, et ensuite on peut simplement calculer les prévalences. 
         Possibilité de calculer ces éléments avec un objet à part qui prend le df en entrée. Pourra prendre le df ET le sampling. Pour faire un croisement / une comparaison, avec des delta.
-        - [ ] Métadata plus générales : surface totale. Surface totale pour chaque sampler utilisée x par split test/val.
+        - [X] Métadata plus générales : surface totale. Surface totale pour chaque sampler utilisée x par split test/val.
         - [ ] Revoir ce que je veux inclure dans describe.py. Simplifier / rendre scalable ? Export du html vers pdf? Supprimer ?
 
 - Tests à venir :

@@ -102,7 +102,7 @@ Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machin
     - [X] Enlever le comportement par défaut "critere > 0". Toujours mettre commande sql pour être explicite.
     - [X] Télécharger une fois en un geopackage le jeu de données complet: possible avec le randomsampler en précisant target_total_num_tiles=db_size (il faut avoir en tête la taille de la db, mais ça marche si sampling sans remise)
     - [ ] Logging :
-        - [ ] Changer la logique pour que la requête SQL initiale permettre de créer des indicateurs plus complexe, type SELECT (nb_points_bati >=500) as nb_points_bati_heq500. Les indicateurs seront alors *toujours des booléens*. D'où simplification dans le code où on n'a plus besoin de clause "where". La requête SQL dans la config documente efficacement la définition de chaque indicateur, et laisse de la flexibilité.
+        - [X] Changer la logique pour que la requête SQL initiale permettre de créer des indicateurs plus complexe, type SELECT (nb_points_bati >=500) as nb_points_bati_heq500. Les indicateurs seront alors *toujours des booléens*. D'où simplification dans le code où on n'a plus besoin de clause "where". La requête SQL dans la config documente efficacement la définition de chaque indicateur, et laisse de la flexibilité.
         - [ ] Viser fichier csv avec un ligne par indicateur, une colonne par jeu de données. Décrire les indicateurs présents dans le df, puisqu'ils correspondent à tous les indicateurs utilisés dans le sampling. On a simplemet besoin de lister tous les indicateurs, et ensuite on peut simplement calculer les prévalences. Pour les id on peut faire un compte distinct (des dalles, des vignettes). On peut rajouter un compte / slab. Prévalence moyenne pour chaque indicateur par slab.
         Possibilité de calculer ces éléments avec un objet à part qui prend le df en entrée. Pourra prendre le df ET le sampling. Pour faire un croisement / une comparaison, avec des delta.
         - [ ] Métadata plus générales : surface totale. Surface totale pour chaque sampler utilisée x par split test/val.
@@ -113,7 +113,8 @@ Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machin
     - Cas "pas de jeu de validation" : frac_validation_set=0
     - Cas "un critère totalement absent" -> ok actuellement Diversity & Random & Spatial & Triple.
         make all  CONNECTOR=SyntheticConnector CONFIG="configs/Synthetic.yml"
-    - Cas "la somme des critères dépasse 100%" -> prévenu ?? FAIL!
+    - Cas "la somme des critères dépasse 100%" -> c'est ok
+    - Cas "on sélectionne plus que voulu avec TargettedSampler" -> un warning.
 
 
 <details>

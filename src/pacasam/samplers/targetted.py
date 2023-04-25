@@ -16,6 +16,11 @@ class TargettedSampler(Sampler):
             tiles = self._get_matching_tiles(descriptor_name, descriptor_objectives)
             selection += [tiles]
         selection = pd.concat(selection)
+        if len(selection) >  self.cf["target_total_num_tiles"]:
+            self.log.warning(f"{self.name}: selected N={len(selection)}, which is higher than the total"
+                             f"target size of N={self.cf['target_total_num_tiles']}."
+                             "If this is not desired, please reconsider target proportions."
+                             )
         return selection
 
     def _get_matching_tiles(self, descriptor_name: str, descriptor_objectives: Dict):

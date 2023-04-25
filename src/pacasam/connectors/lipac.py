@@ -12,8 +12,6 @@ import yaml
 from pacasam.connectors.connector import Connector
 from pacasam.samplers.sampler import TILE_INFO
 
-log = logging.getLogger(__name__)
-
 
 def geometrie_to_geometry_col(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf = gdf.rename(columns={"geometrie": "geometry"}).set_geometry("geometry")
@@ -26,6 +24,7 @@ class LiPaCConnector(Connector):
 
     def __init__(
         self,
+        log: logging.Logger,
         username: str,
         password: str,
         db_lipac_host: str,
@@ -34,7 +33,7 @@ class LiPaCConnector(Connector):
         max_chunksize_for_postgis_extraction: int = 100000,
     ):
         super().__init__()
-
+        self.log = log
         self.username = username
         self.host = db_lipac_host
         self.db_name = db_lipac_name
@@ -64,7 +63,7 @@ class LiPaCConnector(Connector):
         Data is read data the database in blocks of size `CHUNKSIZE_FOR_POSTGIS_REQUESTS`.
         This allows processing the data in blocks rather than loading all of it into memory at once.
         """
-        log.info(f"Requesting the LiPaC database via the following SQL command: \n {extraction_sql_query}")
+        self.log.info(f"Requesting the LiPaC database via the following SQL command: \n {extraction_sql_query}")
         chunks: Generator = gpd.read_postgis(
             text(extraction_sql_query), self.engine.connect(), geom_col="geometrie", chunksize=max_chunksize_for_postgis_extraction
         )
@@ -74,9 +73,8 @@ class LiPaCConnector(Connector):
         gdf = gdf.sort_values(by="id")
         return gdf
 
-    def request_tiles_by_condition(self, where: str) -> gpd.GeoDataFrame:
-        # dataframe need diff query than sql : use == instead of =,
-        return self.df.query(where)[TILE_INFO]
+    def request_tiles_by_boolean_indicator(self, bool_descriptor_name) -> gpd.GeoDataFrame:
+        return self.df.query(bool_descriptor_name)[TILE_INFO]
 
     def request_all_other_tiles(self, exclude_ids: Iterable):
         """Requests all other tiles."""

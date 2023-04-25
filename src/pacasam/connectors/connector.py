@@ -17,9 +17,10 @@ class Connector:
 
     def __init__(self):
         self.name: str = self.__class__.__name__
+        self.log = None
 
-    def request_tiles_by_condition(self, where: str) -> gpd.GeoDataFrame:
-        """Requests tiles matching conditions. Output schema: [id, dalle_id, geometry]"""
+    def request_tiles_by_boolean_indicator(self) -> gpd.GeoDataFrame:
+        """Requests tiles by boolean indicator. Output schema: [id, dalle_id, geometry]"""
         raise NotImplementedError()
 
     def request_all_other_tiles(self, exclude_ids: Iterable):

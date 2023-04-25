@@ -11,7 +11,7 @@ frac_validation_set:  0.0 # float
 connector_kwargs:
   # Lower
   # Création pour chaque prévalence d'un indicateur binaire C0, C1, etc.
-  binary_descriptors_prevalence: [0.005, 0.005, 0.005, 0.7, 0.7]
+  binary_descriptors_prevalence: [0.005, 0.005, 0.005, 0.7]
   db_size: 10000
 
   # 2500km²=4M tiles
@@ -19,20 +19,13 @@ connector_kwargs:
 
 targets_for_TargettedSampler:
   C0:
-    where: "C0 > 0"
     target_min_samples_proportion: 0.01
   C1:
-    where: "C1 > 0"
     target_min_samples_proportion: 0.05
   C2:
-    where: "C2 > C1"
     target_min_samples_proportion: 0.05
   C3:
-    where: "C3 > 0"
     target_min_samples_proportion: 0.2
-  C2_et_C3_sup_a_zero:
-    where: "(C2 > 0) & (C3 > 0)"
-    target_min_samples_proportion: 0.1
 
 DiversitySampler:
   max_chunk_size_for_fps: 5000

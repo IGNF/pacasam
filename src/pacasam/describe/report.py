@@ -13,7 +13,7 @@ from pacasam.connectors.synthetic import NB_POINTS_COLNAMES
 PREFIX_BOOL_DESCRIPTOR = "presence"
 
 HTML_PLOTS_PLACEHOLDER = "{{next_div}}"
-REPORT_HTML_TEMPLATE_PATH = "./src/pacasam/dataviz/sampling_dataviz_template.html"
+REPORT_HTML_TEMPLATE_PATH = "./src/pacasam/describe/sampling_dataviz_template.html"
 
 
 def make_class_histogram(df):
@@ -166,7 +166,6 @@ def make_all_graphs_and_a_report(gpkg_path: Path, output_path: Path):
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
     parser.add_argument("--gpkg_path", type=Path)
     parser.add_argument("--output_path", type=Path)

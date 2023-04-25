@@ -29,34 +29,33 @@ def main():
     # config_file = Path("configs/Lipac.yml")
     args = parser.parse_args()
     conf = load_optimization_config(args.config_file)
-    # Connector
-    connector_class = CONNECTORS_LIBRARY.get(args.connector_class)
-    connector = connector_class(**conf["connector_kwargs"])
 
-    # Sampler
-    sampler_class = SAMPLERS_LIBRARY.get(args.sampler_class)
-    sampler = sampler_class(connector=connector, optimization_config=conf, log=log)
-
-    task_name = f"{sampler.name}-{connector.name}"
     # Prepare logging
+    task_name = f"{args.sampler_class}-{args.connector_class}"
     set_log_text_handler(log, args.output_path, log_file_name=task_name + ".log")
-
-    # Logging
     log.info("Performing a sampling with pacasam (https://github.com/IGNF/pacasam)\n")
     log.info(f"COMMAND: {' '.join(sys.argv)}")
     log.info(f"CONFIGURATION FILE: {args.config_file}")
     log.info(f"CONFIGURATION: \n {yaml.dump(conf, indent=4)}\n")
 
+    # Connector
+    connector_class = CONNECTORS_LIBRARY.get(args.connector_class)
+    connector = connector_class(log=log, **conf["connector_kwargs"])
+
+    # Sampler
+    sampler_class = SAMPLERS_LIBRARY.get(args.sampler_class)
+    sampler = sampler_class(connector=connector, optimization_config=conf, log=log)
+
     # Perform sampling
     selection: gpd.GeoDataFrame = sampler.get_tiles()
     gdf = connector.extract(selection)
     gpkg_path = args.output_path / f"{task_name}-extract.gpkg"
-    log.info(f"Saving N={len(gdf)} patches into {gpkg_path}...")
+    log.info(f"Saving N={len(gdf)} patches into {gpkg_path}")
     gdf.to_file(gpkg_path)
     # (Optionnaly) make a html report with descriptive stats.
     if args.make_html_report:
         output_path = args.output_path / f"{task_name}-dataviz/"
-        log.info(f"Saving html report under {output_path}")
+        log.info(f"Making an html report, saved at {output_path}")
         make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
 
 

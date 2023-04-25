@@ -19,13 +19,8 @@ class TargettedSampler(Sampler):
 
     def _get_matching_tiles(self, descriptor_name: str, descriptor_objectives: Dict):
         """Query the tiles info based on a descriptor name + objective."""
-        try:
-            query = descriptor_objectives.get("where")
-        except KeyError:
-            raise KeyError(
-                f"Parameter `where` is not defined for descriptor {descriptor_name}. " 'Expected something like where:"criteria_name > 0"'
-            )
-        tiles = self.connector.request_tiles_by_condition(where=query)
+
+        tiles = self.connector.request_tiles_by_boolean_indicator(descriptor_name)
         num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * self.cf["target_total_num_tiles"])
         num_samples_to_sample = min(num_samples_target, len(tiles))  # cannot take more that there is.
 
@@ -34,7 +29,6 @@ class TargettedSampler(Sampler):
         self.log.info(
             f"TargettedSampler: {descriptor_name} "
             f'| Target: {(descriptor_objectives["target_min_samples_proportion"])} (n={num_samples_target}). '
-            f"| Query: {query}"
         )
 
         if num_samples_to_sample < num_samples_target:

@@ -30,53 +30,45 @@ NUM_TILES_BY_SLAB = int((SLAB_SIZE / TILE_SIZE) ** 2)
 
 
 class SyntheticConnector(Connector):
-    def __init__(self, binary_descriptors_prevalence: List[float], db_size: int = 10000):
+    def __init__(self, log, binary_descriptors_prevalence: List[float], db_size: int = 10000):
         super().__init__()
-
+        self.log = log
         self.db_size = db_size
-
-        data = []
-        for t in binary_descriptors_prevalence:
-            n_target = ceil(t * db_size)
-            d = np.concatenate([np.ones(shape=(n_target,)), np.zeros(shape=(db_size - n_target,))])
-            np.random.shuffle(d)
-            data += [d]
-        for _ in NB_POINTS_COLNAMES:
-            d = np.random.randint(low=0, high=60_000, size=(db_size,)).astype(int)
-            data += [d]
-        data = np.column_stack(data)
-        self.descriptor_names = [f"C{idx}" for idx in range(len(binary_descriptors_prevalence))] + NB_POINTS_COLNAMES
-        # WARNING: the synthetic geometries will not be compliant with the dall_id.
         df_geom, df_dalle_id = self._make_synthetic_geometries_and_slabs()
-        self.synthetic_df = gpd.GeoDataFrame(
-            data,
-            columns=self.descriptor_names,
+        # WARNING: the synthetic geometries will not be compliant with the dalle_id.
+        self.df = gpd.GeoDataFrame(
             geometry=df_geom,
             crs="EPSG:2154",
         )
-        self.synthetic_df["id"] = range(len(self.synthetic_df))
-        self.synthetic_df["dalle_id"] = df_dalle_id
 
-    def request_tiles_by_condition(self, where: str) -> pd.Series:
-        """Requests id based on a where sql-like query, using pandas syntax
+        for idx, t in enumerate(binary_descriptors_prevalence):
+            n_target = ceil(t * db_size)
+            d = np.concatenate([np.ones(shape=(n_target,)).astype(bool), np.zeros(shape=(db_size - n_target,)).astype(bool)])
+            np.random.shuffle(d)
+            self.df[f"C{idx}"] = d
 
-        For instance: query = 'C0 == 1' or "C1 >= 57"
-        Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html
+        for nb_point_colname in NB_POINTS_COLNAMES:
+            d = np.random.randint(low=0, high=60_000, size=(db_size,)).astype(int)
+            self.df[nb_point_colname] = d
 
-        """
-        return self.synthetic_df.query(where)
+        self.df["id"] = range(len(self.df))
+        self.df["dalle_id"] = df_dalle_id
+
+    def request_tiles_by_boolean_indicator(self, bool_descriptor_name) -> pd.Series:
+        """Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html"""
+        return self.df.query(bool_descriptor_name)
 
     def request_all_other_tiles(self, exclude_ids: Iterable):
         """Requests all other tiles."""
-        all_tiles = self.request_tiles_by_condition(where="id")
+        all_tiles = self.request_tiles_by_boolean_indicator(where="id")
         return all_tiles[~all_tiles["id"].isin(exclude_ids)]
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
         if selection is None:
-            return self.synthetic_df
+            return self.df
 
-        extract = self.synthetic_df.merge(
+        extract = self.df.merge(
             selection,
             how="inner",
             on="id",

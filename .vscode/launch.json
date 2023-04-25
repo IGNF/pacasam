@@ -50,7 +50,7 @@
             ]
         },
         {
-            "name": "Run main (Completion+Lipac)",
+            "name": "Run main (Spatial+Lipac)",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
@@ -61,7 +61,7 @@
             ]
         },
         {
-            "name": "Run main (Completion+Synthetic)",
+            "name": "Run main (Spatial+Synthetic)",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
@@ -83,6 +83,19 @@
                 "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
                 "--sampler_class=RandomSampler",
+            ]
+        },
+        {
+            "name": "Run main (Targetted+Synthetic)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_file=configs/Synthetic.yml",
+                "--connector_class=SyntheticConnector",
+                "--sampler_class=TargettedSampler",
             ]
         },
     ]

@@ -8,8 +8,8 @@ import yaml
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
 from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_optimization_config, setup_custom_logger
-from pacasam.describe.report import make_all_graphs_and_a_report
-from pacasam.describe.compare import Comparer
+from pacasam.analysis.graphs import make_all_graphs_and_a_report
+from pacasam.analysis.stats import Comparer
 
 log = setup_custom_logger()
 # Make sure that random operations in numpy (and pandas!) are deterministic.

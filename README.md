@@ -79,11 +79,15 @@ Par défaut la base LiPaC est interrogée.
 conda activate pacasam
 python ./src/pacasam/main.py --config_file=lipac/Synthetic.yml
 ```
-Pour produire un rapport html interactif de statistiques descriptives, deux options:
-- Préciser `make_html_report=Y` lors de l'échantillonnage.
-- Décrire un geopackage existant. Afficher les options avec:
+
+5. Visualisation de l'échantillonnage
+
+Pour produire un rapport html interactif de statistiques descriptives, ainsi que les graphiques au format SVG correspondant, deux options:
+- Préciser `make_html_report=Y` au moment de l'échantillonnage.
+- Décrire un échantillonnage existant.
+    Afficher les options avec:
     ```bash
-    python ./src/pacasam/dataviz/describe.py --help
+    python ./src/pacasam/analysis/graphs.py --help
     ```
 
 </details>
@@ -106,11 +110,11 @@ Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machin
         - [X] Viser fichier csv avec un ligne par indicateur, une colonne par jeu de données. Décrire les indicateurs présents dans le df, puisqu'ils correspondent à tous les indicateurs utilisés dans le sampling. On a simplemet besoin de lister tous les indicateurs, et ensuite on peut simplement calculer les prévalences. 
         Possibilité de calculer ces éléments avec un objet à part qui prend le df en entrée. Pourra prendre le df ET le sampling. Pour faire un croisement / une comparaison, avec des delta.
         - [X] Métadata plus générales : surface totale. Surface totale pour chaque sampler utilisée x par split test/val.
-        - [ ] Revoir ce que je veux inclure dans describe.py. Simplifier / rendre scalable ? Export du html vers pdf? Supprimer ?
+        - [X] Revoir ce que je veux inclure dans graphs.py. Simplifier / rendre scalable ? Export du html vers pdf? Supprimer ?
 
-- Tests à venir :
-    - Tout lancer sur jeu synthetic (cf. makefile) -> ok actuellement avec 
-    - Cas "pas de jeu de validation" : frac_validation_set=0
+- FAQ / Cas spécifiques
+    - Cas "pas de jeu de validation" : frac_validation_set=0 OK. 
+    - Cas "que du jeu de validation" : frac_validation_set=1 OK. Peut être utilisé pour jeu de test... Mais à voir si on peut mettre "test" à la place. 
     - Cas "un critère totalement absent" -> ok actuellement Diversity & Random & Spatial & Triple.
         make all  CONNECTOR=SyntheticConnector CONFIG="configs/Synthetic.yml"
     - Cas "la somme des critères dépasse 100%" -> c'est ok

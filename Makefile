@@ -19,12 +19,15 @@ SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler Triple
 
 all: $(SAMPLERS)
 
-
+all_for_all_connectors:
+	make all REPORTS=Y
+	make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 
 help:
 	@echo "Liste des cibles disponibles :"
-	@echo "  all - Exécute toutes les tâches."
 	@echo "  $(SAMPLERS) - Exécute chaque échantillonneur individuellement."
+	@echo "  all - Exécute toutes les tâches pour un connecteur donné. Par défaut: Lipac"
+	@echo "  all_for_all_connectors - Make all appliqué aux connecteurs Lipac et Synthetic."
 	@echo "  help - Affiche cette aide."
 	@echo "Run complet :"
 	@echo "  make all REPORTS=Y"

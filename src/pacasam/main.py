@@ -24,20 +24,22 @@ parser.add_argument("--config_file", default="configs/Lipac.yml", type=lambda p:
 parser.add_argument("--connector_class", default="LiPaCConnector", choices=CONNECTORS_LIBRARY.keys())
 parser.add_argument("--sampler_class", default="TripleSampler", choices=SAMPLERS_LIBRARY.keys())
 
-parser.add_argument("--output_path", default="outputs/samplings", type=lambda p: Path(p).absolute())
+parser.add_argument("--output_path", default=None)
 parser.add_argument("--make_html_report", default="Y", choices=[True, False], type=lambda choice: choice == "Y")
 
 
 def main():
     # config_file = Path("configs/Lipac.yml")
     args = parser.parse_args()
-    conf = load_optimization_config(args.config_file)
+    task_name = f"{args.connector_class}-{args.sampler_class}"
+    args.output_path = args.output_path if args.output_path is not None else f"outputs/samplings/{task_name}/"
+    args.output_path = Path(args.output_path).absolute()
 
     # Prepare logging
-    task_name = f"{args.sampler_class}-{args.connector_class}"
-    set_log_text_handler(log, args.output_path, log_file_name=task_name + ".log")
-    log.info("Performing a sampling with pacasam (https://github.com/IGNF/pacasam)\n")
+    set_log_text_handler(log, args.output_path)
+    log.info("Performing a sampling with pacasam (https://github.com/IGNF/pacasam).\n")
     log.info(f"COMMAND: {' '.join(sys.argv)}")
+    conf = load_optimization_config(args.config_file)
     log.info(f"CONFIGURATION FILE: {args.config_file}")
     copy_to = args.output_path / args.config_file.name
     shutil.copy(args.config_file, copy_to)
@@ -59,13 +61,13 @@ def main():
     log.info(f"Saving N={len(gdf)} patches into {gpkg_path}")
     gdf.to_file(gpkg_path)
 
-    # Get descriptive statistics
-    comparer = Comparer(output_path=args.output_path / f"{task_name}-stats")
+    # Get descriptive statistics by comparing the database and the sampling
+    comparer = Comparer(output_path=args.output_path / "stats")
     comparer.compare(connector.db, gdf)
 
     # (Optionnaly) make a html report with descriptive stats.
     if args.make_html_report:
-        output_path = args.output_path / f"{task_name}/dataviz/"
+        output_path = args.output_path / "dataviz"
         log.info(f"Making an html report, saved at {output_path}")
         make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
 

@@ -10,8 +10,6 @@
 # Exécutez sur le jeu de données synthtéiques avec 
 #	make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 
-# Les échantillonnages sont sauvegardés sous /outputs/samplings/\{sampler_class\}-\{connector_class\}
-
 CONNECTOR ?= LiPaCConnector  # LiPaCConnector ou SyntheticConnector
 CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml - Devrait correspondre au connecteur!
 REPORTS ?= N # N(o) ou Y(es). No pour des résultats plus rapides.
@@ -28,6 +26,9 @@ help:
 	@echo "  all - Exécute toutes les tâches."
 	@echo "  $(SAMPLERS) - Exécute chaque échantillonneur individuellement."
 	@echo "  help - Affiche cette aide."
+	@echo "Run complet :"
+	@echo "  make all REPORTS=Y"
+	@echo "  make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml"
 
 $(SAMPLERS):
 	python ./src/pacasam/main.py --config_file=$(CONFIG) \

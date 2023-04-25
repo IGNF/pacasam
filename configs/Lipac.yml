@@ -1,7 +1,7 @@
 # Configuration pour l'optimisation de l'échantillonnage de patches.
 
 # Objectif de taille du dataset final.
-target_total_num_tiles: 5000  # 250km² = 100000 samples, 20x reduction.
+target_total_num_tiles: 5000  # 250km² = 100000 samples, 5000 samples -> 20x reduction  | Alternatively 75km² = 30000 samples.
 frac_validation_set:  0.1 # float
 
 # kwargs for lipac database

@@ -25,7 +25,7 @@ def setup_custom_logger():
     return log
 
 
-def set_log_text_handler(log: logging.Logger, outdir: Path, log_file_name: str = "log.txt"):
+def set_log_text_handler(log: logging.Logger, outdir: Path, log_file_name: str = "runtime.log"):
     """Use in main(), to setup a specific log folder."""
     outdir.mkdir(parents=True, exist_ok=True)
     handler = logging.FileHandler(outdir / log_file_name, mode="w")

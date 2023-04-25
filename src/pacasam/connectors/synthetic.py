@@ -60,8 +60,7 @@ class SyntheticConnector(Connector):
 
     def request_all_other_tiles(self, exclude_ids: Iterable):
         """Requests all other tiles."""
-        all_tiles = self.request_tiles_by_boolean_indicator(where="id")
-        return all_tiles[~all_tiles["id"].isin(exclude_ids)]
+        return self.db[~self.db["id"].isin(exclude_ids)]
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract everything using ids."""

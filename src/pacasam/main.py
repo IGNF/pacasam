@@ -60,13 +60,12 @@ def main():
     gdf.to_file(gpkg_path)
 
     # Get descriptive statistics
-    comparer = Comparer()
-    comparison_df = comparer.compare(connector.db, gdf)
-    comparison_df.to_csv(args.output_path / f"{task_name}-stats.csv")
+    comparer = Comparer(output_path=args.output_path / f"{task_name}-stats")
+    comparer.compare(connector.db, gdf)
 
     # (Optionnaly) make a html report with descriptive stats.
     if args.make_html_report:
-        output_path = args.output_path / f"{task_name}-dataviz/"
+        output_path = args.output_path / f"{task_name}/dataviz/"
         log.info(f"Making an html report, saved at {output_path}")
         make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
 

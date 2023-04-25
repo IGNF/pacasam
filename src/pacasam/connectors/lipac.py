@@ -38,8 +38,8 @@ class LiPaCConnector(Connector):
         self.host = db_lipac_host
         self.db_name = db_lipac_name
         self.create_session(password)
-        self.df = self.extract_all_samples_as_a_df(extraction_sql_query, max_chunksize_for_postgis_extraction)
-        self.db_size = len(self.df)
+        self.db = self.extract_all_samples_as_a_df(extraction_sql_query, max_chunksize_for_postgis_extraction)
+        self.db_size = len(self.db)
 
     def create_session(self, password):
         url = URL.create(
@@ -74,19 +74,19 @@ class LiPaCConnector(Connector):
         return gdf
 
     def request_tiles_by_boolean_indicator(self, bool_descriptor_name) -> gpd.GeoDataFrame:
-        return self.df.query(bool_descriptor_name)[TILE_INFO]
+        return self.db.query(bool_descriptor_name)[TILE_INFO]
 
     def request_all_other_tiles(self, exclude_ids: Iterable):
         """Requests all other tiles."""
-        other_tiles = self.df[TILE_INFO]
+        other_tiles = self.db[TILE_INFO]
         return other_tiles[~other_tiles["id"].isin(exclude_ids)]
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract using ids. If selection is None, select everything."""
         if selection is None:
-            return self.df
+            return self.db
 
-        extract = self.df.merge(
+        extract = self.db.merge(
             selection,
             how="inner",
             on="id",

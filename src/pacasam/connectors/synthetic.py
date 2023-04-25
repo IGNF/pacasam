@@ -36,7 +36,7 @@ class SyntheticConnector(Connector):
         self.db_size = db_size
         df_geom, df_dalle_id = self._make_synthetic_geometries_and_slabs()
         # WARNING: the synthetic geometries will not be compliant with the dalle_id.
-        self.df = gpd.GeoDataFrame(
+        self.db = gpd.GeoDataFrame(
             geometry=df_geom,
             crs="EPSG:2154",
         )
@@ -45,18 +45,18 @@ class SyntheticConnector(Connector):
             n_target = ceil(t * db_size)
             d = np.concatenate([np.ones(shape=(n_target,)).astype(bool), np.zeros(shape=(db_size - n_target,)).astype(bool)])
             np.random.shuffle(d)
-            self.df[f"C{idx}"] = d
+            self.db[f"C{idx}"] = d
 
         for nb_point_colname in NB_POINTS_COLNAMES:
             d = np.random.randint(low=0, high=60_000, size=(db_size,)).astype(int)
-            self.df[nb_point_colname] = d
+            self.db[nb_point_colname] = d
 
-        self.df["id"] = range(len(self.df))
-        self.df["dalle_id"] = df_dalle_id
+        self.db["id"] = range(len(self.db))
+        self.db["dalle_id"] = df_dalle_id
 
     def request_tiles_by_boolean_indicator(self, bool_descriptor_name) -> pd.Series:
         """Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html"""
-        return self.df.query(bool_descriptor_name)
+        return self.db.query(bool_descriptor_name)
 
     def request_all_other_tiles(self, exclude_ids: Iterable):
         """Requests all other tiles."""
@@ -66,9 +66,9 @@ class SyntheticConnector(Connector):
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
         if selection is None:
-            return self.df
+            return self.db
 
-        extract = self.df.merge(
+        extract = self.db.merge(
             selection,
             how="inner",
             on="id",

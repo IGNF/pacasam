@@ -9,6 +9,7 @@ root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
 from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_optimization_config, setup_custom_logger
 from pacasam.describe.report import make_all_graphs_and_a_report
+from pacasam.describe.compare import Comparer
 
 log = setup_custom_logger()
 # Make sure that random operations in numpy (and pandas!) are deterministic.
@@ -57,6 +58,12 @@ def main():
     gpkg_path = args.output_path / f"{task_name}-extract.gpkg"
     log.info(f"Saving N={len(gdf)} patches into {gpkg_path}")
     gdf.to_file(gpkg_path)
+
+    # Get descriptive statistics
+    comparer = Comparer()
+    comparison_df = comparer.compare(connector.db, gdf)
+    comparison_df.to_csv(args.output_path / f"{task_name}-stats.csv")
+
     # (Optionnaly) make a html report with descriptive stats.
     if args.make_html_report:
         output_path = args.output_path / f"{task_name}-dataviz/"

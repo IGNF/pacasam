@@ -20,7 +20,7 @@ connector_kwargs:
 TargettedSampler:
   targets:
     C0:
-      target_min_samples_proportion: 0.01
+      target_min_samples_proportion: 0.20
     C1:
       target_min_samples_proportion: 0.05
     C2:

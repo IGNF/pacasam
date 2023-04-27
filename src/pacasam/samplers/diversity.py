@@ -28,7 +28,7 @@ class DiversitySampler(Sampler):
         We use Farthest Point Sampling (FPS) as a way to cover the space evenly.
 
         Parameters:
-            num_diverse_to_sample (int): The number of point clouds to sample. Defaults to 1.
+            num_diverse_to_sample (int): The number of point clouds to sample. If None, takes the value of target_total_num_patches.
 
         Parameters from configuration (under `DiversitySampler`):
             normalization (str): The type of normalization to apply to the class histograms. Must be either 'standardization'
@@ -36,11 +36,12 @@ class DiversitySampler(Sampler):
             n_quantiles (int): The number of quantiles to use when applying the 'quantilization' normalization. Ignored
                 if normalization is set to 'standardization'. Defaults to 50.
             targets (List[str]): The columns considered for patch-to-patch distance in FPS.
-            max_chunk_size_for_fps (int): max num of (consecutive) patches to process by FPS. Lower chunks means that we look for diversity in
+            max_chunk_size_for_fps (int): max num of (consecutive) patches to process by FPS.
+                Lower chunks means that we look for diversity in
             smaller sets of points, thus yielding a better spatial coverage.
 
         Returns:
-            A list of length `num_diverse_to_sample` containing the indices of the sampled points.
+            A pd.DataFrame with selected patches.
 
         Notes:
             We need to normalize each count of points to map them to class-specific notions from "absent" to "highly present".
@@ -58,9 +59,10 @@ class DiversitySampler(Sampler):
 
         if num_diverse_to_sample is None:
             num_diverse_to_sample = self.cf["target_total_num_patches"]
+
         self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
-        df = self.connector.extract(selection=None)
+        df = self.connector.db
         # We sort by id with the assumption that the chunks are consecutive patches, from consecutive slabs.
         # This enables FPS to have a notion of "diversity" that is spatially specific.
         df = df.sort_values(by="id")

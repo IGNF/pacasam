@@ -1,7 +1,9 @@
 import logging
 from typing import Iterable
-import pandas as pd
-import geopandas as gpd
+from pandas import Series
+from geopandas import GeoDataFrame
+
+from pacasam.samplers.sampler import TILE_INFO
 
 log = logging.getLogger(__name__)
 
@@ -14,19 +16,20 @@ class Connector:
     """
 
     db_size: int
+    db: GeoDataFrame
 
     def __init__(self):
         self.name: str = self.__class__.__name__
         self.log = None
 
-    def request_patches_by_boolean_indicator(self) -> gpd.GeoDataFrame:
+    def request_patches_by_boolean_indicator(self) -> GeoDataFrame:
         """Requests patches by boolean indicator. Output schema: [id, dalle_id, geometry]"""
         raise NotImplementedError()
 
     def request_all_other_patches(self, exclude_ids: Iterable):
-        """Requests all patches except the ones whose id is in exclude."""
-        raise NotImplementedError()
+        """Requests all other patches."""
+        return self.db[~self.db["id"].isin(exclude_ids)][TILE_INFO]
 
-    def extract(self, ids: pd.Series) -> gpd.GeoDataFrame:
+    def extract(self, ids: Series) -> GeoDataFrame:
         """Extract selected ids and geometries from the database."""
         raise NotImplementedError()

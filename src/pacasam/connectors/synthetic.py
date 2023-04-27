@@ -8,6 +8,7 @@ import geopandas as gpd
 from shapely.geometry import box
 
 from pacasam.connectors.connector import Connector
+from pacasam.samplers.sampler import TILE_INFO
 
 # Should match what is in the database. Also used for histograms.
 NB_POINTS_COLNAMES = [
@@ -59,16 +60,9 @@ class SyntheticConnector(Connector):
     def request_patches_by_boolean_indicator(self, bool_descriptor_name) -> pd.Series:
         """Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html"""
         return self.db.query(bool_descriptor_name)
-
-    def request_all_other_patches(self, exclude_ids: Iterable):
-        """Requests all other patches."""
-        return self.db[~self.db["id"].isin(exclude_ids)]
-
+    
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
-        if selection is None:
-            return self.db
-
         extract = self.db.merge(
             selection,
             how="inner",

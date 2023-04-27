@@ -76,15 +76,8 @@ class LiPaCConnector(Connector):
     def request_patches_by_boolean_indicator(self, bool_descriptor_name) -> gpd.GeoDataFrame:
         return self.db.query(bool_descriptor_name)[TILE_INFO]
 
-    def request_all_other_patches(self, exclude_ids: Iterable):
-        """Requests all other patches."""
-        other_patches = self.db[TILE_INFO]
-        return other_patches[~other_patches["id"].isin(exclude_ids)]
-
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract using ids. If selection is None, select everything."""
-        if selection is None:
-            return self.db
 
         extract = self.db.merge(
             selection,

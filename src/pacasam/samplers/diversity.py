@@ -63,10 +63,11 @@ class DiversitySampler(Sampler):
 
         self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
-        db = self.connector.db
+        db = self.connector.db.copy()
         # We sort by id with the assumption that the chunks are consecutive patches, from consecutive slabs.
         # This enables FPS to have a notion of "diversity" that is spatially specific.
-        db = db.sort_values(by="id")
+        # TODO: we could add bloc_id to make sure to work on consecutive slabs.
+        db = db.sort_values(by=["dalle_id", "id"])
         db = db[TILE_INFO + self.cols_for_fps]
         db = self.normalize_df(db, self.cols_for_fps)
 
@@ -116,7 +117,7 @@ class DiversitySampler(Sampler):
 
         Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
         """
-        # 1/3 Set zeros as NaN to ignore them in the quantile transforms.
+        # 1/3 Set zeros as NaN to ignore them.
         df = df.replace(to_replace=0, value=np.nan)
 
         # 2/3 Normalize columns to define a meaningful distance between histogram patches.

@@ -3,7 +3,8 @@ from typing import Iterable
 from pandas import Series
 from geopandas import GeoDataFrame
 
-from pacasam.samplers.sampler import TILE_INFO
+# We need at least these information to perform sampling
+TILE_INFO = ["id", "dalle_id"]
 
 log = logging.getLogger(__name__)
 

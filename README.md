@@ -100,6 +100,14 @@ Pour un apprentissage automatique, créer deux configuration, p.ex. `Lipac_train
 
 Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires p.ex. par 20k vignettes successives. 
 
+Question ouverte : 
+- Meilleure façon de faire le split train/val sur sélection FPS. Actuel : les num_val premier points. Possible : un autre sampling séparé sur le reste des points shufflés pour avoir autre sélection.
+- Assurer la spatialisation de FPS dans DiversitySampler - ou bien préférer la diversité des classes et pas la diversité spatiale ? Actuel: chunk basés sur les ids qui sont attendus successifs. Ce n'est pas satisfaisant. Préférer un groupement géographique ? [Bisecting K-Means](https://scikit-learn.org/stable/modules/clustering.html) sur les positions des centres peut être une approche efficace. Cf. [ce visuel](https://scikit-learn.org/stable/auto_examples/cluster/plot_bisect_kmeans.html#sphx-glr-auto-examples-cluster-plot-bisect-kmeans-py). [MiniBatchKMeans](https://scikit-learn.org/stable/auto_examples/cluster/plot_birch_vs_minibatchkmeans.html)
+- Méthode par clustering simple. Combiné avec une adaptation de sample_spatially_by_slab qui devient un sampling_stratifié comme un autre, cherchant à équilibré la répartition sur tous les clusters (actuellement : les dalles).
+    Algo : [Bisecting K-Means](https://scikit-learn.org/stable/modules/clustering.html) -> fait des clusters de tailles proches => respecte la distribution initiale.
+    Algo : [KMeans] -> fait des clusters de tailles différentes ==> respecte mieux les relations de distances => rééquilibrage de la diversité ensuite. Donc à préférer.  
+- Une méthode plus relaxe que FPS qui chercherait à maximiser les distances entre tous les points...
+
 </details>
 
 <details>

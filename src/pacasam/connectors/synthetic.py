@@ -1,6 +1,6 @@
 import logging
 from math import ceil
-from typing import Iterable, List, Optional
+from typing import List, Optional
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
@@ -8,7 +8,6 @@ import geopandas as gpd
 from shapely.geometry import box
 
 from pacasam.connectors.connector import Connector
-from pacasam.samplers.sampler import TILE_INFO
 
 # Should match what is in the database. Also used for histograms.
 NB_POINTS_COLNAMES = [

@@ -2,9 +2,10 @@ import numpy as np
 from math import ceil, floor
 import pandas as pd
 from sklearn.preprocessing import QuantileTransformer
+from pacasam.connectors.connector import TILE_INFO
 
 from pacasam.samplers.algos import fps
-from pacasam.samplers.sampler import SELECTION_SCHEMA, TILE_INFO, Sampler
+from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 
 
 class DiversitySampler(Sampler):
@@ -62,15 +63,15 @@ class DiversitySampler(Sampler):
 
         self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
-        df = self.connector.db
+        db = self.connector.db
         # We sort by id with the assumption that the chunks are consecutive patches, from consecutive slabs.
         # This enables FPS to have a notion of "diversity" that is spatially specific.
-        df = df.sort_values(by="id")
-        df = df[TILE_INFO + self.cols_for_fps]
-        df = self.normalize_df(df, self.cols_for_fps)
+        db = db.sort_values(by="id")
+        db = db[TILE_INFO + self.cols_for_fps]
+        db = self.normalize_df(db, self.cols_for_fps)
 
         # Farthest Point Sampling
-        diverse_patches = list(self._get_patches_via_fps(df, num_diverse_to_sample))
+        diverse_patches = list(self._get_patches_via_fps(db, num_diverse_to_sample))
         diverse_patches = pd.concat(diverse_patches, ignore_index=True)
         # ceil(...) might give a tiny amount of patches in excess
         diverse_patches = diverse_patches.iloc[:num_diverse_to_sample]

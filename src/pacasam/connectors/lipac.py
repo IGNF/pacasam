@@ -9,8 +9,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
 import yaml
-from pacasam.connectors.connector import Connector
-from pacasam.samplers.sampler import TILE_INFO
+from pacasam.connectors.connector import TILE_INFO, Connector
 
 
 def geometrie_to_geometry_col(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:

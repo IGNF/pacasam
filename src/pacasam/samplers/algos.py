@@ -18,27 +18,25 @@ def sample_spatially_by_slab(patches: DataFrame, num_to_sample: int):
     # Sample with replacement to avoid errors, dropping duplicates afterwards.
     # This leads us to be already close to our target num of samples.
 
-    random_state = 0
     min_n_by_slab = floor(num_to_sample / len(patches["dalle_id"].unique()))
     min_n_by_slab = max(min_n_by_slab, 1)
     # Sample with replacement in case a slab (dalle) has few patches (e.g. near a water surface).
-    sampled_patches = patches.groupby("dalle_id").sample(n=min_n_by_slab, random_state=random_state, replace=True, ignore_index=True)
+    sampled_patches = patches.groupby("dalle_id").sample(n=min_n_by_slab, random_state=0, replace=True)
     sampled_patches = sampled_patches.drop_duplicates(subset="id")
     if len(sampled_patches) > num_to_sample:
         # We alreay have all the sample we need (case where num_samples_to_sample < number of slabs, and we got 1 in each tile)
-        return sampled_patches.sample(n=num_to_sample, random_state=random_state)
+        return sampled_patches.sample(n=num_to_sample, random_state=0)
 
     # Step 2: Complete, accounting for slabs with a small number of patches by removing the already selected
     # ones from the pool, and sampling one tile at each iteration.
     # WARNING: the extreme case is where the is a mega concentration in a specific slab, and then we have to
     # loop to get every tile within (with a maximum of n~400 iterations since it is the max num of tile per slab.)
     while len(sampled_patches) < num_to_sample:
-        random_state += 1
         remaining_ids = patches[~patches["id"].isin(sampled_patches["id"])]
-        add_these_ids = remaining_ids.groupby("dalle_id").sample(n=1, random_state=random_state, replace=False)
+        add_these_ids = remaining_ids.groupby("dalle_id").sample(n=1, random_state=0)
 
         if len(add_these_ids) + len(sampled_patches) > num_to_sample:
-            add_these_ids = add_these_ids.sample(n=num_to_sample - len(sampled_patches), random_state=random_state)
+            add_these_ids = add_these_ids.sample(n=num_to_sample - len(sampled_patches), random_state=0)
 
         sampled_patches: DataFrame = pd.concat([sampled_patches, add_these_ids], verify_integrity=True)
 

@@ -5,11 +5,12 @@ from geopandas import GeoDataFrame
 from pacasam.samplers.algos import sample_spatially_by_slab
 from pacasam.connectors.connector import Connector
 
-# split and sampler attributes are created during sampling
-SELECTION_SCHEMA = ["id", "split", "sampler"]
-
-# We need at least these information to perform sampling
-TILE_INFO = ["id", "dalle_id"]
+# Schema of all DataFrame outputs of sampler.get_patches(...) calls.
+SELECTION_SCHEMA = [
+    "id",  # unique identifier of a patch.
+    "split",  # Dataset split. Either train, val, or test.
+    "sampler",  # Class name for the called sampler.
+]
 
 
 class Sampler:

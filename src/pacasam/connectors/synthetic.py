@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 SLAB_SIZE = 1000
 TILE_SIZE = 50
 
-NUM_TILES_BY_SLAB = int((SLAB_SIZE / TILE_SIZE) ** 2)
+NUM_PATCHES_BY_SLAB = int((SLAB_SIZE / TILE_SIZE) ** 2)
 
 
 class SyntheticConnector(Connector):
@@ -55,12 +55,12 @@ class SyntheticConnector(Connector):
         self.db["id"] = range(len(self.db))
         self.db["dalle_id"] = df_dalle_id
 
-    def request_tiles_by_boolean_indicator(self, bool_descriptor_name) -> pd.Series:
+    def request_patches_by_boolean_indicator(self, bool_descriptor_name) -> pd.Series:
         """Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html"""
         return self.db.query(bool_descriptor_name)
 
-    def request_all_other_tiles(self, exclude_ids: Iterable):
-        """Requests all other tiles."""
+    def request_all_other_patches(self, exclude_ids: Iterable):
+        """Requests all other patches."""
         return self.db[~self.db["id"].isin(exclude_ids)]
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:

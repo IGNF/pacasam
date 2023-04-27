@@ -55,7 +55,7 @@ def main():
     sampler = sampler_class(connector=connector, optimization_config=conf, log=log)
 
     # Perform sampling
-    selection: gpd.GeoDataFrame = sampler.get_tiles()
+    selection: gpd.GeoDataFrame = sampler.get_patches()
     gdf = connector.extract(selection)
     gpkg_path = args.output_path / f"{task_name}-extract.gpkg"
     log.info(f"Saving N={len(gdf)} patches into {gpkg_path}")

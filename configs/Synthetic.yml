@@ -1,9 +1,9 @@
 # Configuration pour l'optimisation de l'échantillonnage de patches.
 
 
-# 75km² = 30k tiles. 1% of 75km² = 300 tiles.
-target_total_num_tiles: 500
-# target_total_num_tiles: 30000
+# 75km² = 30k patches. 1% of 75km² = 300 patches.
+target_total_num_patches: 500
+# target_total_num_patches: 30000
 
 frac_validation_set:  0.0 # float 
 
@@ -14,7 +14,7 @@ connector_kwargs:
   binary_descriptors_prevalence: [0.005, 0.005, 0.005, 0.7]
   db_size: 10000
 
-  # 2500km²=4M tiles
+  # 2500km²=4M patches
   # db_size: 4000000
 
 TargettedSampler:

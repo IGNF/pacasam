@@ -20,8 +20,8 @@ class Sampler:
         self.cf = optimization_config
         self.log = log
 
-    def get_tiles(self, **kwargs) -> gpd.GeoDataFrame:
-        """Get tiles - output must have schema SELECTION_SCHEMA."""
+    def get_patches(self, **kwargs) -> gpd.GeoDataFrame:
+        """Get patches - output must have schema SELECTION_SCHEMA."""
         raise NotImplementedError("This is an abstract class. use child class for specific sampling approaches.")
 
     def drop_duplicates_by_id_and_log_sampling_attrition(self, gdf: gpd.GeoDataFrame):
@@ -31,9 +31,9 @@ class Sampler:
         self.log.info(f"{self.name}: {n_sampled} ids --> {n_distinct} distinct ids (uniqueness ratio: {n_distinct/n_sampled:.03f}) ")
         return gdf
 
-    def _set_validation_tiles_with_spatial_stratification(self, tiles: gpd.GeoDataFrame):
-        """(Inplace) Set a binary flag for the test tiles, selected randomly or by slab."""
-        num_samples_test_set = floor(self.cf["frac_validation_set"] * len(tiles))
-        test_ids = sample_spatially_by_slab(tiles, num_samples_test_set)["id"]
-        tiles["split"] = "train"
-        tiles.loc[tiles["id"].isin(test_ids), "split"] = "val"
+    def _set_validation_patches_with_spatial_stratification(self, patches: gpd.GeoDataFrame):
+        """(Inplace) Set a binary flag for the test patches, selected randomly or by slab."""
+        num_samples_test_set = floor(self.cf["frac_validation_set"] * len(patches))
+        test_ids = sample_spatially_by_slab(patches, num_samples_test_set)["id"]
+        patches["split"] = "train"
+        patches.loc[patches["id"].isin(test_ids), "split"] = "val"

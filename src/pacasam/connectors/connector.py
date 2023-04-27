@@ -19,12 +19,12 @@ class Connector:
         self.name: str = self.__class__.__name__
         self.log = None
 
-    def request_tiles_by_boolean_indicator(self) -> gpd.GeoDataFrame:
-        """Requests tiles by boolean indicator. Output schema: [id, dalle_id, geometry]"""
+    def request_patches_by_boolean_indicator(self) -> gpd.GeoDataFrame:
+        """Requests patches by boolean indicator. Output schema: [id, dalle_id, geometry]"""
         raise NotImplementedError()
 
-    def request_all_other_tiles(self, exclude_ids: Iterable):
-        """Requests all tiles except the ones whose id is in exclude."""
+    def request_all_other_patches(self, exclude_ids: Iterable):
+        """Requests all patches except the ones whose id is in exclude."""
         raise NotImplementedError()
 
     def extract(self, ids: pd.Series) -> gpd.GeoDataFrame:

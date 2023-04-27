@@ -94,9 +94,16 @@ Pour produire un rapport html interactif de statistiques descriptives, ainsi que
 
 
 <details>
-<summary><h2>Performances & Tests</h2></summary>
+<summary><h2>Guidelines & Performances </h2></summary>
 
-Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale fait 600MB environ. Le sampling FPS se fait par parties si nécessaires (p.ex. par 100k samples successifs). 
+Pour un apprentissage automatique :
+- Créer deux configuration, p.ex. `Lipac_trainval.yml` et `Lipac_test.yml`, qui vont différer par:
+    - `connector_kwargs.extraction_sql_query` : requête SQL de sélection des vignettes. On souhaite que les jeux de trainval et de test soient échantillonnées sur des zones bien distinctes (voir [karasiak 2022](https://link.springer.com/article/10.1007/s10994-021-05972-1) sur cette nécessité). La sélection des zones concernées se fait via la requête SQL directement.
+    - `target_total_num_patches`: taille du jeu de données souhaité, en vignettes.
+    - `frac_validation_set`: fraction souhaitée d'un jeu de validation.
+
+Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires (p.ex. par 100k samples successifs). 
+
 </details>
 
 <details>
@@ -105,7 +112,7 @@ Passage à l'échelle : Tests OK avec 4M de tuiles (et ~20 variables) sur machin
 - Tasks:
     - [X] Redéfinir frac_validation_set et associés vers notion de jeu de validation.
     - [X] Enlever le comportement par défaut "critere > 0". Toujours mettre commande sql pour être explicite.
-    - [X] Télécharger une fois en un geopackage le jeu de données complet: possible avec le randomsampler en précisant target_total_num_tiles=db_size (il faut avoir en tête la taille de la db, mais ça marche si sampling sans remise)
+    - [X] Télécharger une fois en un geopackage le jeu de données complet: possible avec le randomsampler en précisant target_total_num_patches=db_size (il faut avoir en tête la taille de la db, mais ça marche si sampling sans remise)
     - [X] Logging :
         - [X] Changer la logique pour que la requête SQL initiale permettre de créer des indicateurs plus complexe, type SELECT (nb_points_bati >=500) as nb_points_bati_heq500. Les indicateurs seront alors *toujours des booléens*. D'où simplification dans le code où on n'a plus besoin de clause "where". La requête SQL dans la config documente efficacement la définition de chaque indicateur, et laisse de la flexibilité.
         - [X] Viser fichier csv avec un ligne par indicateur, une colonne par jeu de données. Décrire les indicateurs présents dans le df, puisqu'ils correspondent à tous les indicateurs utilisés dans le sampling. On a simplemet besoin de lister tous les indicateurs, et ensuite on peut simplement calculer les prévalences. 

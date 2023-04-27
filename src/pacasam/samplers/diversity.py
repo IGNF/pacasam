@@ -16,12 +16,12 @@ class DiversitySampler(Sampler):
         classes (np.ndarray): A 1D numpy array representing the class labels for each point.
 
     Methods:
-        get_tiles(num_diverse_to_sample=1, normalization='standardization', quantile=50):
+        get_patches(num_diverse_to_sample=1, normalization='standardization', quantile=50):
             Performs a sampling to cover the space of class histogram in order to include the diverse data scenes.
 
     """
 
-    def get_tiles(self, num_diverse_to_sample=None):
+    def get_patches(self, num_diverse_to_sample=None):
         """
         Performs a sampling to cover the space of class histogram in order to include the diverse data scenes.
         Class histogram is a proxy for scene content. E.g. highly present building + quasi absent vegetation = urban scene.
@@ -57,7 +57,7 @@ class DiversitySampler(Sampler):
         """
 
         if num_diverse_to_sample is None:
-            num_diverse_to_sample = self.cf["target_total_num_tiles"]
+            num_diverse_to_sample = self.cf["target_total_num_patches"]
         self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
         df = self.connector.extract(selection=None)
@@ -68,17 +68,17 @@ class DiversitySampler(Sampler):
         df = self.normalize_df(df, self.cols_for_fps)
 
         # Farthest Point Sampling
-        diverse_tiles = list(self._get_tiles_via_fps(df, num_diverse_to_sample))
-        diverse_tiles = pd.concat(diverse_tiles, ignore_index=True)
-        return diverse_tiles
+        diverse_patches = list(self._get_patches_via_fps(df, num_diverse_to_sample))
+        diverse_patches = pd.concat(diverse_patches, ignore_index=True)
+        return diverse_patches
 
-    def _get_tiles_via_fps(self, df, num_to_sample):
+    def _get_patches_via_fps(self, df, num_to_sample):
         max_chunk_size = self.cf["DiversitySampler"]["max_chunk_size_for_fps"]
         if len(df) > max_chunk_size:
             target_proportion = num_to_sample / len(df)
             for chunk in self.chunker(df, max_chunk_size):
                 num_to_sample_in_chunk = ceil(len(chunk) * target_proportion)
-                yield from self._get_tiles_via_fps(chunk, num_to_sample=num_to_sample_in_chunk)
+                yield from self._get_patches_via_fps(chunk, num_to_sample=num_to_sample_in_chunk)
         else:
             diverse_idx = fps(arr=df[self.cols_for_fps].values, num_to_sample=num_to_sample)
             # Reset index to be sure our np indices can index the dataframe.

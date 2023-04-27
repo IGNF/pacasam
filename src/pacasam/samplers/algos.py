@@ -4,47 +4,47 @@ import pandas as pd
 from math import floor
 
 
-def sample_randomly(tiles: gpd.GeoDataFrame, num_to_sample: int):
-    return tiles.sample(n=num_to_sample, replace=False, random_state=1)
+def sample_randomly(patches: gpd.GeoDataFrame, num_to_sample: int):
+    return patches.sample(n=num_to_sample, replace=False, random_state=1)
 
 
-def sample_spatially_by_slab(tiles: gpd.GeoDataFrame, num_to_sample: int):
+def sample_spatially_by_slab(patches: gpd.GeoDataFrame, num_to_sample: int):
     """Efficient spatial sampling by sampling in each slab, iteratively."""
-    if len(tiles) == 0:
-        return tiles
+    if len(patches) == 0:
+        return patches
 
-    # Step 1: start by sampling in each slab the minimal number of tiles by slab we would want.
+    # Step 1: start by sampling in each slab the minimal number of patches by slab we would want.
     # Sample with replacement to avoid errors, dropping duplicates afterwards.
     # This leads us to be already close to our target num of samples.
 
     random_state = 0
-    min_n_by_slab = floor(num_to_sample / len(tiles["dalle_id"].unique()))
+    min_n_by_slab = floor(num_to_sample / len(patches["dalle_id"].unique()))
     min_n_by_slab = max(min_n_by_slab, 1)
-    sampled_tiles = tiles.groupby("dalle_id").sample(n=min_n_by_slab, random_state=random_state, replace=True)
-    sampled_tiles = sampled_tiles.drop_duplicates(subset="id")
-    if len(sampled_tiles) > num_to_sample:
+    sampled_patches = patches.groupby("dalle_id").sample(n=min_n_by_slab, random_state=random_state, replace=True)
+    sampled_patches = sampled_patches.drop_duplicates(subset="id")
+    if len(sampled_patches) > num_to_sample:
         # We alreay have all the sample we need (case where num_samples_to_sample is low and we got 1 in each tile)
-        return sampled_tiles.sample(n=num_to_sample, random_state=random_state)
+        return sampled_patches.sample(n=num_to_sample, random_state=random_state)
 
-    # Step 2: Complete, accounting for slabs with a small number of tiles by removing the already selected
+    # Step 2: Complete, accounting for slabs with a small number of patches by removing the already selected
     # ones from the pool, and sampling one tile at each iteration.
     # WARNING: the extreme case is where the is a mega concentration in a specific slab, and then we have to
     # loop to get every tile within (with a maximum of n~400 iterations since it is the max num of tile per slab.)
-    while len(sampled_tiles) < num_to_sample:
+    while len(sampled_patches) < num_to_sample:
         random_state += 1
-        remaining_ids = tiles[~tiles["id"].isin(sampled_tiles["id"])]
+        remaining_ids = patches[~patches["id"].isin(sampled_patches["id"])]
         add_these_ids = remaining_ids.groupby("dalle_id").sample(n=1, random_state=random_state, replace=False)
 
-        if len(add_these_ids) + len(sampled_tiles) > num_to_sample:
-            add_these_ids = add_these_ids.sample(n=num_to_sample - len(sampled_tiles), random_state=random_state)
+        if len(add_these_ids) + len(sampled_patches) > num_to_sample:
+            add_these_ids = add_these_ids.sample(n=num_to_sample - len(sampled_patches), random_state=random_state)
 
-        sampled_tiles = pd.concat([sampled_tiles, add_these_ids])
+        sampled_patches = pd.concat([sampled_patches, add_these_ids])
         # sanity check that ids were already uniques.
-        sampled_ids_uniques = sampled_tiles.drop_duplicates(subset=["id"])
-        assert len(sampled_tiles) == len(sampled_ids_uniques)
-        sampled_tiles = sampled_ids_uniques
+        sampled_ids_uniques = sampled_patches.drop_duplicates(subset=["id"])
+        assert len(sampled_patches) == len(sampled_ids_uniques)
+        sampled_patches = sampled_ids_uniques
 
-    return sampled_tiles
+    return sampled_patches
 
 
 def fps(arr: np.ndarray, num_to_sample: int):

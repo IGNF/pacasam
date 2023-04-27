@@ -1,15 +1,16 @@
-import geopandas as gpd
 import numpy as np
 import pandas as pd
+from pandas import DataFrame
 from math import floor
 
 
-def sample_randomly(patches: gpd.GeoDataFrame, num_to_sample: int):
-    return patches.sample(n=num_to_sample, replace=False, random_state=1)
+def sample_randomly(patches: DataFrame, num_to_sample: int):
+    return patches.sample(n=num_to_sample, replace=False, random_state=0)
 
 
-def sample_spatially_by_slab(patches: gpd.GeoDataFrame, num_to_sample: int):
+def sample_spatially_by_slab(patches: DataFrame, num_to_sample: int):
     """Efficient spatial sampling by sampling in each slab, iteratively."""
+
     if len(patches) == 0:
         return patches
 
@@ -20,10 +21,11 @@ def sample_spatially_by_slab(patches: gpd.GeoDataFrame, num_to_sample: int):
     random_state = 0
     min_n_by_slab = floor(num_to_sample / len(patches["dalle_id"].unique()))
     min_n_by_slab = max(min_n_by_slab, 1)
-    sampled_patches = patches.groupby("dalle_id").sample(n=min_n_by_slab, random_state=random_state, replace=True)
+    # Sample with replacement in case a slab (dalle) has few patches (e.g. near a water surface).
+    sampled_patches = patches.groupby("dalle_id").sample(n=min_n_by_slab, random_state=random_state, replace=True, ignore_index=True)
     sampled_patches = sampled_patches.drop_duplicates(subset="id")
     if len(sampled_patches) > num_to_sample:
-        # We alreay have all the sample we need (case where num_samples_to_sample is low and we got 1 in each tile)
+        # We alreay have all the sample we need (case where num_samples_to_sample < number of slabs, and we got 1 in each tile)
         return sampled_patches.sample(n=num_to_sample, random_state=random_state)
 
     # Step 2: Complete, accounting for slabs with a small number of patches by removing the already selected
@@ -38,11 +40,7 @@ def sample_spatially_by_slab(patches: gpd.GeoDataFrame, num_to_sample: int):
         if len(add_these_ids) + len(sampled_patches) > num_to_sample:
             add_these_ids = add_these_ids.sample(n=num_to_sample - len(sampled_patches), random_state=random_state)
 
-        sampled_patches = pd.concat([sampled_patches, add_these_ids])
-        # sanity check that ids were already uniques.
-        sampled_ids_uniques = sampled_patches.drop_duplicates(subset=["id"])
-        assert len(sampled_patches) == len(sampled_ids_uniques)
-        sampled_patches = sampled_ids_uniques
+        sampled_patches: DataFrame = pd.concat([sampled_patches, add_these_ids], verify_integrity=True)
 
     return sampled_patches
 

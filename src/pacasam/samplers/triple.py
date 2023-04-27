@@ -10,7 +10,7 @@ class TripleSampler(Sampler):
     """Succession of Targetted, Diversity, and Completion sampling."""
 
     def get_patches(self) -> pd.Series:
-        ts = TargettedSampler(connector=self.connector, optimization_config=self.cf, log=self.log)
+        ts = TargettedSampler(connector=self.connector, sampling_config=self.cf, log=self.log)
         targetted = ts.get_patches()
         targetted = ts.drop_duplicates_by_id_and_log_sampling_attrition(targetted)
 
@@ -23,14 +23,14 @@ class TripleSampler(Sampler):
             )
             return targetted
 
-        ds = DiversitySampler(connector=self.connector, optimization_config=self.cf, log=self.log)
+        ds = DiversitySampler(connector=self.connector, sampling_config=self.cf, log=self.log)
         diverse = ds.get_patches(num_diverse_to_sample=num_diverse_to_sample)
         diverse = ds.drop_duplicates_by_id_and_log_sampling_attrition(diverse)
         selection = pd.concat([targetted, diverse])
 
         # Complete the dataset with the other patches
         num_patches_to_complete = self.cf["target_total_num_patches"] - len(selection)
-        cs = SpatialSampler(connector=self.connector, optimization_config=self.cf, log=self.log)
+        cs = SpatialSampler(connector=self.connector, sampling_config=self.cf, log=self.log)
         others = cs.get_patches(current_selection_ids=selection["id"], num_to_sample=num_patches_to_complete)
         selection = pd.concat([selection, others])
 

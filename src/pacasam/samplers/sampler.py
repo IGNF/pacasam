@@ -14,10 +14,10 @@ TILE_INFO = ["id", "dalle_id"]
 
 
 class Sampler:
-    def __init__(self, connector: Connector, optimization_config: Dict, log: logging.Logger = logging.getLogger(__name__)):
+    def __init__(self, connector: Connector, sampling_config: Dict, log: logging.Logger = logging.getLogger(__name__)):
         self.name: str = self.__class__.__name__
         self.connector = connector
-        self.cf = optimization_config
+        self.cf = sampling_config
         self.log = log
 
     def get_patches(self, **kwargs) -> gpd.GeoDataFrame:
@@ -32,8 +32,10 @@ class Sampler:
         return gdf
 
     def _set_validation_patches_with_spatial_stratification(self, patches: gpd.GeoDataFrame):
-        """(Inplace) Set a binary flag for the test patches, selected randomly or by slab."""
-        num_samples_test_set = floor(self.cf["frac_validation_set"] * len(patches))
-        test_ids = sample_spatially_by_slab(patches, num_samples_test_set)["id"]
-        patches["split"] = "train"
-        patches.loc[patches["id"].isin(test_ids), "split"] = "val"
+        """(Inplace) Set a binary flag for the validation patches, selected spatially by slab."""
+        patches["split"] = "test"
+        if self.cf["frac_validation_set"] is not None:
+            patches["split"] = "train"
+            num_samples_val_set = floor(self.cf["frac_validation_set"] * len(patches))
+            val_patches_ids = sample_spatially_by_slab(patches, num_samples_val_set)["id"]
+            patches.loc[patches["id"].isin(val_patches_ids), "split"] = "val"

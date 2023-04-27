@@ -83,19 +83,28 @@ class DiversitySampler(Sampler):
             diverse_idx = fps(arr=df[self.cols_for_fps].values, num_to_sample=num_to_sample)
             # Reset index to be sure our np indices can index the dataframe.
             diverse = df.reset_index(drop=True).loc[diverse_idx, TILE_INFO]
-
-            # Nice property of FPS: using it on its own output starting from the same
-            # point would yield the same order. So we take the first n points as test_set
-            # so that they are well distributed.
-            diverse["split"] = "train"
-            # Reset index to be sure our np indices can index the dataframe.
-            num_samples_test_set = floor(self.cf["frac_validation_set"] * len(diverse))
-            diverse = diverse.reset_index(drop=True)
-            diverse.loc[:num_samples_test_set, ("split",)] = "val"
-
             diverse["sampler"] = self.name
+            diverse["split"] = "test"
+            if self.cf["frac_validation_set"] is not None:
+                self._set_validation_patches_on_FPS_sampling(diverse)
             diverse = diverse[SELECTION_SCHEMA]
             yield diverse
+
+    def _set_validation_patches_on_FPS_sampling(self, diverse):
+        """(Inplace) Set a binary flag for the validation patches, selected by FPS.
+
+        Note: cice property of FPS: using it on its own output starting from the same
+        point would yield the same order. So we take the first n points as test_set
+        so that they are well distributed.
+
+        # TODO: is this the right way? Risk of setting to val all the most diverse patches?
+        """
+        diverse["split"] = "train"
+        num_samples_val_set = floor(self.cf["frac_validation_set"] * len(diverse))
+        diverse.reset_index(drop=True, inplace=True)
+        # Reset index to be sure our np indices can index the dataframe.
+        # TODO: debug and check if this reset is necessary
+        diverse.loc[:num_samples_val_set, ("split",)] = "val"
 
     def normalize_df(self, df, cols_for_fps):
         """Normalize columns defining the classes histogram, ignoring zeros values

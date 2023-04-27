@@ -7,7 +7,7 @@ import yaml
 
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
-from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_optimization_config, setup_custom_logger
+from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_sampling_config, setup_custom_logger
 from pacasam.analysis.graphs import make_all_graphs_and_a_report
 from pacasam.analysis.stats import Comparer
 
@@ -39,7 +39,7 @@ def main():
     set_log_text_handler(log, args.output_path)
     log.info("Performing a sampling with pacasam (https://github.com/IGNF/pacasam).\n")
     log.info(f"COMMAND: {' '.join(sys.argv)}")
-    conf = load_optimization_config(args.config_file)
+    conf = load_sampling_config(args.config_file)
     log.info(f"CONFIGURATION FILE: {args.config_file}")
     copy_to = args.output_path / args.config_file.name
     shutil.copy(args.config_file, copy_to)
@@ -52,12 +52,10 @@ def main():
 
     # Sampler
     sampler_class = SAMPLERS_LIBRARY.get(args.sampler_class)
-    sampler = sampler_class(connector=connector, optimization_config=conf, log=log)
+    sampler = sampler_class(connector=connector, sampling_config=conf, log=log)
 
     # Perform sampling
     selection: gpd.GeoDataFrame = sampler.get_patches()
-    if args.frac_validation_set is None:
-        selection["split"] = "test"
     gdf = connector.extract(selection)
     gpkg_path = args.output_path / f"{task_name}-extract.gpkg"
     log.info(f"Saving N={len(gdf)} patches into {gpkg_path}")

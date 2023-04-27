@@ -2,7 +2,7 @@
 
 # Objectif de taille du dataset final.
 target_total_num_patches: 5000  # 250km² = 100000 samples, 5000 samples -> 20x reduction  | Alternatively 75km² = 30000 samples.
-frac_validation_set:  0.1 # float
+frac_validation_set:  0.1 # float or "null" for test set.
 
 # kwargs for lipac database
 connector_kwargs:

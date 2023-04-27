@@ -56,6 +56,8 @@ def main():
 
     # Perform sampling
     selection: gpd.GeoDataFrame = sampler.get_patches()
+    if args.frac_validation_set is None:
+        selection["split"] = "test"
     gdf = connector.extract(selection)
     gpkg_path = args.output_path / f"{task_name}-extract.gpkg"
     log.info(f"Saving N={len(gdf)} patches into {gpkg_path}")

@@ -1,3 +1,4 @@
+from typing import List, Union
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
@@ -8,32 +9,32 @@ def sample_randomly(patches: DataFrame, num_to_sample: int):
     return patches.sample(n=num_to_sample, replace=False, random_state=0)
 
 
-def sample_spatially_by_slab(patches: DataFrame, num_to_sample: int):
+def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Union[str, List[str]] = ["dalle_id"]):
     """Efficient spatial sampling by sampling in each slab, iteratively."""
 
     if len(patches) == 0:
         return patches
 
-    # Step 1: start by sampling in each slab the minimal number of patches by slab we would want.
+    # Step 1: start by sampling in each strata the minimal number of patches by strata we would want.
     # Sample with replacement to avoid errors, dropping duplicates afterwards.
     # This leads us to be already close to our target num of samples.
 
-    min_n_by_slab = floor(num_to_sample / len(patches["dalle_id"].unique()))
-    min_n_by_slab = max(min_n_by_slab, 1)
-    # Sample with replacement in case a slab (dalle) has few patches (e.g. near a water surface).
-    sampled_patches = patches.groupby("dalle_id").sample(n=min_n_by_slab, random_state=0, replace=True)
+    min_n_by_strata = floor(num_to_sample / patches[keys].nunique())
+    min_n_by_strata = max(min_n_by_strata, 1)
+    # Sample with replacement in case a strata has few patches (e.g. near a water surface).
+    sampled_patches = patches.groupby(keys).sample(n=min_n_by_strata, random_state=0, replace=True)
     sampled_patches = sampled_patches.drop_duplicates(subset="id")
     if len(sampled_patches) > num_to_sample:
-        # We alreay have all the sample we need (case where num_samples_to_sample < number of slabs, and we got 1 in each tile)
+        # We alreay have all the sample we need (case where num_samples_to_sample < number of stratas, and we got 1 in each tile)
         return sampled_patches.sample(n=num_to_sample, random_state=0)
 
-    # Step 2: Complete, accounting for slabs with a small number of patches by removing the already selected
+    # Step 2: Complete, accounting for strata with a small number of patches by removing the already selected
     # ones from the pool, and sampling one tile at each iteration.
-    # WARNING: the extreme case is where the is a mega concentration in a specific slab, and then we have to
-    # loop to get every tile within (with a maximum of n~400 iterations since it is the max num of tile per slab.)
+    # WARNING: the extreme case is where the is a mega concentration in a specific strata, and then we have to
+    # loop to get every tile within (with a maximum of n~400 iterations since it is the max num of tile per strata.)
     while len(sampled_patches) < num_to_sample:
         remaining_ids = patches[~patches["id"].isin(sampled_patches["id"])]
-        add_these_ids = remaining_ids.groupby("dalle_id").sample(n=1, random_state=0)
+        add_these_ids = remaining_ids.groupby(keys).sample(n=1, random_state=0)
 
         if len(add_these_ids) + len(sampled_patches) > num_to_sample:
             add_these_ids = add_these_ids.sample(n=num_to_sample - len(sampled_patches), random_state=0)

@@ -1,7 +1,7 @@
 import geopandas as gpd
 import pandas as pd
 from typing import Dict
-from pacasam.samplers.algos import sample_spatially_by_slab
+from pacasam.samplers.algos import sample_with_stratification
 from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 
 
@@ -31,7 +31,7 @@ class TargettedSampler(Sampler):
         num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * self.cf["target_total_num_patches"])
         num_samples_to_sample = min(num_samples_target, len(patches))  # cannot take more that there is.
 
-        patches = sample_spatially_by_slab(patches, num_samples_to_sample)
+        patches = sample_with_stratification(patches, num_samples_to_sample, keys=["dalle_id"])
 
         self.log.info(
             f"TargettedSampler: {descriptor_name} "
@@ -44,7 +44,7 @@ class TargettedSampler(Sampler):
                 f"| Found: {(num_samples_to_sample/self.cf['target_total_num_patches']):.03f} (n={num_samples_to_sample})."
             )
 
-        self._set_validation_patches_with_spatial_stratification(patches=patches)
+        self._set_validation_patches_with_stratification(patches=patches, keys=["dalle_id"])
         patches["sampler"] = self.name
         return patches[SELECTION_SCHEMA]
 

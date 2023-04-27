@@ -102,8 +102,9 @@ Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur mac
 
 Question ouverte : 
 - Meilleure façon de faire le split train/val sur sélection FPS. Actuel : les num_val premier points. Possible : un autre sampling séparé sur le reste des points shufflés pour avoir autre sélection.
-- Assurer la spatialisation de FPS dans DiversitySampler - ou bien préférer la diversité des classes et pas la diversité spatiale ? Actuel: chunk basés sur les ids qui sont attendus successifs. Ce n'est pas satisfaisant. Préférer un groupement géographique ? [Bisecting K-Means](https://scikit-learn.org/stable/modules/clustering.html) sur les positions des centres peut être une approche efficace. Cf. [ce visuel](https://scikit-learn.org/stable/auto_examples/cluster/plot_bisect_kmeans.html#sphx-glr-auto-examples-cluster-plot-bisect-kmeans-py). [MiniBatchKMeans](https://scikit-learn.org/stable/auto_examples/cluster/plot_birch_vs_minibatchkmeans.html)
-- Méthode par clustering simple. Combiné avec une adaptation de sample_spatially_by_slab qui devient un sampling_stratifié comme un autre, cherchant à équilibré la répartition sur tous les clusters (actuellement : les dalles).
+- Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par dalle_id et id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.
+
+- Méthode par clustering simple. Combiné avec une adaptation de sample_with_stratification qui devient un sampling_stratifié comme un autre, cherchant à équilibré la répartition sur tous les clusters (actuellement : les dalles).
     Algo : [Bisecting K-Means](https://scikit-learn.org/stable/modules/clustering.html) -> fait des clusters de tailles proches => respecte la distribution initiale.
     Algo : [KMeans] -> fait des clusters de tailles différentes ==> respecte mieux les relations de distances => rééquilibrage de la diversité ensuite. Donc à préférer.  
 - Une méthode plus relaxe que FPS qui chercherait à maximiser les distances entre tous les points...

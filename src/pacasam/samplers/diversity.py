@@ -1,6 +1,8 @@
+from typing import Dict, List
 import numpy as np
 from math import ceil, floor
 import pandas as pd
+from pandas import DataFrame
 from sklearn.preprocessing import QuantileTransformer
 from pacasam.connectors.connector import TILE_INFO
 
@@ -11,10 +13,6 @@ from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 class DiversitySampler(Sampler):
     """
     A class for sampling patches via Farthest Point Sampling (FPS).
-
-    Attributes:
-        data (np.ndarray): A 2D numpy array representing the point cloud data.
-        classes (np.ndarray): A 1D numpy array representing the class labels for each point.
 
     Methods:
         get_patches(num_diverse_to_sample=1, normalization='standardization', quantile=50):
@@ -61,79 +59,83 @@ class DiversitySampler(Sampler):
         if num_diverse_to_sample is None:
             num_diverse_to_sample = self.cf["target_total_num_patches"]
 
-        self.cols_for_fps = self.cf["DiversitySampler"]["columns"]
+        cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
         db = self.connector.db
         # We sort by id with the assumption that the chunks are consecutive patches, from consecutive slabs.
         # This enables FPS to have a notion of "diversity" that is spatially specific.
         # TODO: we could add bloc_id to make sure to work on consecutive slabs.
         db = db.sort_values(by=["dalle_id", "id"])
-        db = db[TILE_INFO + self.cols_for_fps]
-        db = self.normalize_df(db, self.cols_for_fps)
+        db = db[TILE_INFO + cols_for_fps]
+        db = normalize_df(df=db, normalization_config=self.cf["DiversitySampler"])
 
         # Farthest Point Sampling
-        diverse_patches = list(self._get_patches_via_fps(db, num_diverse_to_sample))
+        diverse_patches = list(self._get_patches_via_fps(db, num_diverse_to_sample, cols_for_fps))
         diverse_patches = pd.concat(diverse_patches, ignore_index=True)
         # ceil(...) might give a tiny amount of patches in excess
         diverse_patches = diverse_patches.iloc[:num_diverse_to_sample]
         return diverse_patches
 
-    def _get_patches_via_fps(self, df: pd.DataFrame, num_to_sample: int):
+    def _get_patches_via_fps(self, df: pd.DataFrame, num_to_sample: int, cols_for_fps: List[str]):
         max_chunk_size = self.cf["DiversitySampler"]["max_chunk_size_for_fps"]
         if len(df) > max_chunk_size:
             target_proportion = num_to_sample / len(df)
-            for chunk in self.chunker(df, max_chunk_size):
+            for chunk in yield_chunks(df, max_chunk_size):
                 num_to_sample_in_chunk = ceil(len(chunk) * target_proportion)
-                yield from self._get_patches_via_fps(chunk, num_to_sample=num_to_sample_in_chunk)
+                yield from self._get_patches_via_fps(chunk, num_to_sample=num_to_sample_in_chunk, cols_for_fps=cols_for_fps)
         else:
-            diverse_idx = fps(arr=df[self.cols_for_fps].values, num_to_sample=num_to_sample)
+            diverse_idx = fps(arr=df[cols_for_fps].values, num_to_sample=num_to_sample)
             # Reset index to be sure our np indices can index the dataframe.
             diverse = df.reset_index(drop=True).loc[diverse_idx, TILE_INFO]
             diverse["sampler"] = self.name
             diverse["split"] = "test"
             if self.cf["frac_validation_set"] is not None:
-                self._set_validation_patches_on_FPS_sampling(diverse)
+                diverse = self._set_validation_patches_on_FPS_sampling(diverse)
             diverse = diverse[SELECTION_SCHEMA]
             yield diverse
 
     def _set_validation_patches_on_FPS_sampling(self, diverse):
-        """(Inplace) Set a binary flag for the validation patches, selected by FPS.
+        """Set a binary flag for the validation patches, selected by FPS.
 
         Note: cice property of FPS: using it on its own output starting from the same
         point would yield the same order. So we take the first n points as test_set
         so that they are well distributed.
 
-        # TODO: is this the right way? Risk of setting to val all the most diverse patches?
         """
         diverse["split"] = "train"
         num_samples_val_set = floor(self.cf["frac_validation_set"] * len(diverse))
-        diverse.reset_index(drop=True, inplace=True)
         # Reset index to be sure our np indices can index the dataframe.
+        diverse = diverse.reset_index(drop=True)
         # TODO: debug and check if this reset is necessary
-        diverse.loc[:num_samples_val_set, ("split",)] = "val"
+        diverse.loc[-num_samples_val_set:, ("split",)] = "val"
+        return diverse
 
-    def normalize_df(self, df, cols_for_fps):
-        """Normalize columns defining the classes histogram, ignoring zeros values
 
-        Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
-        """
-        # 1/3 Set zeros as NaN to ignore them.
-        df = df.replace(to_replace=0, value=np.nan)
+def yield_chunks(df, max_chunk_size):
+    """Generator for splitting the dataframe."""
+    for pos in range(0, len(df), max_chunk_size):
+        yield df.iloc[pos : pos + max_chunk_size]
 
-        # 2/3 Normalize columns to define a meaningful distance between histogram patches.
-        normalization = self.cf["DiversitySampler"]["normalization"]
-        if normalization == "standardization":
-            df.loc[:, cols_for_fps] = (df.loc[:, cols_for_fps] - df.loc[:, cols_for_fps].mean()) / df.loc[:, cols_for_fps].std()
-        else:
-            n_quantiles = self.cf["DiversitySampler"]["n_quantiles"]
-            qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, subsample=100_000)
-            df.loc[:, cols_for_fps] = qt.fit_transform(df[cols_for_fps].values)
 
-        # 3/3 Set back zeros where they were.
-        df = df.fillna(0)
-        return df
+def normalize_df(df: DataFrame, normalization_config: Dict):
+    """Normalize columns defining the classes histogram, ignoring zeros values
 
-    def chunker(self, df, max_chunk_size):
-        """Generator for splitting the dataframe."""
-        for pos in range(0, len(df), max_chunk_size):
-            yield df.iloc[pos : pos + max_chunk_size]
+    Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
+    """
+    # 1/3 Set zeros as NaN to ignore them.
+    df = df.replace(to_replace=0, value=np.nan)
+
+    # 2/3 Normalize columns to define a meaningful distance between histogram patches.
+    normalization = normalization_config["normalization"]
+    cols_for_fps = normalization_config["columns"]
+
+    if normalization == "standardization":
+        df.loc[:, cols_for_fps] = (df.loc[:, cols_for_fps] - df.loc[:, cols_for_fps].mean()) / df.loc[:, cols_for_fps].std()
+    else:
+        n_quantiles = normalization_config["n_quantiles"]
+        qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, subsample=100_000)
+        df.loc[:, cols_for_fps] = qt.fit_transform(df[cols_for_fps].values)
+
+    # 3/3 Set back zeros to the lowest present value (which comes from a value really close to zero).
+    df = df.fillna(df.min())
+    return df

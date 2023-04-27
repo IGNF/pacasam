@@ -117,6 +117,7 @@ def make_scatter_matrix_classes(df, norm=None, hide_zeros=True):
     if hide_zeros:
         df_norm = df_norm.replace(to_replace=0, value=np.nan)
 
+    # TODO: replace to use normalize_df
     if norm == "Standardization":
         # Quantilization enables to make classes "more" comparable in Farthest point Sampling,
         # and respects distribution within each class.

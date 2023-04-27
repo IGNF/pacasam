@@ -5,6 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run main (KMeans+Lipac)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampler_class=KMeansSampler",
+            ]
+        },
+        {
+            "name": "Run main (KMeans+Synthetic)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_file=configs/Synthetic.yml",
+                "--connector_class=SyntheticConnector",
+                "--sampler_class=KMeansSampler",
+            ]
+        },
+        {
             "name": "Run main (Triple+LiPaC)",
             "type": "python",
             "request": "launch",

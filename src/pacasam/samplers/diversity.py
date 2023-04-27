@@ -70,9 +70,11 @@ class DiversitySampler(Sampler):
         # Farthest Point Sampling
         diverse_patches = list(self._get_patches_via_fps(df, num_diverse_to_sample))
         diverse_patches = pd.concat(diverse_patches, ignore_index=True)
+        # ceil(...) might give a tiny amount of patches in excess
+        diverse_patches = diverse_patches.iloc[:num_diverse_to_sample]
         return diverse_patches
 
-    def _get_patches_via_fps(self, df, num_to_sample):
+    def _get_patches_via_fps(self, df: pd.DataFrame, num_to_sample: int):
         max_chunk_size = self.cf["DiversitySampler"]["max_chunk_size_for_fps"]
         if len(df) > max_chunk_size:
             target_proportion = num_to_sample / len(df)

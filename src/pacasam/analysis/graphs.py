@@ -1,12 +1,11 @@
 import argparse
 from pathlib import Path
 import geopandas as gpd
-import pandas as pd
 import plotly.express as px
 import numpy as np
+from pandas import DataFrame
 
 from sklearn.preprocessing import QuantileTransformer
-
 from pacasam.connectors.synthetic import NB_POINTS_COLNAMES
 
 PREFIX_BOOL_DESCRIPTOR = "presence"
@@ -36,7 +35,7 @@ def make_all_graphs_and_a_report(gpkg_path: Path, output_path: Path):
     The results are then saved to files and added to the report.
     """
 
-    df: pd.DataFrame = gpd.read_file(gpkg_path)
+    df: DataFrame = gpd.read_file(gpkg_path)
 
     # Load the HTML template
     with open(REPORT_HTML_TEMPLATE_PATH, "r") as f:
@@ -78,7 +77,7 @@ def make_class_histogram(df):
     return fig
 
 
-def make_boolean_descriptor_histogram(df: pd.DataFrame):
+def make_boolean_descriptor_histogram(df: DataFrame):
     bool_descriptors_cols = df.select_dtypes(include=bool).columns.tolist()
     df_bool = df[["split"] + bool_descriptors_cols].copy()
     df_bool["all"] = 1

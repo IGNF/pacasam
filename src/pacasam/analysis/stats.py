@@ -1,6 +1,6 @@
 from pathlib import Path
 import pandas as pd
-
+from pandas import DataFrame
 SURFACE_OF_A_KM2 = 1000 * 1000
 
 
@@ -17,7 +17,7 @@ class Comparer:
         self.output_path = output_path
         self.output_path.mkdir(parents=True, exist_ok=True)
 
-    def compare(self, df_database: pd.DataFrame, df_sampling: pd.DataFrame):
+    def compare(self, df_database: DataFrame, df_sampling: DataFrame):
         # Compare prevalence of all boolean descriptors.
         output_csv = self.output_path / "comparison-bool_descriptors.csv"
         comparison_df = self.compare_bools(df_database, df_sampling)
@@ -44,7 +44,7 @@ class Comparer:
             output_csv = self.output_path / f"comparison-sizes-by_{key}.csv"
             comparison_df_by_key.to_csv(output_csv)
 
-    def compare_bools(self, df_database: pd.DataFrame, df_sampling: pd.DataFrame):
+    def compare_bools(self, df_database: DataFrame, df_sampling: DataFrame):
         """Compares the prevalence of boolean descriptors in two pandas dataframes.
 
         Args:
@@ -60,8 +60,8 @@ class Comparer:
         boolean_descriptors_names = df_database.select_dtypes(include=bool).columns
 
         # Calculate prevalence (proportion) of each boolean descriptor for each dataframe
-        prevalence_base = pd.DataFrame(df_database[boolean_descriptors_names].mean(), columns=["df_database"])
-        prevalence_sampling = pd.DataFrame(df_sampling[boolean_descriptors_names].mean(), columns=["df_sampling"])
+        prevalence_base = DataFrame(df_database[boolean_descriptors_names].mean(), columns=["df_database"])
+        prevalence_sampling = DataFrame(df_sampling[boolean_descriptors_names].mean(), columns=["df_sampling"])
 
         # Concatenate prevalence dataframes horizontally to create comparison dataframe
         comparison_df = pd.concat([prevalence_base, prevalence_sampling], axis=1)
@@ -69,9 +69,9 @@ class Comparer:
         comparison_df["ratio"] = (comparison_df["df_sampling"] / comparison_df["df_database"]).round(decimals=2)
         return comparison_df
 
-    def compare_sizes(self, df_database: pd.DataFrame, df_sampling: pd.DataFrame):
-        sizes_base = pd.DataFrame(df_database[["area_km2", "num_patches"]].sum(), columns=["df_database"])
-        sizes_sampling = pd.DataFrame(df_sampling[["area_km2", "num_patches"]].sum(), columns=["df_sampling"])
+    def compare_sizes(self, df_database: DataFrame, df_sampling: DataFrame):
+        sizes_base = DataFrame(df_database[["area_km2", "num_patches"]].sum(), columns=["df_database"])
+        sizes_sampling = DataFrame(df_sampling[["area_km2", "num_patches"]].sum(), columns=["df_sampling"])
         comparison_df = pd.concat([sizes_base, sizes_sampling], axis=1)
         comparison_df["ratio"] = (comparison_df["df_sampling"] / comparison_df["df_database"]).round(decimals=2)
         return comparison_df

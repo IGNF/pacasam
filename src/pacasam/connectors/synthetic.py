@@ -3,6 +3,7 @@ from math import ceil
 from typing import Iterable, List, Optional
 import numpy as np
 import pandas as pd
+from pandas import DataFrame
 import geopandas as gpd
 from shapely.geometry import box
 
@@ -78,8 +79,8 @@ class SyntheticConnector(Connector):
     def _make_synthetic_geometries_and_slabs(self):
         fake_grid_size = ceil(np.sqrt(self.db_size))
         # Cartesian product of range * tile_size
-        df_x = pd.DataFrame({"x": range(fake_grid_size)}) * TILE_SIZE
-        df_y = pd.DataFrame({"y": range(fake_grid_size)}) * TILE_SIZE
+        df_x = DataFrame({"x": range(fake_grid_size)}) * TILE_SIZE
+        df_y = DataFrame({"y": range(fake_grid_size)}) * TILE_SIZE
         df_xy = df_x.merge(df_y, how="cross")
 
         df_geom = df_xy.apply(

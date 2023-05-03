@@ -106,7 +106,7 @@ Question ouverte :
 
 - Méthode par clustering simple. Combiné avec une adaptation de sample_with_stratification qui devient un sampling_stratifié comme un autre, cherchant à équilibré la répartition sur tous les clusters (actuellement : les dalles).
     Algo : [Bisecting K-Means](https://scikit-learn.org/stable/modules/clustering.html) -> fait des clusters de tailles proches => respecte la distribution initiale.
-    Algo : [KMeans] -> fait des clusters de tailles différentes ==> respecte mieux les relations de distances => rééquilibrage de la diversité ensuite. Donc à préférer.  
+    Algo : [KMeans] -> fait des clusters de tailles différentes ==> respecte mieux les relations de distances => rééquilibrage de la diversité ensuite. Donc à préférer.
 - Une méthode plus relaxe que FPS qui chercherait à maximiser les distances entre tous les points...
 
 </details>

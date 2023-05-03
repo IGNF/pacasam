@@ -5,18 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run main (KMeans+Lipac)",
+            "name": "Run main (Clustering+Lipac)",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--sampler_class=KMeansSampler",
+                "--sampler_class=ClusteringSampler",
             ]
         },
         {
-            "name": "Run main (KMeans+Synthetic)",
+            "name": "Run main (Clustering+Synthetic)",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
@@ -25,7 +25,7 @@
             "args": [
                 "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
-                "--sampler_class=KMeansSampler",
+                "--sampler_class=ClusteringSampler",
             ]
         },
         {

@@ -11,9 +11,9 @@ from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 import hdbscan
 
 
-class KMeansSampler(Sampler):
+class ClusteringSampler(Sampler):
     """
-    A class for sampling patches via KMeans
+    A class for sampling patches via Clustering
 
     Methods:
         get_patches(num_diverse_to_sample=1, normalization='standardization', quantile=50):

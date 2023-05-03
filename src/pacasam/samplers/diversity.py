@@ -15,19 +15,19 @@ class DiversitySampler(Sampler):
     A class for sampling patches via Farthest Point Sampling (FPS).
 
     Methods:
-        get_patches(num_diverse_to_sample=1, normalization='standardization', quantile=50):
+        get_patches(num_to_sample=1, normalization='standardization', quantile=50):
             Performs a sampling to cover the space of class histogram in order to include the diverse data scenes.
 
     """
 
-    def get_patches(self, num_diverse_to_sample=None):
+    def get_patches(self, num_to_sample=None):
         """
         Performs a sampling to cover the space of class histogram in order to include the diverse data scenes.
         Class histogram is a proxy for scene content. E.g. highly present building + quasi absent vegetation = urban scene.
         We use Farthest Point Sampling (FPS) as a way to cover the space evenly.
 
         Parameters:
-            num_diverse_to_sample (int): The number of point clouds to sample. If None, takes the value of target_total_num_patches.
+            num_to_sample (int): The number of point clouds to sample. If None, takes the value of target_total_num_patches.
 
         Parameters from configuration (under `DiversitySampler`):
             normalization (str): The type of normalization to apply to the class histograms. Must be either 'standardization'
@@ -53,8 +53,8 @@ class DiversitySampler(Sampler):
 
         """
 
-        if num_diverse_to_sample is None:
-            num_diverse_to_sample = self.cf["target_total_num_patches"]
+        if num_to_sample is None:
+            num_to_sample = self.cf["target_total_num_patches"]
 
         cols_for_fps = self.cf["DiversitySampler"]["columns"]
 
@@ -72,10 +72,10 @@ class DiversitySampler(Sampler):
         )
 
         # Farthest Point Sampling
-        diverse_patches = list(self._get_patches_via_fps(db, num_diverse_to_sample, cols_for_fps))
+        diverse_patches = list(self._get_patches_via_fps(db, num_to_sample, cols_for_fps))
         diverse_patches = pd.concat(diverse_patches, ignore_index=True)
         # ceil(...) might give a tiny amount of patches in excess
-        diverse_patches = diverse_patches.iloc[:num_diverse_to_sample]
+        diverse_patches = diverse_patches.iloc[:num_to_sample]
         return diverse_patches
 
     def _get_patches_via_fps(self, df: pd.DataFrame, num_to_sample: int, cols_for_fps: List[str]):

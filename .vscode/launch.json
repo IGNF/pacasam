@@ -12,7 +12,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--sampler_class=ClusteringSampler",
+                "--sampler_class=OutliersSampler",
             ]
         },
         {
@@ -25,7 +25,7 @@
             "args": [
                 "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
-                "--sampler_class=ClusteringSampler",
+                "--sampler_class=OutliersSampler",
             ]
         },
         {

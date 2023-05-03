@@ -18,8 +18,8 @@ def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Uni
     # Step 1: start by sampling in each strata the minimal number of patches by strata we would want.
     # Sample with replacement to avoid errors, dropping duplicates afterwards.
     # This leads us to be already close to our target num of samples.
-
-    min_n_by_strata = floor(num_to_sample / patches[keys].nunique())
+    nunique = len(patches[keys].value_counts())
+    min_n_by_strata = floor(num_to_sample / nunique)
     min_n_by_strata = max(min_n_by_strata, 1)
     # Sample with replacement in case a strata has few patches (e.g. near a water surface).
     sampled_patches = patches.groupby(keys).sample(n=min_n_by_strata, random_state=0, replace=True)

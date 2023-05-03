@@ -15,7 +15,7 @@ class SpatialSampler(Sampler):
 
         patches = self.connector.request_all_other_patches(exclude_ids=current_selection_ids)
         sampled_others = sample_with_stratification(patches, num_to_sample, keys=["dalle_id"])
-        self.log.info(f"SpatialSampler: Completing with {num_to_sample} samples.")
+        self.log.info(f"{self.name}: N={num_to_sample} patches.")
 
         self._set_validation_patches_with_stratification(patches=sampled_others, keys=["dalle_id"])
         sampled_others["sampler"] = self.name

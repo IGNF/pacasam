@@ -16,10 +16,12 @@ class TargettedSampler(Sampler):
             patches = self._get_matching_patches(descriptor_name, descriptor_objectives)
             selection += [patches]
         selection = pd.concat(selection)
+        self.log.info(
+            f"{self.name}: N={len(selection)} patches."
+        )
         if len(selection) > self.cf["target_total_num_patches"]:
             self.log.warning(
-                f"{self.name}: selected N={len(selection)} patches."
-                f"This is higher than the desired total of N={self.cf['target_total_num_patches']}."
+                f"Selected more than the desired total of N={self.cf['target_total_num_patches']}."
                 "If this is not desired, please reconsider your targets."
             )
         return selection

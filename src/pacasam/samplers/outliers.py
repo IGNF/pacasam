@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 import numpy as np
 from math import ceil, floor
 import pandas as pd
@@ -12,7 +12,7 @@ from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
 import hdbscan
 
 
-class ClusteringSampler(Sampler):
+class OutliersSampler(Sampler):
     """
     A class for sampling patches via Clustering
 
@@ -22,7 +22,7 @@ class ClusteringSampler(Sampler):
 
     """
 
-    def get_patches(self, num_diverse_to_sample=None):
+    def get_patches(self, num_to_sample: Optional[int] = None):
         """
         Performs a sampling to cover the space of class histogram in order to include the diverse data scenes.
         Class histogram is a proxy for scene content. E.g. highly present building + quasi absent vegetation = urban scene.
@@ -32,8 +32,8 @@ class ClusteringSampler(Sampler):
 
         """
 
-        if num_diverse_to_sample is None:
-            num_diverse_to_sample = self.cf["target_total_num_patches"]
+        if num_to_sample is None:
+            num_to_sample = self.cf["target_total_num_patches"]
 
         cols_for_clustering = self.cf["DiversitySampler"]["columns"]
 
@@ -44,15 +44,15 @@ class ClusteringSampler(Sampler):
             array=df[cols_for_clustering].values, clustering_config=self.cf["DiversitySampler"]
         )
         # We keep the most "outliers" points i.e. supposedly the most different and informative points.
-
-        df = df.sort_values(by="outlier_scores", ascending=False).head(num_diverse_to_sample)
+        df = df.sort_values(by="outlier_scores", ascending=False).head(num_to_sample)
 
         patches = df[TILE_INFO + ["cluster_id", "outlier_scores"]]
         self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id", "dalle_id"])
         patches["sampler"] = self.name
+        self.log.info(f"{self.name}: N={num_to_sample} patches.")
+
         # cluster_id et "outlier_scores" can be returned for visual exploration.
         # return patches[SELECTION_SCHEMA + ["cluster_id", "outlier_scores"]]
-        # TODO: add some log
         return patches[SELECTION_SCHEMA]
 
 

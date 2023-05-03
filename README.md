@@ -51,16 +51,23 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{Conne
 <details>
 <summary><h2>Usage</h2></summary>
 
-### Mettre en place l'environnement virtual conda:
+### Mettre en place l'environnement virtual avec Anaconda:
 ```bash
 conda install mamba --yes -n base -c conda-forge
 mamba env create -f environment.yml
 ```
+
+### Tester toutes les méthodes sur des données synthétiques
+```bash
+make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml REPORTS=N
+```
+
 ### Lancer un échantillonnage "triple" sur des données synthétiques :
 ```python
 conda activate pacasam
 python ./src/pacasam/main.py --config_file=configs/Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
 ```
+
 ### Lancer un échantillonnage sur des données réelles - base PostGIS LiPaC:
 
 1. Créer sa configuration dans le dossier `configs` (cf. `configs/Lipac.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
@@ -100,14 +107,11 @@ Pour un apprentissage automatique, créer deux configuration, p.ex. `Lipac_train
 
 Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires p.ex. par 20k vignettes successives. 
 
-Question ouverte : 
-- Meilleure façon de faire le split train/val sur sélection FPS. Actuel : les num_val premier points. Possible : un autre sampling séparé sur le reste des points shufflés pour avoir autre sélection.
-- Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par dalle_id et id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.
-
-- Méthode par clustering simple. Combiné avec une adaptation de sample_with_stratification qui devient un sampling_stratifié comme un autre, cherchant à équilibré la répartition sur tous les clusters (actuellement : les dalles).
-    Algo : [Bisecting K-Means](https://scikit-learn.org/stable/modules/clustering.html) -> fait des clusters de tailles proches => respecte la distribution initiale.
-    Algo : [KMeans] -> fait des clusters de tailles différentes ==> respecte mieux les relations de distances => rééquilibrage de la diversité ensuite. Donc à préférer.
-- Une méthode plus relaxe que FPS qui chercherait à maximiser les distances entre tous les points...
+### Questions ouvertes et pistes
+- FPS:
+    - Meilleure façon de faire le split train/val sur sélection FPS. Actuel : les num_val premier points. Possible : un autre sampling séparé sur le reste des points shufflés pour avoir autre sélection.
+    - Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par dalle_id et id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.
+- Remplacement purement et simplement DiversitySampler via FPS, par OutliersSampler. Cf. pull request de [OutlierSampler](https://github.com/IGNF/pacasam/pull/1). Simple, élégant, et à combiner avec le reste donnera des résultats intéressants. Essayer ça sur une branche et comparer les performances.
 
 </details>
 

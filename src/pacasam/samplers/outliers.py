@@ -35,13 +35,15 @@ class OutliersSampler(Sampler):
         if num_to_sample is None:
             num_to_sample = self.cf["target_total_num_patches"]
 
-        cols_for_clustering = self.cf["DiversitySampler"]["columns"]
+        cols_for_clustering = self.cf["OutliersSampler"]["columns"]
 
         df = self.connector.db
         df = df[TILE_INFO + cols_for_clustering]
-        df = normalize_df(df=df, normalization_config=self.cf["DiversitySampler"])
+        # Always use the default normalization method : standardization,
+        # because it is the only one that gives good outliers.
+        df = normalize_df(df=df, columns=self.cf["OutliersSampler"]["columns"])
         df["cluster_id"], df["outlier_scores"] = cluster(
-            array=df[cols_for_clustering].values, clustering_config=self.cf["DiversitySampler"]
+            array=df[cols_for_clustering].values, hdbscan_kwargs=self.cf["OutliersSampler"]["hdbscan_kwargs"]
         )
         # We keep the most "outliers" points i.e. supposedly the most different and informative points.
         df = df.sort_values(by="outlier_scores", ascending=False).head(num_to_sample)
@@ -56,13 +58,10 @@ class OutliersSampler(Sampler):
         return patches[SELECTION_SCHEMA]
 
 
-def cluster(array: np.ndarray, clustering_config: dict):
-    # TODO: have own config for lcustering that is not DiversitySampler.
-    clustering_config["min_cluster_size"] = clustering_config.get("min_cluster_size", 50)
+def cluster(array: np.ndarray, hdbscan_kwargs: dict):
+    # TODO: have own config for lcustering that is not OutliersSampler.
     clusterer = hdbscan.HDBSCAN(
-        min_cluster_size=clustering_config["min_cluster_size"],
-        min_samples=clustering_config["min_cluster_size"],
-        cluster_selection_method="eom",
+        **hdbscan_kwargs
     )
     clusterer = clusterer.fit(array)
     return clusterer.labels_, clusterer.outlier_scores_

@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Run main (Clustering+Lipac)",
+            "name": "Run main (Outliers+Lipac)",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
@@ -16,7 +16,7 @@
             ]
         },
         {
-            "name": "Run main (Clustering+Synthetic)",
+            "name": "Run main (Outliers+Synthetic)",
             "type": "python",
             "request": "launch",
             "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",

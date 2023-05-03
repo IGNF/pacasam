@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 import numpy as np
 from math import ceil, floor
 import pandas as pd
@@ -51,9 +51,6 @@ class DiversitySampler(Sampler):
             - Quantilization: with a high number of quantiles, frequent values are spread out, and might therefore be
               privileged by FPS. On the contrary, outliers might be less represented.
 
-            Note that rare classes are already targeted spatially via sequential sampling. Adding them to the columns might give
-            them a high weight, but it can still be done.
-
         """
 
         if num_diverse_to_sample is None:
@@ -67,7 +64,12 @@ class DiversitySampler(Sampler):
         # TODO: we could add bloc_id to make sure to work on consecutive slabs.
         db = db.sort_values(by=["dalle_id", "id"])
         db = db[TILE_INFO + cols_for_fps]
-        db = normalize_df(df=db, normalization_config=self.cf["DiversitySampler"])
+        db = normalize_df(
+            df=db,
+            columns=cols_for_fps,
+            normalization=self.cf["DiversitySampler"]["normalization"],
+            n_quantiles=self.cf["DiversitySampler"]["n_quantiles"],
+        )
 
         # Farthest Point Sampling
         diverse_patches = list(self._get_patches_via_fps(db, num_diverse_to_sample, cols_for_fps))
@@ -117,7 +119,7 @@ def yield_chunks(df, max_chunk_size):
         yield df.iloc[pos : pos + max_chunk_size]
 
 
-def normalize_df(df: DataFrame, normalization_config: Dict):
+def normalize_df(df: DataFrame, columns: List[str], normalization="standardization", n_quantiles: Optional[int] = None):
     """Normalize columns defining the classes histogram, ignoring zeros values
 
     Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
@@ -126,15 +128,12 @@ def normalize_df(df: DataFrame, normalization_config: Dict):
     df = df.replace(to_replace=0, value=np.nan)
 
     # 2/3 Normalize columns to define a meaningful distance between histogram patches.
-    normalization = normalization_config["normalization"]
-    cols_for_fps = normalization_config["columns"]
 
     if normalization == "standardization":
-        df.loc[:, cols_for_fps] = (df.loc[:, cols_for_fps] - df.loc[:, cols_for_fps].mean()) / df.loc[:, cols_for_fps].std()
+        df.loc[:, columns] = (df.loc[:, columns] - df.loc[:, columns].mean()) / df.loc[:, columns].std()
     else:
-        n_quantiles = normalization_config["n_quantiles"]
         qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, subsample=100_000)
-        df.loc[:, cols_for_fps] = qt.fit_transform(df[cols_for_fps].values)
+        df.loc[:, columns] = qt.fit_transform(df[columns].values)
 
     # 3/3 Set back zeros to the lowest present value (which comes from a value really close to zero).
     df = df.fillna(df.min())

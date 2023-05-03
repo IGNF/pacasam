@@ -51,9 +51,9 @@ DiversitySampler:
   # TODO: On pourrait rendre cela plus robuste. Comment ?
   max_chunk_size_for_fps: 20000
   # standardization or quantilization
-  normalization: standardization
+  normalization: quantilization
   # n_quantiles is only used if normalization=quantilization
-  n_quantiles: 20
+  n_quantiles: 5
   columns:
     - nb_points_non_classes
     - nb_points_sol
@@ -64,6 +64,22 @@ DiversitySampler:
     - nb_points_pont
     - nb_points_eau
     - nb_points_sursol_perenne
+
+OutliersSampler:
+  columns:
+    - nb_points_non_classes
+    - nb_points_sol
+    - nb_points_vegetation_basse
+    - nb_points_vegetation_moyenne
+    - nb_points_vegetation_haute
+    - nb_points_bati
+    - nb_points_pont
+    - nb_points_eau
+    - nb_points_sursol_perenne
+  hdbscan_kwargs:
+    min_cluster_size: 50
+    min_samples: 50
+    cluster_selection_method: eom
 
 TargettedSampler:
   # nom_du_critère_pour_les_logs:

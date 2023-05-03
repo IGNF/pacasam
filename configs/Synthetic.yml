@@ -45,4 +45,18 @@ DiversitySampler:
     - nb_points_eau
     - nb_points_sursol_perenne
 
-
+OutliersSampler:
+  columns:
+    - nb_points_non_classes
+    - nb_points_sol
+    - nb_points_vegetation_basse
+    - nb_points_vegetation_moyenne
+    - nb_points_vegetation_haute
+    - nb_points_bati
+    - nb_points_pont
+    - nb_points_eau
+    - nb_points_sursol_perenne
+  hdbscan_kwargs:
+    min_cluster_size: 50
+    min_samples: 50
+    cluster_selection_method: eom

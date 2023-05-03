@@ -40,13 +40,12 @@ class ClusteringSampler(Sampler):
         df = self.connector.db
         df = df[TILE_INFO + cols_for_clustering]
         df = normalize_df(df=df, normalization_config=self.cf["DiversitySampler"])
-        n_clusters = num_diverse_to_sample
+        n_clusters = len(df)  # HDBSCAN can not attain this level but we aim for the max.
         df["cluster_id"] = cluster(
             array=df[cols_for_clustering].values, normalization_config=self.cf["DiversitySampler"], n_clusters=int(n_clusters)
         )
-
-        df = df[TILE_INFO + ["cluster_id"]]  # get lighter
-
+        df = df[df["cluster_id"] == -1]  # keep only "noise" i.e. what does not belong to a cluster.
+        df = df[TILE_INFO + ["cluster_id"]]
         patches = sample_with_stratification(patches=df, num_to_sample=num_diverse_to_sample, keys=["cluster_id"])
         self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id"])
         patches["sampler"] = self.name
@@ -71,5 +70,7 @@ def cluster(array: np.ndarray, normalization_config: dict, n_clusters: int):
     from hdbscan import flat
 
     clusterer = flat.HDBSCAN_flat(array, clusterer=clusterer, n_clusters=n_clusters)
-    # Then we can sample both in the representative regions and in the outer regions.    # curently we simply keep the noise as a cluster. Its impacyt will be low since we sample with stratification.
+    # Then we can sample both in the representative regions and in the outer regions.
+    # # curently we simply keep the noise as a cluster. Its impacyt will be low since we sample with stratification.
+    # clusterer.exemplars_ --> équivalents des "centroids" ?
     return clusterer.labels_

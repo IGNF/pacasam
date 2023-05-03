@@ -34,4 +34,7 @@ class TripleSampler(Sampler):
         others = cs.get_patches(current_selection_ids=selection["id"], num_to_sample=num_patches_to_complete)
         selection = pd.concat([selection, others])
 
+        # sanity deduplication, just in case
+        selection = self.drop_duplicates_by_id_and_log_sampling_attrition(selection)
+
         return selection

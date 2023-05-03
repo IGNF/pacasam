@@ -1,3 +1,4 @@
+from typing import Dict
 import numpy as np
 from math import ceil, floor
 import pandas as pd
@@ -39,7 +40,11 @@ class ClusteringSampler(Sampler):
         df = self.connector.db
         df = df[TILE_INFO + cols_for_clustering]
         df = normalize_df(df=df, normalization_config=self.cf["DiversitySampler"])
-        df["cluster_id"] = cluster(array=df[cols_for_clustering].values, normalization_config=self.cf["DiversitySampler"])
+        MIN_CLUSTER_SIZE = 20
+        n_clusters = num_diverse_to_sample / MIN_CLUSTER_SIZE
+        df["cluster_id"] = cluster(
+            array=df[cols_for_clustering].values, normalization_config=self.cf["DiversitySampler"], n_clusters=int(n_clusters)
+        )
 
         df = df[TILE_INFO + ["cluster_id"]]  # get lighter
 
@@ -50,16 +55,21 @@ class ClusteringSampler(Sampler):
         return patches[SELECTION_SCHEMA]
 
 
-def cluster(array, normalization_config):
+def cluster(array: np.ndarray, normalization_config: dict, n_clusters: int):
     # normalization_config not used but could contain args for clustering.
     # https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#leaf-clustering"
     # cluster_selection_method = "leaf" so we do not create ultra large clusters but rather smaller ones
     # that cover the space.
     # to have more small clusters.
     # low min_samples -> less points ignored as noise.
+    # Try out flat clustering based on DBSCAN
+    # https://stackoverflow.com/a/68763150/8086033
+    # https://github.com/scikit-learn-contrib/hdbscan/blob/master/notebooks/Flat%20clustering.ipynb
 
-    clusterer = hdbscan.HDBSCAN(min_cluster_size=100, min_samples=10, cluster_selection_method="leaf")
-    clusterer.fit(array)
-    # TODO: we may also return the distance to their cluster which is a measure of "representativity" see doc of hdbscan.
+    clusterer = hdbscan.HDBSCAN(min_cluster_size=10, min_samples=10, cluster_selection_method="leaf")
+    clusterer = clusterer.fit(array)
+    from hdbscan import flat
+
+    clusterer = flat.HDBSCAN_flat(array, clusterer=clusterer, n_clusters=n_clusters)
     # Then we can sample both in the representative regions and in the outer regions.    # curently we simply keep the noise as a cluster. Its impacyt will be low since we sample with stratification.
     return clusterer.labels_

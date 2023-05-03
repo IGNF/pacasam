@@ -40,42 +40,29 @@ class ClusteringSampler(Sampler):
         df = self.connector.db
         df = df[TILE_INFO + cols_for_clustering]
         df = normalize_df(df=df, normalization_config=self.cf["DiversitySampler"])
-        n_clusters = len(df)  # HDBSCAN can not attain this level but we aim for the max.
-        cluster_id, outlier_scores = cluster(
-            array=df[cols_for_clustering].values, normalization_config=self.cf["DiversitySampler"], n_clusters=int(n_clusters)
+        df["cluster_id"], df["outlier_scores"] = cluster(
+            array=df[cols_for_clustering].values, clustering_config=self.cf["DiversitySampler"]
         )
-        df["cluster_id"] = cluster_id
-        df["outlier_scores"] = outlier_scores
-        # les plus outliers de tous.
+        # We keep the most "outliers" points i.e. supposedly the most different and informative points.
+
         df = df.sort_values(by="outlier_scores", ascending=False).head(num_diverse_to_sample)
 
         patches = df[TILE_INFO + ["cluster_id", "outlier_scores"]]
-        # df = df[TILE_INFO + ["cluster_id", "outlier_scores"]]
-        # patches = sample_with_stratification(patches=df, num_to_sample=num_diverse_to_sample, keys=["cluster_id"])
-        self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id"])
+        self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id", "dalle_id"])
         patches["sampler"] = self.name
+        # cluster_id et "outlier_scores" can be returned for visual exploration.
+        # return patches[SELECTION_SCHEMA + ["cluster_id", "outlier_scores"]]
         # TODO: add some log
-        # cluster_id et "outlier_scores"returned for visual exploration.
-        return patches[SELECTION_SCHEMA + ["cluster_id", "outlier_scores"]]
+        return patches[SELECTION_SCHEMA]
 
 
-def cluster(array: np.ndarray, normalization_config: dict, n_clusters: int):
-    # normalization_config not used but could contain args for clustering.
-    # https://hdbscan.readthedocs.io/en/latest/parameter_selection.html#leaf-clustering"
-    # cluster_selection_method = "leaf" so we do not create ultra large clusters but rather smaller ones
-    # that cover the space.
-    # to have more small clusters.
-    # low min_samples -> less points ignored as noise.
-    # Try out flat clustering based on DBSCAN
-    # https://stackoverflow.com/a/68763150/8086033
-    # https://github.com/scikit-learn-contrib/hdbscan/blob/master/notebooks/Flat%20clustering.ipynb
-
-    clusterer = hdbscan.HDBSCAN(min_cluster_size=5, min_samples=5, cluster_selection_method="leaf")
+def cluster(array: np.ndarray, clustering_config: dict):
+    # TODO: have own config for lcustering that is not DiversitySampler.
+    clustering_config["min_cluster_size"] = clustering_config.get("min_cluster_size", 50)
+    clusterer = hdbscan.HDBSCAN(
+        min_cluster_size=clustering_config["min_cluster_size"],
+        min_samples=clustering_config["min_cluster_size"],
+        cluster_selection_method="eom",
+    )
     clusterer = clusterer.fit(array)
-    from hdbscan import flat
-
-    clusterer = flat.HDBSCAN_flat(array, clusterer=clusterer, n_clusters=n_clusters)
-    # Then we can sample both in the representative regions and in the outer regions.
-    # # curently we simply keep the noise as a cluster. Its impacyt will be low since we sample with stratification.
-    # clusterer.exemplars_ --> équivalents des "centroids" ?
     return clusterer.labels_, clusterer.outlier_scores_

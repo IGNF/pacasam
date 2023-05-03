@@ -40,19 +40,19 @@ class ClusteringSampler(Sampler):
         df = self.connector.db
         df = df[TILE_INFO + cols_for_clustering]
         df = normalize_df(df=df, normalization_config=self.cf["DiversitySampler"])
-        MIN_CLUSTER_SIZE = 20
-        n_clusters = num_diverse_to_sample / MIN_CLUSTER_SIZE
+        n_clusters = num_diverse_to_sample
         df["cluster_id"] = cluster(
             array=df[cols_for_clustering].values, normalization_config=self.cf["DiversitySampler"], n_clusters=int(n_clusters)
         )
 
         df = df[TILE_INFO + ["cluster_id"]]  # get lighter
 
-        patches = sample_with_stratification(patches=df, num_to_sample=num_diverse_to_sample, keys="cluster_id")
+        patches = sample_with_stratification(patches=df, num_to_sample=num_diverse_to_sample, keys=["cluster_id"])
         self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id"])
         patches["sampler"] = self.name
         # TODO: add some log
-        return patches[SELECTION_SCHEMA]
+        # cluster_id returned for visual exploration.
+        return patches[SELECTION_SCHEMA + ["cluster_id"]]
 
 
 def cluster(array: np.ndarray, normalization_config: dict, n_clusters: int):
@@ -66,7 +66,7 @@ def cluster(array: np.ndarray, normalization_config: dict, n_clusters: int):
     # https://stackoverflow.com/a/68763150/8086033
     # https://github.com/scikit-learn-contrib/hdbscan/blob/master/notebooks/Flat%20clustering.ipynb
 
-    clusterer = hdbscan.HDBSCAN(min_cluster_size=10, min_samples=10, cluster_selection_method="leaf")
+    clusterer = hdbscan.HDBSCAN(min_cluster_size=5, min_samples=5, cluster_selection_method="leaf")
     clusterer = clusterer.fit(array)
     from hdbscan import flat
 

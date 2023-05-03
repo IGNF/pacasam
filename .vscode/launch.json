@@ -5,6 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run main (Outliers+Lipac)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampler_class=OutliersSampler",
+            ]
+        },
+        {
+            "name": "Run main (Outliers+Synthetic)",
+            "type": "python",
+            "request": "launch",
+            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_file=configs/Synthetic.yml",
+                "--connector_class=SyntheticConnector",
+                "--sampler_class=OutliersSampler",
+            ]
+        },
+        {
             "name": "Run main (Triple+LiPaC)",
             "type": "python",
             "request": "launch",

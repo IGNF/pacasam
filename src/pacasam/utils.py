@@ -4,6 +4,7 @@ import yaml
 import sys
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
+from pacasam.samplers.outliers import OutliersSampler
 from pacasam.samplers.spatial import SpatialSampler
 from pacasam.samplers.diversity import DiversitySampler
 from pacasam.samplers.random import RandomSampler
@@ -52,6 +53,7 @@ SAMPLERS_LIBRARY = {
     "DiversitySampler": DiversitySampler,
     "SpatialSampler": SpatialSampler,
     "RandomSampler": RandomSampler,
+    "OutliersSampler": OutliersSampler,
 }
 
 CONNECTORS_LIBRARY = {

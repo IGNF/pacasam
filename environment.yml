@@ -16,7 +16,6 @@ dependencies:
   - geoalchemy2
   - s3fs
   - geopandas
-  # --------- Dataviz --------- #
   - plotly
   - jupyter-dash 
   - ipywidgets>=7.6
@@ -28,3 +27,4 @@ dependencies:
   - flake8 # code analysis
   - pip:
     - black[jupyter]
+    - hdbscan

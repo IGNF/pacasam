@@ -13,7 +13,7 @@
 CONNECTOR ?= LiPaCConnector  # LiPaCConnector ou SyntheticConnector
 CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml - Devrait correspondre au connecteur!
 REPORTS ?= N # N(o) ou Y(es). No pour des résultats plus rapides.
-SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler TripleSampler
+SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler TripleSampler OutliersSampler
 
 .PHONY: all help $(SAMPLERS)
 

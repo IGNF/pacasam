@@ -15,8 +15,8 @@ class RandomSampler(Sampler):
 
         patches = self.connector.request_all_other_patches(exclude_ids=current_selection_ids)
         patches = sample_randomly(patches=patches, num_to_sample=num_to_sample)
-        self.log.info(f"RandomSampler: Completing with {num_to_sample} samples.")
+        self.log.info(f"{self.name}: N={num_to_sample} patches.")
 
-        self._set_validation_patches_with_spatial_stratification(patches=patches)
+        self._set_validation_patches_with_stratification(patches=patches, keys=["dalle_id"])
         patches["sampler"] = self.name
         return patches[SELECTION_SCHEMA]

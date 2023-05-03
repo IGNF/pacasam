@@ -41,17 +41,22 @@ class ClusteringSampler(Sampler):
         df = df[TILE_INFO + cols_for_clustering]
         df = normalize_df(df=df, normalization_config=self.cf["DiversitySampler"])
         n_clusters = len(df)  # HDBSCAN can not attain this level but we aim for the max.
-        df["cluster_id"] = cluster(
+        cluster_id, outlier_scores = cluster(
             array=df[cols_for_clustering].values, normalization_config=self.cf["DiversitySampler"], n_clusters=int(n_clusters)
         )
-        df = df[df["cluster_id"] == -1]  # keep only "noise" i.e. what does not belong to a cluster.
-        df = df[TILE_INFO + ["cluster_id"]]
-        patches = sample_with_stratification(patches=df, num_to_sample=num_diverse_to_sample, keys=["cluster_id"])
+        df["cluster_id"] = cluster_id
+        df["outlier_scores"] = outlier_scores
+        # les plus outliers de tous.
+        df = df.sort_values(by="outlier_scores", ascending=False).head(num_diverse_to_sample)
+
+        patches = df[TILE_INFO + ["cluster_id", "outlier_scores"]]
+        # df = df[TILE_INFO + ["cluster_id", "outlier_scores"]]
+        # patches = sample_with_stratification(patches=df, num_to_sample=num_diverse_to_sample, keys=["cluster_id"])
         self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id"])
         patches["sampler"] = self.name
         # TODO: add some log
-        # cluster_id returned for visual exploration.
-        return patches[SELECTION_SCHEMA + ["cluster_id"]]
+        # cluster_id et "outlier_scores"returned for visual exploration.
+        return patches[SELECTION_SCHEMA + ["cluster_id", "outlier_scores"]]
 
 
 def cluster(array: np.ndarray, normalization_config: dict, n_clusters: int):
@@ -73,4 +78,4 @@ def cluster(array: np.ndarray, normalization_config: dict, n_clusters: int):
     # Then we can sample both in the representative regions and in the outer regions.
     # # curently we simply keep the noise as a cluster. Its impacyt will be low since we sample with stratification.
     # clusterer.exemplars_ --> équivalents des "centroids" ?
-    return clusterer.labels_
+    return clusterer.labels_, clusterer.outlier_scores_

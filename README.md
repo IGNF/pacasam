@@ -117,6 +117,23 @@ Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur mac
 <details>
 <summary><h2>Development Roadmap</h2></summary>
 
+- [ ] Module extractor
+    - [ ] API unique : objet extractor abstrait dès le début, pour l'instant dans le même module, pour définir l'interface. En entrée un objet gpd compatible, avec à minima : geometry, split, LAZ file. On préciser : la classe de l'objet : LAZExtractor.
+    - [ ] Est-ce que main se fait remplacer par un autre objet ? Ou bien deux scripts séparés, appelés dans un troisième ? Quelles sont les bonnes pratiques là dessus (un seul point d'entrée ?). L'extraction est une opération longue donc on peut préférer un entrypoint différent, on ne souhaite pas enchaîner les deux...
+    - [ ] Occasion naturelle de commencer la suite de test ! TDD.
+        - Démarrer par la suite de test pour les méthodes sur jeu de données synthétique.
+        -  Need : 2 carrés de 100m*100m, qu'on décrira avec un nouveau connector ? Occasion de créer le connector qui effectue une description ? "geopandas" ? NON, trop lourd pour l'instant. Privilégier.
+        - Fonctionnalités:
+            - Lire GDF d'échantillonnage
+                - Check : vérifier présence des bonnes colonnes, et leur types.
+                - Check : vérifier existence et accessibilité de tous les fichiers visés.
+            - groupby fichier (pas à tester), qui permettra parallélisation ensuite plus facilement.
+            - opération 1 LAZ + subset du gpd correspondant -> extraction de n lidar
+            - opération 2 LAZ + 2 subsets du gpd correspondant -> extraction val et test.
+            - Colorisation (dans un second temps, difficile à tester également à part présence des canaux)
+
+
+
 - Tasks:
     - [X] Redéfinir frac_validation_set et associés vers notion de jeu de validation.
     - [X] Enlever le comportement par défaut "critere > 0". Toujours mettre commande sql pour être explicite.

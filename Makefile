@@ -15,14 +15,6 @@ CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml - Devr
 REPORTS ?= N # N(o) ou Y(es). No pour des résultats plus rapides.
 SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler TripleSampler OutliersSampler
 
-.PHONY: all help $(SAMPLERS)
-
-all: $(SAMPLERS)
-
-all_for_all_connectors:
-	make all REPORTS=Y
-	make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
-
 help:
 	@echo "Liste des cibles disponibles :"
 	@echo "  $(SAMPLERS) - Exécute chaque échantillonneur individuellement."
@@ -33,8 +25,22 @@ help:
 	@echo "  make all REPORTS=Y"
 	@echo "  make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml"
 
+.PHONY: all help $(SAMPLERS) tests open_coverage_report
+
+all: $(SAMPLERS)
+
 $(SAMPLERS):
 	python ./src/pacasam/main.py --config_file=$(CONFIG) \
 		--connector_class=$(CONNECTOR) \
 		--sampler_class=$@ \
 		--make_html_report=$(REPORTS)
+
+all_for_all_connectors:
+	make all REPORTS=Y
+	make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
+
+tests:
+	pytest -s
+
+open_coverage_report:
+	firefox htmlcov/index.html

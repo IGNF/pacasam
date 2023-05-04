@@ -12,8 +12,8 @@
             "justMyCode": false,
             "args": [
                 "-s",
-                // "-k",
-                // "keyword",
+                "-k",
+                "test_make_html_report_option_after_random_sampler",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

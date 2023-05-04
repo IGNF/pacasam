@@ -17,7 +17,7 @@ testpaths = [
     "tests/tests_pacasam/",
 ]
 # Add coverage
-# addopts = "--cov /pacasam/ --cov-fail-under 1 --cov-report html"
+addopts = "--cov src/pacasam/ --cov-fail-under 85 --cov-report html"
 
 filterwarnings = [
     "ignore::pandas.errors.SettingWithCopyWarning"

@@ -58,8 +58,10 @@ class SyntheticConnector(Connector):
 
     def request_patches_by_boolean_indicator(self, bool_descriptor_name) -> pd.Series:
         """Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html"""
+        # TODO: add a test that check that the descriptor is indeed a boolean,
+        # because other cases are not wanted but will silently give absurds results...
         return self.db.query(bool_descriptor_name)
-    
+
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
         extract = self.db.merge(
@@ -75,6 +77,9 @@ class SyntheticConnector(Connector):
         df_x = DataFrame({"x": range(fake_grid_size)}) * TILE_SIZE
         df_y = DataFrame({"y": range(fake_grid_size)}) * TILE_SIZE
         df_xy = df_x.merge(df_y, how="cross")
+
+        # limit the size to the desired db_size
+        df_xy = df_xy.head(self.db_size)
 
         df_geom = df_xy.apply(
             lambda row: box(

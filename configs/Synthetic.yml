@@ -2,17 +2,17 @@
 
 
 # 75km² = 30k patches. 1% of 75km² = 300 patches.
-target_total_num_patches: 500
+target_total_num_patches: 50
 # target_total_num_patches: 30000
 
-frac_validation_set:  0.0 # float 
+frac_validation_set:  0.1 # float 
 
 # Définition du jeu de données synthétique
 connector_kwargs:
   # Lower
   # Création pour chaque prévalence d'un indicateur binaire C0, C1, etc.
   binary_descriptors_prevalence: [0.005, 0.005, 0.005, 0.7]
-  db_size: 10000
+  db_size: 200
 
   # 2500km²=4M patches
   # db_size: 4000000

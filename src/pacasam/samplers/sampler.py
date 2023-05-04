@@ -33,9 +33,9 @@ class Sampler:
 
     def _set_validation_patches_with_stratification(self, patches: GeoDataFrame, keys: Union[str, List[str]]):
         """(Inplace) Set a binary flag for the validation patches, selected spatially by slab."""
-        patches["split"] = "test"
+        patches.loc[:, "split"] = "test"
         if self.cf["frac_validation_set"] is not None:
-            patches["split"] = "train"
+            patches.loc[:, "split"] = "train"
             num_samples_val_set = floor(self.cf["frac_validation_set"] * len(patches))
             val_patches_ids = sample_with_stratification(patches, num_samples_val_set, keys=keys)["id"]
             patches.loc[patches["id"].isin(val_patches_ids), "split"] = "val"

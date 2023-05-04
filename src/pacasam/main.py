@@ -26,12 +26,11 @@ parser.add_argument("--connector_class", default="LiPaCConnector", choices=CONNE
 parser.add_argument("--sampler_class", default="TripleSampler", choices=SAMPLERS_LIBRARY.keys())
 
 parser.add_argument("--output_path", default=None)
-parser.add_argument("--make_html_report", default="Y", choices=[True, False], type=lambda choice: choice == "Y")
+parser.add_argument("--make_html_report", default="N", choices=[True, False], type=lambda choice: choice == "Y")
 
 
-def main():
+def main(args):
     # config_file = Path("configs/Lipac.yml")
-    args = parser.parse_args()
     task_name = f"{args.connector_class}-{args.sampler_class}"
     args.output_path = args.output_path if args.output_path is not None else f"outputs/samplings/{task_name}/"
     args.output_path = Path(args.output_path).absolute()
@@ -74,4 +73,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    args = parser.parse_args()
+    main(args)

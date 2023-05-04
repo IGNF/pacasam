@@ -25,6 +25,9 @@ dependencies:
   - black # code formatting
   - isort # import sorting
   - flake8 # code analysis
+  # --------- tests ----------- #
+  - pytest
+  - pytest-cov
   - pip:
     - black[jupyter]
     - hdbscan

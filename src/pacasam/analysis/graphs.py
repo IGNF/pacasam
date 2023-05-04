@@ -6,6 +6,15 @@ import numpy as np
 from pandas import DataFrame
 
 from sklearn.preprocessing import QuantileTransformer
+
+import sys
+
+# from pathlib import Path
+
+directory = Path(__file__).resolve().parent.parent.parent
+print(directory)
+sys.path.append(str(directory))
+
 from pacasam.connectors.synthetic import NB_POINTS_COLNAMES
 
 PREFIX_BOOL_DESCRIPTOR = "presence"
@@ -14,16 +23,13 @@ REPORT_HTML_TEMPLATE_PATH = "./src/pacasam/analysis/sampling_dataviz_template.ht
 HTML_PLOTS_PLACEHOLDER = "{{PLACEHOLDER_TO_ADD_GRAPHS_ITERATIVELY}}"
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--gpkg_path", type=Path, help="Path to the sampling geopackage.")
-    parser.add_argument("--output_path", type=Path, help="Output dir to save html and svg assets.")
-    args = parser.parse_args()
+parser = argparse.ArgumentParser()
+parser.add_argument("--gpkg_path", type=Path, help="Path to the sampling geopackage.")
+parser.add_argument("--output_path", type=Path, help="Output dir to save html and svg assets.")
+
+
+def main(args):
     make_all_graphs_and_a_report(gpkg_path=args.gpkg_path, output_path=args.output_path)
-
-
-if __name__ == "__main__":
-    main()
 
 
 def make_all_graphs_and_a_report(gpkg_path: Path, output_path: Path):
@@ -162,3 +168,8 @@ def save_report(html_report: str, output_path: Path):
     html_report = html_report.replace(HTML_PLOTS_PLACEHOLDER, "")
     with open(output_path / "pacasam-sampling-dataviz.html", "w") as f:
         f.write(html_report)
+
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    main(args)

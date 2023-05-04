@@ -57,6 +57,7 @@ def test_check_files_accessibility():
 
 
 def test_check_sampling_format_based_on_synthetic_data():
+    # TODO: this should become a fixture to use in test_graphs
     # Small synthetic data in db
     connector_class = CONNECTORS_LIBRARY.get("SyntheticConnector")
     connector = connector_class(log=None, binary_descriptors_prevalence=[0.1], db_size=10)
@@ -88,6 +89,7 @@ def test_extract_patches_from_single_cloud():
 
         # TODO: check that the content of the file is compliant e.g. that all points in the las are contained in the shape?
 
+
 # This will mark the test as an expected failure only if it fails with an AssertionError.
 # If it fails for any other reason, it will be treated as a regular test failure.
 # TODO: remove when extraction is implemented.
@@ -96,9 +98,11 @@ def test_colorize_single_patch():
     # TODO
     assert False
 
+
 @pytest.mark.xfail(strict=True)
 def test_colorize_all_patches():
     assert False
+
 
 def test_extract_dataset_from_sampling():
     # integration test to be sure that all runs smoothly together

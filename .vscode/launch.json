@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_extract_patches_from_single_cloud",
+                "test_main_graphs",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

@@ -12,7 +12,7 @@ extend-exclude = '''
 )
 '''
 
-[tool.pytest]
+[tool.pytest.ini_options]
 testpaths = [
     "tests/tests_pacasam/",
 ]
@@ -20,5 +20,5 @@ testpaths = [
 # addopts = "--cov /pacasam/ --cov-fail-under 1 --cov-report html"
 
 filterwarnings = [
-    "ignore::SettingWithCopyWarning"
+    "ignore::pandas.errors.SettingWithCopyWarning"
 ]

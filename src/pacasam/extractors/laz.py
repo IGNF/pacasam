@@ -18,22 +18,20 @@ Functions:
       sampling geopackage file and save them to disk using the provided dataset path.
 
 """
-
 from pathlib import Path
 from typing import Iterable
 import geopandas as gpd
 from shapely import Polygon
 
+LAZ_FILE_COLNAME = "laz_path"
 
-def load_sampling_df(sampling_path: Path):
-    df = gpd.read_file(sampling_path)
-    # perform some checks
+
+def load_sampling_df_with_checks(sampling_path: Path):
+    df = gpd.read_file(sampling_path, converters={LAZ_FILE_COLNAME: Path})
+    df[LAZ_FILE_COLNAME] = df[LAZ_FILE_COLNAME].apply(Path)
     check_sampling_format(df)
     assert all_files_can_be_accessed(df[LAZ_FILE_COLNAME])
     return df
-
-
-LAZ_FILE_COLNAME = "laz_path"
 
 
 def check_sampling_format(df: gpd.GeoDataFrame) -> None:

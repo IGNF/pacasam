@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_check_",
+                "test_load_sampling_df_with_checks_from_toy_data",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

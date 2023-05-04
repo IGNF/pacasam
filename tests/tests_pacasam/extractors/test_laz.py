@@ -1,9 +1,14 @@
 from pathlib import Path
-from pacasam.extractors.laz import LAZ_FILE_COLNAME, all_files_can_be_accessed, check_sampling_format
+import tempfile
+from pacasam.extractors.laz import LAZ_FILE_COLNAME, all_files_can_be_accessed, check_sampling_format, load_sampling_df_with_checks
 from pacasam.utils import CONNECTORS_LIBRARY
+import geopandas as gpd
+import shapely
 
-LEFTY = Path("tests/data/792000_6272000-50mx100m-left.las")
-RIGHTY = Path("tests/data/792000_6272000-50mx100m-right.las")
+LEFTY = "tests/data/792000_6272000-50mx100m-left.las"
+LEFTY_GEOMETRY = shapely.box(xmin=792000, ymin=6271171, xmax=792050, ymax=6271271)
+RIGHTY = "tests/data/792000_6272000-50mx100m-right.las"
+RIGHTY_GEOMETRY = shapely.box(xmin=792050, ymin=6271171, xmax=792100, ymax=6271271)
 
 
 def test_check_files_accessibility():
@@ -25,3 +30,25 @@ def test_check_sampling_format_based_on_synthetic_data():
     # TODO: replace with the path to an actual LAZ file
     df[LAZ_FILE_COLNAME] = __file__
     check_sampling_format(df)
+
+
+# todo: convert the toy data to LAZ format to gain even more space.
+def test_load_sampling_df_with_checks_from_toy_data():
+    # idea: for now we create a fake sampling that includes patches from
+    # toy las. Later on we might automate this and it might become
+    # its own Connector, that takes LAS as input and returns the metadata
+    # as outputs.
+    df = gpd.GeoDataFrame(
+        data={
+            "geometry": [LEFTY_GEOMETRY, LEFTY_GEOMETRY, RIGHTY_GEOMETRY, RIGHTY_GEOMETRY],
+            LAZ_FILE_COLNAME: [LEFTY, LEFTY, RIGHTY, RIGHTY],
+            "split": ["train", "val", "train", "val"],
+        },
+        crs="EPSG:2154",
+    )
+    temporary_gpkg = tempfile.NamedTemporaryFile(suffix=".gpkg")
+    df.to_file(temporary_gpkg)
+
+    # test loading
+    df_loaded = load_sampling_df_with_checks(temporary_gpkg.name)
+    assert len(df_loaded)

@@ -1,14 +1,44 @@
+from argparse import Namespace
 from pathlib import Path
 import tempfile
-from pacasam.extractors.laz import LAZ_FILE_COLNAME, all_files_can_be_accessed, check_sampling_format, load_sampling_df_with_checks
+
+import pytest
+from pacasam.extractors.laz import (
+    LAZ_FILE_COLNAME,
+    PATCH_ID_COLNAME,
+    SPLIT_COLNAME,
+    all_files_can_be_accessed,
+    check_sampling_format,
+    define_patch_path_for_extraction,
+    extract_patches_from_single_cloud,
+    load_sampling_df_with_checks,
+)
 from pacasam.utils import CONNECTORS_LIBRARY
 import geopandas as gpd
 import shapely
+
+# idea: for now we create a fake sampling that includes patches from
+# toy las. Later on we might automate this and it might become
+# its own Connector, that takes LAS as input and returns the metadata
+# as outputs.
 
 LEFTY = "tests/data/792000_6272000-50mx100m-left.las"
 LEFTY_GEOMETRY = shapely.box(xmin=792000, ymin=6271171, xmax=792050, ymax=6271271)
 RIGHTY = "tests/data/792000_6272000-50mx100m-right.las"
 RIGHTY_GEOMETRY = shapely.box(xmin=792050, ymin=6271171, xmax=792100, ymax=6271271)
+NUM_PATCHED_IN_EACH_FILE = 2
+# TODO: this could be a fixture ?
+df = gpd.GeoDataFrame(
+    data={
+        "geometry": [LEFTY_GEOMETRY, LEFTY_GEOMETRY, RIGHTY_GEOMETRY, RIGHTY_GEOMETRY],
+        LAZ_FILE_COLNAME: [LEFTY, LEFTY, RIGHTY, RIGHTY],
+        "split": ["train", "val", "train", "val"],
+        "id": [0, 1, 2, 3],
+    },
+    crs="EPSG:2154",
+)
+TOY_SAMPLING = tempfile.NamedTemporaryFile(suffix=".gpkg")
+df.to_file(TOY_SAMPLING)
 
 
 def test_check_files_accessibility():
@@ -34,21 +64,43 @@ def test_check_sampling_format_based_on_synthetic_data():
 
 # todo: convert the toy data to LAZ format to gain even more space.
 def test_load_sampling_df_with_checks_from_toy_data():
-    # idea: for now we create a fake sampling that includes patches from
-    # toy las. Later on we might automate this and it might become
-    # its own Connector, that takes LAS as input and returns the metadata
-    # as outputs.
-    df = gpd.GeoDataFrame(
-        data={
-            "geometry": [LEFTY_GEOMETRY, LEFTY_GEOMETRY, RIGHTY_GEOMETRY, RIGHTY_GEOMETRY],
-            LAZ_FILE_COLNAME: [LEFTY, LEFTY, RIGHTY, RIGHTY],
-            "split": ["train", "val", "train", "val"],
-        },
-        crs="EPSG:2154",
-    )
-    temporary_gpkg = tempfile.NamedTemporaryFile(suffix=".gpkg")
-    df.to_file(temporary_gpkg)
-
-    # test loading
-    df_loaded = load_sampling_df_with_checks(temporary_gpkg.name)
+    df_loaded = load_sampling_df_with_checks(TOY_SAMPLING.name)
     assert len(df_loaded)
+
+
+# This will mark the test as an expected failure only if it fails with an AssertionError.
+# If it fails for any other reason, it will be treated as a regular test failure.
+# TODO: remove when extraction is implemented.
+@pytest.mark.xfail(strict=True)
+def test_extract_patches_from_single_cloud():
+    with tempfile.TemporaryDirectory() as dataset_root:
+        df_loaded = load_sampling_df_with_checks(TOY_SAMPLING.name)
+
+        # Keep only patches relative to a single file
+        first_file = df_loaded[LAZ_FILE_COLNAME].iloc[0]
+        sampling_of_single_cloud = df_loaded[df_loaded[LAZ_FILE_COLNAME] == first_file]
+        list_of_extracted_path = extract_patches_from_single_cloud(sampling_of_single_cloud, Path(dataset_root))
+
+        # Assert that the files were created
+        assert len(list_of_extracted_path) == len(sampling_of_single_cloud) == NUM_PATCHED_IN_EACH_FILE
+        assert all_files_can_be_accessed(list_of_extracted_path)
+
+        # TODO: check that the content of the file is compliant e.g. that all points in the las are contained in the shape?
+
+
+def test_define_patch_path_for_extraction():
+    with tempfile.TemporaryDirectory() as dataset_root:
+        split = "train"
+        patch_path = define_patch_path_for_extraction(
+            Path(dataset_root),
+            Path("Anything/here/NAME_OF_LAZ.LAZ"),
+            Namespace(
+                **{
+                    SPLIT_COLNAME: split,
+                    PATCH_ID_COLNAME: 42,
+                }
+            ),
+        )
+        assert patch_path.stem == "NAME_OF_LAZ---0042"
+        assert patch_path.parent.stem == split
+        assert patch_path.suffix == ".laz"  # lowercase always

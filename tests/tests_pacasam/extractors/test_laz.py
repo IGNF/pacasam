@@ -73,10 +73,6 @@ def test_load_sampling_df_with_checks_from_toy_data():
     assert len(df_loaded)
 
 
-# This will mark the test as an expected failure only if it fails with an AssertionError.
-# If it fails for any other reason, it will be treated as a regular test failure.
-# TODO: remove when extraction is implemented.
-@pytest.mark.xfail(strict=True)
 def test_extract_patches_from_single_cloud():
     with tempfile.TemporaryDirectory() as dataset_root:
         df_loaded = load_sampling_df_with_checks(TOY_SAMPLING.name)
@@ -92,6 +88,17 @@ def test_extract_patches_from_single_cloud():
 
         # TODO: check that the content of the file is compliant e.g. that all points in the las are contained in the shape?
 
+# This will mark the test as an expected failure only if it fails with an AssertionError.
+# If it fails for any other reason, it will be treated as a regular test failure.
+# TODO: remove when extraction is implemented.
+@pytest.mark.xfail(strict=True)
+def test_colorize_single_patch():
+    # TODO
+    assert False
+
+@pytest.mark.xfail(strict=True)
+def test_colorize_all_patches():
+    assert False
 
 def test_extract_dataset_from_sampling():
     # integration test to be sure that all runs smoothly together

@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_make_html_report_option_after_random_sampler",
+                "test_check_",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

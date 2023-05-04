@@ -32,10 +32,11 @@ NUM_PATCHES_BY_SLAB = int((SLAB_SIZE / TILE_SIZE) ** 2)
 
 
 class SyntheticConnector(Connector):
-    def __init__(self, log, binary_descriptors_prevalence: List[float], db_size: int = 10000):
+    def __init__(self, log: Optional[logging.Logger], binary_descriptors_prevalence: List[float], db_size: int = 10000):
         super().__init__()
         self.log = log
         self.db_size = db_size
+        # TODO: make db an attribute so that it is created when accessed instead of at initialization of the object.
         df_geom, df_dalle_id = self._make_synthetic_geometries_and_slabs()
         # WARNING: the synthetic geometries will not be compliant with the dalle_id.
         self.db = gpd.GeoDataFrame(

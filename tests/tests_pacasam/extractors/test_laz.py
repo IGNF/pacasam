@@ -10,6 +10,7 @@ from pacasam.extractors.laz import (
     all_files_can_be_accessed,
     check_sampling_format,
     define_patch_path_for_extraction,
+    extract_dataset_from_sampling,
     extract_patches_from_single_cloud,
     load_sampling_df_with_checks,
 )
@@ -86,6 +87,12 @@ def test_extract_patches_from_single_cloud():
         assert all_files_can_be_accessed(list_of_extracted_path)
 
         # TODO: check that the content of the file is compliant e.g. that all points in the las are contained in the shape?
+
+
+def test_extract_dataset_from_sampling():
+    # integration test to be sure that all runs smoothly together
+    with tempfile.TemporaryDirectory() as dataset_root:
+        extract_dataset_from_sampling(TOY_SAMPLING.name, Path(dataset_root))
 
 
 def test_define_patch_path_for_extraction():

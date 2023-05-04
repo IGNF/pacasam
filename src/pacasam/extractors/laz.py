@@ -21,9 +21,16 @@ from typing import Iterable
 import geopandas as gpd
 from shapely import Polygon
 
+# TODO: have a unified structure for the key columns of a sampling, keep it DRY
 LAZ_FILE_COLNAME = "laz_path"
 PATCH_ID_COLNAME = "id"
 SPLIT_COLNAME = "split"
+
+
+def extract_dataset_from_sampling(sampling_path: Path, dataset_root_path: Path) -> None:
+    sampling = load_sampling_df_with_checks(sampling_path)
+    paths_of_extracted_patches = extract_patches_from_all_clouds(sampling, dataset_root_path)
+    colorize_all_patches(paths_of_extracted_patches)
 
 
 def extract_patches_from_single_cloud(sampling: gpd.GeoDataFrame, dataset_root_path: Path) -> Iterable[Path]:
@@ -61,18 +68,26 @@ def define_patch_path_for_extraction(dataset_root_path, laz_path, patch_info):
 
 
 def extract_patches_from_all_clouds(sampling: gpd.GeoDataFrame, dataset_root_path: Path) -> Iterable[Path]:
-    list_of_extracted_path = []
-    for sampling_of_single_file in sampling.groupby(LAZ_FILE_COLNAME):
-        # TODO: simplify, clean
+    # TODO: add some paralellization at the file level.
+    # TODO: consider using generators, to enable streamlined colorization afterward.
+    paths_of_extracted_patches = []
+    for key, sampling_of_single_file in sampling.groupby(LAZ_FILE_COLNAME):
         extracted = extract_patches_from_single_cloud(
             sampling_of_single_file,
             dataset_root_path,
         )
-        list_of_extracted_path += extracted
-    # groupby LAZ_FILE_COLNAME
-    # TODO: add parallelization
-    # for each file, make the extraction
-    return list_of_extracted_path
+        paths_of_extracted_patches += extracted
+    return paths_of_extracted_patches
+
+
+def colorize_all_patches(paths_of_extracted_patches: Iterable[Path]) -> None:
+    for path in paths_of_extracted_patches:
+        colorize_single_patch(path)
+
+
+def colorize_single_patch(path_of_patch_data: Path) -> None:
+    # Use a tmp file first for colorization, replace afterward, to avoid unwanted deletion...
+    ...
 
 
 # READING

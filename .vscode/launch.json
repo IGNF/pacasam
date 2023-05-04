@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_define_patch_path_for_extraction",
+                "test_extract_dataset_from_sampling",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

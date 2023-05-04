@@ -20,11 +20,14 @@ from pathlib import Path
 from typing import Iterable
 import geopandas as gpd
 from shapely import Polygon
+import laspy
+import numpy as np
 
 # TODO: have a unified structure for the key columns of a sampling, keep it DRY
 LAZ_FILE_COLNAME = "laz_path"
 PATCH_ID_COLNAME = "id"
 SPLIT_COLNAME = "split"
+GEOMETRY_COLNAME = "geometry"
 
 
 def extract_dataset_from_sampling(sampling_path: Path, dataset_root_path: Path) -> None:
@@ -33,20 +36,57 @@ def extract_dataset_from_sampling(sampling_path: Path, dataset_root_path: Path) 
     colorize_all_patches(paths_of_extracted_patches)
 
 
+"""
+
+import laspy
+import numpy as np
+from shapely.geometry import Polygon
+
+# Read the LAS file into a numpy array
+with laspy.file.File("input.laz", mode="r") as f:
+    points = np.array([f.x, f.y, f.z]).T
+
+# Define the polygons
+polygons = [
+    Polygon([(0, 0), (0, 10), (10, 10), (10, 0)]),
+    Polygon([(20, 20), (20, 30), (30, 30), (30, 20)])
+]
+
+# Select the points within the polygons
+mask = np.zeros(points.shape[0], dtype=bool)
+for polygon in polygons:
+    mask |= polygon.contains(points[:, :2])
+cropped_points = points[mask]
+
+# Write the cropped point cloud to a new LAS file
+with laspy.file.File("output.laz", mode="w", header=f.header) as f:
+    f.x = cropped_points[:, 0]
+    f.y = cropped_points[:, 1]
+    f.z = cropped_points[:, 2]
+"""
+
+
 def extract_patches_from_single_cloud(sampling: gpd.GeoDataFrame, dataset_root_path: Path) -> Iterable[Path]:
     # sanity check to be sure this function is properly used (i.e. for a single cloud)
     assert sampling[LAZ_FILE_COLNAME].nunique() == 1
     laz_path = sampling[LAZ_FILE_COLNAME].iloc[0]
 
-    # read LAZ file and create an octree. Or use pdal. dunno...
+    # for now, use laspy in a straightforward way. scale later.
+    las = laspy.read(laz_path)
+    header = las.header
 
     list_of_extracted_path = []
     for patch_info in sampling.itertuples():
         # where to save patch data
         patch_path = define_patch_path_for_extraction(dataset_root_path, laz_path, patch_info)
+        polygon = getattr(patch_info, GEOMETRY_COLNAME)
+        # TODO: for now accept only rectangular shape. Warning! Should always be a bbox instead...
+        # We should constrain and check that it is the case.
+        newlas = laspy.LasData(header)
+        xmin, ymin, xmax, ymax = polygon.bounds
+        newlas.points = las.points[(las.x >= xmin) & (las.x <= xmax) & (las.y >= ymin) & (las.y <= ymax)]
 
-        # TODO: extract and save to patch_path to patch_path
-
+        newlas.write(patch_path)
         list_of_extracted_path += [patch_path]
     return list_of_extracted_path
 

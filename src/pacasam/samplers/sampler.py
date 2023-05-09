@@ -3,16 +3,12 @@ from math import floor
 from typing import Dict, List, Union
 from geopandas import GeoDataFrame
 from pacasam.samplers.algos import sample_with_stratification
-from pacasam.connectors.connector import Connector
+from pacasam.connectors.connector import PATCH_ID_COLNAME, Connector
 
 # Schema of all DataFrame outputs of sampler.get_patches(...) calls.
 
-# Needed for connector & extraction
-FILE_COLNAME = "file_path"
-GEOMETRY_COLNAME = "geometry"
 
-# Needed for sampling
-PATCH_ID_COLNAME = "id"
+# Created by samplers
 SPLIT_COLNAME = "split"
 SAMPLER_COLNAME = "sampler"
 
@@ -37,17 +33,17 @@ class Sampler:
 
     def drop_duplicates_by_id_and_log_sampling_attrition(self, gdf: GeoDataFrame):
         n_sampled = len(gdf)
-        gdf = gdf.drop_duplicates(subset=["id"])
+        gdf = gdf.drop_duplicates(subset=[PATCH_ID_COLNAME])
         n_distinct = len(gdf)
         self.log.info(f"{self.name}: {n_sampled} ids --> {n_distinct} distinct ids (uniqueness ratio: {n_distinct/n_sampled:.03f}) ")
         return gdf
 
     def _set_validation_patches_with_stratification(self, patches: GeoDataFrame, keys: Union[str, List[str]]):
         """(Inplace) Set a binary flag for the validation patches, selected spatially by slab."""
-        patches.loc[:, "split"] = "test"
+        patches[SPLIT_COLNAME] = "test"
         if self.cf["frac_validation_set"] is not None:
-            patches.loc[:, "split"] = "train"
+            patches.loc[:, SPLIT_COLNAME] = "train"
             num_samples_val_set = floor(self.cf["frac_validation_set"] * len(patches))
-            val_patches_ids = sample_with_stratification(patches, num_samples_val_set, keys=keys)["id"]
-            patches.loc[patches["id"].isin(val_patches_ids), "split"] = "val"
+            val_patches_ids = sample_with_stratification(patches, num_samples_val_set, keys=keys)[PATCH_ID_COLNAME]
+            patches.loc[patches[PATCH_ID_COLNAME].isin(val_patches_ids), SPLIT_COLNAME] = "val"
         return patches

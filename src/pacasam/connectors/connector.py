@@ -3,8 +3,15 @@ from typing import Iterable
 from pandas import Series
 from geopandas import GeoDataFrame
 
-# We need at least these information to perform sampling
-TILE_INFO = ["id", "dalle_id"]
+
+# TODO: document the necessary columns names for the sql request, in particular FILE_COLNAME
+
+FILE_COLNAME = "file_path"
+GEOMETRY_COLNAME = "geometry"
+PATCH_ID_COLNAME = "id"
+
+# TODO: generalize so that we do not need dalle_id, or at least it is called something else more general
+TILE_INFO = [PATCH_ID_COLNAME, "dalle_id"]
 
 log = logging.getLogger(__name__)
 
@@ -32,7 +39,7 @@ class Connector:
 
     def request_all_other_patches(self, exclude_ids: Iterable):
         """Requests all other patches."""
-        return self.db[~self.db["id"].isin(exclude_ids)][TILE_INFO]
+        return self.db[~self.db[PATCH_ID_COLNAME].isin(exclude_ids)][TILE_INFO]
 
     def extract(self, ids: Series) -> GeoDataFrame:
         """Extract selected ids and geometries from the database."""

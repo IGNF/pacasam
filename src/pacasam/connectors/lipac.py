@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
 import yaml
 from pacasam.connectors.connector import TILE_INFO, Connector
+from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
 
 # TODO: abstract a GeoDataframeConnector that wokr on a geopandas, and inherit from it for SuyntheticConnector and LiPaCConnector
@@ -64,7 +65,7 @@ class LiPaCConnector(Connector):
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
         gdf = gdf.set_crs(self.lambert_93_crs)
         gdf = geometrie_to_geometry_col(gdf)
-        gdf = gdf.sort_values(by="id")
+        gdf = gdf.sort_values(by=PATCH_ID_COLNAME)
         return gdf
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
@@ -73,7 +74,7 @@ class LiPaCConnector(Connector):
         extract = self.db.merge(
             selection,
             how="inner",
-            on="id",
+            on=PATCH_ID_COLNAME,
         )
         return extract
 

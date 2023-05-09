@@ -8,6 +8,7 @@ import geopandas as gpd
 from shapely.geometry import box
 
 from pacasam.connectors.connector import Connector
+from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
 # Should match what is in the database. Also used for histograms.
 NB_POINTS_COLNAMES = [
@@ -54,7 +55,7 @@ class SyntheticConnector(Connector):
             d = np.random.randint(low=0, high=60_000, size=(db_size,)).astype(int)
             self.db[nb_point_colname] = d
 
-        self.db["id"] = range(len(self.db))
+        self.db[PATCH_ID_COLNAME] = range(len(self.db))
         self.db["dalle_id"] = df_dalle_id
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
@@ -62,7 +63,7 @@ class SyntheticConnector(Connector):
         extract = self.db.merge(
             selection,
             how="inner",
-            on="id",
+            on=PATCH_ID_COLNAME,
         )
         return extract
 

@@ -1,4 +1,5 @@
 import pandas as pd
+from pacasam.connectors.connector import PATCH_ID_COLNAME
 from pacasam.samplers.sampler import Sampler
 from pacasam.samplers.spatial import SpatialSampler
 from pacasam.samplers.diversity import DiversitySampler
@@ -30,7 +31,7 @@ class TripleSampler(Sampler):
         # Complete the dataset with the other patches
         num_patches_to_complete = self.cf["target_total_num_patches"] - len(selection)
         cs = SpatialSampler(connector=self.connector, sampling_config=self.cf, log=self.log)
-        others = cs.get_patches(current_selection_ids=selection["id"], num_to_sample=num_patches_to_complete)
+        others = cs.get_patches(current_selection_ids=selection[PATCH_ID_COLNAME], num_to_sample=num_patches_to_complete)
         selection = pd.concat([selection, others])
         # sanity deduplication, just in case
         selection = self.drop_duplicates_by_id_and_log_sampling_attrition(selection)

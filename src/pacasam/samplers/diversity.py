@@ -4,8 +4,8 @@ from math import ceil, floor
 import pandas as pd
 from pandas import DataFrame
 from sklearn.preprocessing import QuantileTransformer
-from pacasam.connectors.connector import TILE_INFO
 
+from pacasam.connectors.connector import PATCH_ID_COLNAME, TILE_INFO
 from pacasam.samplers.algos import fps
 from pacasam.samplers.sampler import Sampler
 
@@ -62,7 +62,7 @@ class DiversitySampler(Sampler):
         # We sort by id with the assumption that the chunks are consecutive patches, from consecutive slabs.
         # This enables FPS to have a notion of "diversity" that is spatially specific.
         # TODO: we could add bloc_id to make sure to work on consecutive slabs.
-        db = db.sort_values(by=["dalle_id", "id"])
+        db = db.sort_values(by=["dalle_id", PATCH_ID_COLNAME])
         db = db[TILE_INFO + cols_for_fps]
         db = normalize_df(
             df=db,

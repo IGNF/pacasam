@@ -7,7 +7,7 @@ from sklearn.preprocessing import QuantileTransformer
 from pacasam.connectors.connector import TILE_INFO
 
 from pacasam.samplers.algos import fps
-from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
+from pacasam.samplers.sampler import Sampler
 
 
 class DiversitySampler(Sampler):
@@ -93,7 +93,7 @@ class DiversitySampler(Sampler):
             diverse["split"] = "test"
             if self.cf["frac_validation_set"] is not None:
                 diverse = self._set_validation_patches_on_FPS_sampling(diverse)
-            diverse = diverse[SELECTION_SCHEMA]
+            diverse = diverse[self.sampling_schema]
             yield diverse
 
     def _set_validation_patches_on_FPS_sampling(self, diverse):

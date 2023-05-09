@@ -57,14 +57,6 @@ class SyntheticConnector(Connector):
         self.db["id"] = range(len(self.db))
         self.db["dalle_id"] = df_dalle_id
 
-    def request_patches_by_boolean_indicator(self, bool_descriptor_name) -> pd.Series:
-        """Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html"""
-        if self.db[bool_descriptor_name].dtype != "bool":
-            raise KeyError(
-                f"Descriptor `{bool_descriptor_name}` is not a boolean." "Only boolean descriptor are supported for targetting patches."
-            )
-        return self.db.query(bool_descriptor_name)
-
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
         extract = self.db.merge(

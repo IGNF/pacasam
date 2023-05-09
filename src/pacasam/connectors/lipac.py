@@ -12,11 +12,6 @@ import yaml
 from pacasam.connectors.connector import TILE_INFO, Connector
 
 
-def geometrie_to_geometry_col(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    gdf = gdf.rename(columns={"geometrie": "geometry"}).set_geometry("geometry")
-    return gdf
-
-
 # TODO: abstract a GeoDataframeConnector that wokr on a geopandas, and inherit from it for SuyntheticConnector and LiPaCConnector
 class LiPaCConnector(Connector):
     lambert_93_crs = 2154
@@ -72,9 +67,6 @@ class LiPaCConnector(Connector):
         gdf = gdf.sort_values(by="id")
         return gdf
 
-    def request_patches_by_boolean_indicator(self, bool_descriptor_name) -> gpd.GeoDataFrame:
-        return self.db.query(bool_descriptor_name)[TILE_INFO]
-
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract using ids. If selection is None, select everything."""
 
@@ -93,3 +85,8 @@ def load_LiPaCConnector(**lipac_kwargs) -> LiPaCConnector:
     lipac_password = credentials["DB_PASSWORD"]
     del lipac_kwargs["credentials_file_path"]  # not needed anymore
     return LiPaCConnector(username=lipac_username, password=lipac_password, **lipac_kwargs)
+
+
+def geometrie_to_geometry_col(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    gdf = gdf.rename(columns={"geometrie": "geometry"}).set_geometry("geometry")
+    return gdf

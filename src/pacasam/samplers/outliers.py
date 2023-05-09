@@ -1,13 +1,9 @@
-from typing import Dict, Optional
+from typing import Optional
 import numpy as np
-from math import ceil, floor
-import pandas as pd
-from sklearn.preprocessing import QuantileTransformer
 from pacasam.connectors.connector import TILE_INFO
 
-from pacasam.samplers.algos import fps, sample_with_stratification
 from pacasam.samplers.diversity import normalize_df
-from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
+from pacasam.samplers.sampler import Sampler
 
 import hdbscan
 
@@ -53,9 +49,9 @@ class OutliersSampler(Sampler):
         patches["sampler"] = self.name
         self.log.info(f"{self.name}: N={num_to_sample} patches.")
 
-        # cluster_id et "outlier_scores" can be returned for visual exploration.
-        # return patches[SELECTION_SCHEMA + ["cluster_id", "outlier_scores"]]
-        return patches[SELECTION_SCHEMA]
+        # UNCOMMENT FOR DEBUG: cluster_id et "outlier_scores" can be returned for visual exploration.
+        # return patches[self.sampling_schema + ["cluster_id", "outlier_scores"]]
+        return patches[self.sampling_schema]
 
 
 def cluster(array: np.ndarray, hdbscan_kwargs: dict):

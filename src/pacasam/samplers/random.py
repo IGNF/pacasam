@@ -2,7 +2,7 @@ from typing import Iterable
 import geopandas as gpd
 
 from pacasam.samplers.algos import sample_randomly
-from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
+from pacasam.samplers.sampler import Sampler
 
 
 class RandomSampler(Sampler):
@@ -19,4 +19,4 @@ class RandomSampler(Sampler):
 
         self._set_validation_patches_with_stratification(patches=patches, keys=["dalle_id"])
         patches["sampler"] = self.name
-        return patches[SELECTION_SCHEMA]
+        return patches[self.sampling_schema]

@@ -6,14 +6,25 @@ from pacasam.samplers.algos import sample_with_stratification
 from pacasam.connectors.connector import Connector
 
 # Schema of all DataFrame outputs of sampler.get_patches(...) calls.
-SELECTION_SCHEMA = [
-    "id",  # unique identifier of a patch.
-    "split",  # Dataset split. Either train, val, or test.
-    "sampler",  # Class name for the called sampler.
-]
+
+# Needed for connector & extraction
+FILE_COLNAME = "file_path"
+GEOMETRY_COLNAME = "geometry"
+
+# Needed for sampling
+PATCH_ID_COLNAME = "id"
+SPLIT_COLNAME = "split"
+SAMPLER_COLNAME = "sampler"
 
 
 class Sampler:
+    # Output schema of get_patches
+    sampling_schema: List[str] = [
+        PATCH_ID_COLNAME,  # unique identifier of a patch.
+        SPLIT_COLNAME,  # Dataset split. Either train, val, or test.
+        SAMPLER_COLNAME,  # Class name for the called sampler.
+    ]
+
     def __init__(self, connector: Connector, sampling_config: Dict, log: logging.Logger = logging.getLogger(__name__)):
         self.name: str = self.__class__.__name__
         self.connector = connector
@@ -21,8 +32,8 @@ class Sampler:
         self.log = log
 
     def get_patches(self, **kwargs) -> GeoDataFrame:
-        """Get patches - output must have schema SELECTION_SCHEMA."""
-        raise NotImplementedError("This is an abstract class. use child class for specific sampling approaches.")
+        """Get patches - output must have schema self.sampling_schema."""
+        raise NotImplementedError("This is an abstract class. Use child class for specific sampling approaches.")
 
     def drop_duplicates_by_id_and_log_sampling_attrition(self, gdf: GeoDataFrame):
         n_sampled = len(gdf)

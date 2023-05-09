@@ -8,8 +8,8 @@ from geopandas import GeoDataFrame
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir / "src"))
 
-from pacasam.extractors.laz import FILE_COLNAME, SPLIT_COLNAME
 from pacasam.utils import CONNECTORS_LIBRARY
+from pacasam.samplers.sampler import FILE_COLNAME, SPLIT_COLNAME
 from pacasam.connectors.synthetic import SyntheticConnector
 
 

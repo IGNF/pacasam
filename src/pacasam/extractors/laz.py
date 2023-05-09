@@ -22,13 +22,7 @@ import geopandas as gpd
 from shapely import Polygon
 import laspy
 
-# TODO: have a unified structure for the key columns of a sampling, keep it DRY
-# i.e. we should
-
-FILE_COLNAME = "file_path"
-PATCH_ID_COLNAME = "id"
-SPLIT_COLNAME = "split"
-GEOMETRY_COLNAME = "geometry"
+from pacasam.samplers.sampler import FILE_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SPLIT_COLNAME
 
 
 def extract_dataset_from_sampling(sampling_path: Path, dataset_root_path: Path) -> None:
@@ -42,7 +36,7 @@ def extract_patches_from_single_cloud(sampling: gpd.GeoDataFrame, dataset_root_p
     assert sampling[FILE_COLNAME].nunique() == 1
     file_path = sampling[FILE_COLNAME].iloc[0]
 
-    # for now, use laspy in a straightforward way. scale later.
+    # for now, use laspy in a straightforward way. Scale later.
     cloud = laspy.read(file_path)
     header = cloud.header
 
@@ -98,7 +92,7 @@ def colorize_all_patches(paths_of_extracted_patches: Iterable[Path]) -> None:
 def colorize_single_patch(path_of_patch_data: Path) -> None:
     # Use a tmp file first for colorization, replace afterward, to avoid unwanted deletion...
     # Find a good pattern to do so
-    raise NotImplementedError()
+    ...
 
 
 # READING

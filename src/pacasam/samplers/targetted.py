@@ -2,7 +2,7 @@ import geopandas as gpd
 import pandas as pd
 from typing import Dict
 from pacasam.samplers.algos import sample_with_stratification
-from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
+from pacasam.samplers.sampler import Sampler
 
 
 class TargettedSampler(Sampler):
@@ -48,7 +48,7 @@ class TargettedSampler(Sampler):
 
         self._set_validation_patches_with_stratification(patches=patches, keys=["dalle_id"])
         patches["sampler"] = self.name
-        return patches[SELECTION_SCHEMA]
+        return patches[self.sampling_schema]
 
     def sorted_targets(self, criteria: Dict):
         """Sort criteria target_min_samples_proportion.

@@ -94,7 +94,6 @@ def colorize_single_patch(path_of_patch_data: Path) -> None:
     # Find a good pattern to do so
     ...
 
-
 # READING
 
 

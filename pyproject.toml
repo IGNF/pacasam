@@ -20,5 +20,6 @@ testpaths = [
 addopts = "--cov src/pacasam/ --cov-fail-under 85 --cov-report html"
 
 filterwarnings = [
-    "ignore::pandas.errors.SettingWithCopyWarning"
+    "ignore::pandas.errors.SettingWithCopyWarning",
+    # "ignore::geopandas.UserWarning" # TODO: find the right path
 ]

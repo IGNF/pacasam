@@ -136,5 +136,5 @@ def normalize_df(df: DataFrame, columns: List[str], normalization="standardizati
         df.loc[:, columns] = qt.fit_transform(df[columns].values)
 
     # 3/3 Set back zeros to the lowest present value (which comes from a value really close to zero).
-    df = df.fillna(df.min())
+    df = df.fillna(df.min(numeric_only=True))
     return df

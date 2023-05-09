@@ -19,19 +19,21 @@ Functions:
 from pathlib import Path
 from typing import Iterable
 import geopandas as gpd
+from geopandas import GeoDataFrame
 from shapely import Polygon
 import laspy
 
 from pacasam.samplers.sampler import FILE_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SPLIT_COLNAME
 
 
-def extract_dataset_from_sampling(sampling_path: Path, dataset_root_path: Path) -> None:
+def extract_laz_dataset(sampling_path: Path, dataset_root_path: Path) -> None:
+    """Main extraction function."""
     sampling = load_sampling_df_with_checks(sampling_path)
     paths_of_extracted_patches = extract_patches_from_all_clouds(sampling, dataset_root_path)
     colorize_all_patches(paths_of_extracted_patches)
 
 
-def extract_patches_from_single_cloud(sampling: gpd.GeoDataFrame, dataset_root_path: Path) -> Iterable[Path]:
+def extract_patches_from_single_cloud(sampling: GeoDataFrame, dataset_root_path: Path) -> Iterable[Path]:
     # sanity check to be sure this function is properly used (i.e. for a single cloud)
     assert sampling[FILE_COLNAME].nunique() == 1
     file_path = sampling[FILE_COLNAME].iloc[0]
@@ -71,7 +73,7 @@ def define_patch_path_for_extraction(dataset_root_path, file_path, patch_info):
     return patch_path
 
 
-def extract_patches_from_all_clouds(sampling: gpd.GeoDataFrame, dataset_root_path: Path) -> Iterable[Path]:
+def extract_patches_from_all_clouds(sampling: GeoDataFrame, dataset_root_path: Path) -> Iterable[Path]:
     # TODO: add some paralellization at the file level.
     # TODO: AFTERWARDS: consider using generators, to enable streamlined colorization .
     paths_of_extracted_patches = []
@@ -94,10 +96,11 @@ def colorize_single_patch(path_of_patch_data: Path) -> None:
     # Find a good pattern to do so
     ...
 
+
 # READING
 
 
-def load_sampling_df_with_checks(sampling_path: Path) -> gpd.GeoDataFrame:
+def load_sampling_df_with_checks(sampling_path: Path) -> GeoDataFrame:
     sampling = gpd.read_file(sampling_path, converters={FILE_COLNAME: Path})
     sampling[FILE_COLNAME] = sampling[FILE_COLNAME].apply(Path)
     check_sampling_format(sampling)
@@ -105,12 +108,12 @@ def load_sampling_df_with_checks(sampling_path: Path) -> gpd.GeoDataFrame:
     return sampling
 
 
-def check_sampling_format(sampling: gpd.GeoDataFrame) -> None:
+def check_sampling_format(sampling: GeoDataFrame) -> None:
     """
     Check if the geopackage file follows the expected format.
 
     Args:
-    - sampling (gpd.GeoDataFrame): A geopandas dataframe containing columns "split", "geometry" and LAZ_FILE_COLNAME.
+    - sampling (GeoDataFrame): A geopandas dataframe containing columns "split", "geometry" and LAZ_FILE_COLNAME.
 
     Returns:
     - None

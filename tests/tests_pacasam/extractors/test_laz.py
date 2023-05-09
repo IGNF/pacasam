@@ -11,7 +11,7 @@ from pacasam.extractors.laz import (
     all_files_can_be_accessed,
     check_sampling_format,
     define_patch_path_for_extraction,
-    extract_dataset_from_sampling,
+    extract_laz_dataset,
     extract_patches_from_single_cloud,
     load_sampling_df_with_checks,
 )
@@ -90,7 +90,7 @@ def test_colorize_all_patches():
 def test_extract_dataset_from_toy_sampling(toy_sampling):
     # integration test to be sure that all runs smoothly together
     with tempfile.TemporaryDirectory() as dataset_root:
-        extract_dataset_from_sampling(toy_sampling.name, Path(dataset_root))
+        extract_laz_dataset(toy_sampling.name, Path(dataset_root))
 
 
 def test_define_patch_path_for_extraction():

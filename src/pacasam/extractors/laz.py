@@ -132,10 +132,10 @@ def check_sampling_format(sampling: gpd.GeoDataFrame) -> None:
             raise ValueError(f"Column '{col}' missing from the sampling dataframe")
 
     if not isinstance(sampling["split"].iloc[0], str):
-        raise ValueError("Column 'split' should be a string")
+        raise TypeError("Column 'split' should be a string")
 
     if not isinstance(sampling["geometry"].iloc[0], Polygon):
-        raise ValueError("Column 'geometry' should be a geometry column")
+        raise TypeError("Column 'geometry' should be a geometry column")
 
 
 def all_files_can_be_accessed(files: Iterable[Path]) -> bool:

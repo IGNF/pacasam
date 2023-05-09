@@ -7,6 +7,7 @@ from pacasam.extractors.laz import (
     FILE_COLNAME,
     PATCH_ID_COLNAME,
     SPLIT_COLNAME,
+    GEOMETRY_COLNAME,
     all_files_can_be_accessed,
     check_sampling_format,
     define_patch_path_for_extraction,
@@ -56,16 +57,27 @@ def test_check_files_accessibility():
     assert not all_files_can_be_accessed(file_paths)
 
 
-def test_check_sampling_format_based_on_synthetic_data():
-    # TODO: this should become a fixture to use in test_graphs
-    # Small synthetic data in db
-    connector_class = CONNECTORS_LIBRARY.get("SyntheticConnector")
-    connector = connector_class(log=None, binary_descriptors_prevalence=[0.1], db_size=10)
-    df = connector.db
-    df["split"] = "train"
-    # TODO: replace with the path to an actual LAZ file
-    df[FILE_COLNAME] = __file__
-    check_sampling_format(df)
+def test_check_sampling_format(tiny_synthetic_sampling):
+    # test the check function on a tiny synthetic sampling that we now is compliant
+    sampling = tiny_synthetic_sampling
+    check_sampling_format(sampling)
+
+    # bad type
+    bad_split_type = sampling.copy()
+    bad_split_type[SPLIT_COLNAME] = 55
+    with pytest.raises(TypeError):
+        check_sampling_format(bad_split_type)
+
+    # bad type
+    bad_geom_type = sampling.copy()
+    bad_geom_type[GEOMETRY_COLNAME] = 55
+    with pytest.raises(TypeError):
+        check_sampling_format(bad_geom_type)
+
+    # missing column
+    del sampling[SPLIT_COLNAME]
+    with pytest.raises(ValueError):
+        check_sampling_format(sampling)
 
 
 # todo: convert the toy data to LAZ format to gain even more space.

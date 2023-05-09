@@ -28,8 +28,14 @@ dependencies:
   # --------- tests ----------- #
   - pytest
   - pytest-cov
+  # Dependencies to ign-pdal-tools that currently need manual install
+  - conda-forge:pdal==2.5.*
+  - conda-forge:python-pdal==3.2.*
+  - requests
+  - gdal
   - pip:
     - black[jupyter]
     - hdbscan
     # --------- laspy with LAZ backend support --------- #
     - laspy[lazrs,laszip]==2.1.*
+    - ign-pdal-tools  # for colorization

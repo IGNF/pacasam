@@ -1,6 +1,8 @@
 from argparse import Namespace
 from pathlib import Path
+import shutil
 import tempfile
+from pdaltools.color import decomp_and_color
 
 import pytest
 from pacasam.extractors.laz import (
@@ -15,7 +17,7 @@ from pacasam.extractors.laz import (
     extract_patches_from_single_cloud,
     load_sampling_df_with_checks,
 )
-from tests.tests_pacasam.extractors.conftest import LEFTY, NUM_PATCHED_IN_EACH_FILE, RIGHTY
+from tests.conftest import LEFTY, NUM_PATCHED_IN_EACH_FILE, RIGHTY
 
 
 def test_check_files_accessibility():
@@ -76,10 +78,11 @@ def test_extract_patches_from_single_cloud(toy_sampling):
 # This will mark the test as an expected failure only if it fails with an AssertionError.
 # If it fails for any other reason, it will be treated as a regular test failure.
 # TODO: remove when extraction is implemented.
-@pytest.mark.xfail(strict=True)
 def test_colorize_single_patch():
-    # TODO
-    assert False
+    with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_lefty_test_data_") as tmp_copy:
+        shutil.copy(LEFTY, tmp_copy.name)
+        decomp_and_color(tmp_copy.name, tmp_copy.name)
+        # TODO: attest that it was colorized and has the right channels.
 
 
 @pytest.mark.xfail(strict=True)
@@ -98,7 +101,7 @@ def test_define_patch_path_for_extraction():
         split = "train"
         patch_path = define_patch_path_for_extraction(
             Path(dataset_root),
-            Path("Anything/here/NAME_OF_LAZ.LAZ"),
+            Path(LEFTY),
             Namespace(
                 **{
                     SPLIT_COLNAME: split,

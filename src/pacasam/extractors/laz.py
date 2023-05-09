@@ -46,8 +46,9 @@ import geopandas as gpd
 from geopandas import GeoDataFrame
 from shapely import Polygon
 import laspy
-from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME
+from pdaltools.color import decomp_and_color
 
+from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME
 from pacasam.samplers.sampler import PATCH_ID_COLNAME, SPLIT_COLNAME
 
 
@@ -117,9 +118,10 @@ def colorize_all_patches(paths_of_extracted_patches: Iterable[Path]) -> None:
 
 
 def colorize_single_patch(path_of_patch_data: Path) -> None:
-    # Use a tmp file first for colorization, replace afterward, to avoid unwanted deletion...
+    # TODO Use a tmp file first for colorization, replace afterward, to avoid unwanted deletion...
     # Find a good pattern to do so
-    ...
+    decomp_and_color(path_of_patch_data, path_of_patch_data)
+    a = 1
 
 
 # READING

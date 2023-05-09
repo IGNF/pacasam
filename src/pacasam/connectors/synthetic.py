@@ -59,8 +59,10 @@ class SyntheticConnector(Connector):
 
     def request_patches_by_boolean_indicator(self, bool_descriptor_name) -> pd.Series:
         """Cf. https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.query.html"""
-        # TODO: add a test that check that the descriptor is indeed a boolean,
-        # because other cases are not wanted but will silently give absurds results...
+        if self.db[bool_descriptor_name].dtype != "bool":
+            raise KeyError(
+                f"Descriptor `{bool_descriptor_name}` is not a boolean." "Only boolean descriptor are supported for targetting patches."
+            )
         return self.db.query(bool_descriptor_name)
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:

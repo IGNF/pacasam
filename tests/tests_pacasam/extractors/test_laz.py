@@ -4,7 +4,7 @@ import tempfile
 
 import pytest
 from pacasam.extractors.laz import (
-    LAZ_FILE_COLNAME,
+    FILE_COLNAME,
     PATCH_ID_COLNAME,
     SPLIT_COLNAME,
     all_files_can_be_accessed,
@@ -36,7 +36,7 @@ NUM_PATCHED_IN_EACH_FILE = 2
 df = gpd.GeoDataFrame(
     data={
         "geometry": [LEFTY_UP_GEOMETRY, LEFTY_DOWN_GEOMETRY, RIGHTY_UP_GEOMETRY, RIGHTY_DOWN_GEOMETRY],
-        LAZ_FILE_COLNAME: [LEFTY, LEFTY, RIGHTY, RIGHTY],
+        FILE_COLNAME: [LEFTY, LEFTY, RIGHTY, RIGHTY],
         "split": ["train", "val", "train", "val"],
         "id": [0, 1, 2, 3],
     },
@@ -64,7 +64,7 @@ def test_check_sampling_format_based_on_synthetic_data():
     df = connector.db
     df["split"] = "train"
     # TODO: replace with the path to an actual LAZ file
-    df[LAZ_FILE_COLNAME] = __file__
+    df[FILE_COLNAME] = __file__
     check_sampling_format(df)
 
 
@@ -79,8 +79,8 @@ def test_extract_patches_from_single_cloud():
         df_loaded = load_sampling_df_with_checks(TOY_SAMPLING.name)
 
         # Keep only patches relative to a single file
-        first_file = df_loaded[LAZ_FILE_COLNAME].iloc[0]
-        sampling_of_single_cloud = df_loaded[df_loaded[LAZ_FILE_COLNAME] == first_file]
+        first_file = df_loaded[FILE_COLNAME].iloc[0]
+        sampling_of_single_cloud = df_loaded[df_loaded[FILE_COLNAME] == first_file]
         list_of_extracted_path = extract_patches_from_single_cloud(sampling_of_single_cloud, Path(dataset_root))
 
         # Assert that the files were created

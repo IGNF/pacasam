@@ -24,5 +24,5 @@ def synthetic_connector() -> SyntheticConnector:
 def tiny_synthetic_sampling(synthetic_connector: SyntheticConnector) -> GeoDataFrame:
     # Add the necessary elements to turn the db into a sampling
     synthetic_connector.db[SPLIT_COLNAME] = "train"
-    synthetic_connector.db[FILE_COLNAME] = Path("tests/data/792000_6272000-50mx100m-left.las")
+    synthetic_connector.db[FILE_COLNAME] = str(Path("tests/data/792000_6272000-50mx100m-left.las").resolve())
     return synthetic_connector.db

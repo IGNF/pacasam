@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_check_sampling_format",
+                "test_main_graphs",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

@@ -119,7 +119,7 @@ def yield_chunks(df, max_chunk_size):
         yield df.iloc[pos : pos + max_chunk_size]
 
 
-def normalize_df(df: DataFrame, columns: List[str], normalization="standardization", n_quantiles: Optional[int] = None):
+def normalize_df(df: DataFrame, columns: List[str], normalization="standardization", n_quantiles: Optional[int] = 50):
     """Normalize columns defining the classes histogram, ignoring zeros values
 
     Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html

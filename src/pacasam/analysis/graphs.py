@@ -9,6 +9,8 @@ from sklearn.preprocessing import QuantileTransformer
 
 import sys
 
+from pacasam.samplers.diversity import normalize_df
+
 # from pathlib import Path
 
 directory = Path(__file__).resolve().parent.parent.parent
@@ -16,8 +18,6 @@ print(directory)
 sys.path.append(str(directory))
 
 from pacasam.connectors.synthetic import NB_POINTS_COLNAMES
-
-PREFIX_BOOL_DESCRIPTOR = "presence"
 
 REPORT_HTML_TEMPLATE_PATH = "./src/pacasam/analysis/sampling_dataviz_template.html"
 HTML_PLOTS_PLACEHOLDER = "{{PLACEHOLDER_TO_ADD_GRAPHS_ITERATIVELY}}"
@@ -29,6 +29,7 @@ parser.add_argument("--output_path", type=Path, help="Output dir to save html an
 
 
 def main(args):
+    """Create an html reports (+ PNG/HTML single figures) from a saved sampling."""
     make_all_graphs_and_a_report(gpkg_path=args.gpkg_path, output_path=args.output_path)
 
 
@@ -63,7 +64,7 @@ def make_all_graphs_and_a_report(gpkg_path: Path, output_path: Path):
         fig.write_image(output_path / f"{viz_name}.svg")
         report = add_viz_to_template(report, viz_name, output_path)
 
-    scatter_matrix_norms = [(None, "nonorm"), ("Standardization", "standardnorm"), ("Quantilization", "quantilenorm")]
+    scatter_matrix_norms = [(None, "nonorm"), ("Standardization", "standardization"), ("Quantilization", "quantilization")]
     for norm, norm_name in scatter_matrix_norms:
         viz_name = f"scatter_matrix-{norm_name}"
         fig = make_scatter_matrix_classes(df, norm=norm)
@@ -117,28 +118,8 @@ def make_class_distribution(df, colname):
     )
 
 
-def make_scatter_matrix_classes(df, norm=None, hide_zeros=True):
-    df_norm = df.copy()
-
-    if hide_zeros:
-        df_norm = df_norm.replace(to_replace=0, value=np.nan)
-
-    # TODO: replace to use normalize_df
-    if norm == "Standardization":
-        # Quantilization enables to make classes "more" comparable in Farthest point Sampling,
-        # and respects distribution within each class.
-        df_norm.loc[:, NB_POINTS_COLNAMES] = (df_norm.loc[:, NB_POINTS_COLNAMES] - df.loc[:, NB_POINTS_COLNAMES].mean()) / df_norm.loc[
-            :, NB_POINTS_COLNAMES
-        ].std()
-    elif norm == "Quantilization":
-        # Quantilization enables to fully explore each X vs Y relationship.
-        qt = QuantileTransformer(n_quantiles=50, random_state=0, subsample=100_000)
-        df_norm.loc[:, NB_POINTS_COLNAMES] = qt.fit_transform(df_norm.loc[:, NB_POINTS_COLNAMES].values)
-
-    if hide_zeros:
-        # put zeros back
-        df_norm.loc[:, NB_POINTS_COLNAMES] = df_norm.loc[:, NB_POINTS_COLNAMES].fillna(0)
-
+def make_scatter_matrix_classes(df, norm=None):
+    df_norm = normalize_df(df, columns=NB_POINTS_COLNAMES, normalization=norm)
     fig = px.scatter_matrix(
         df_norm,
         dimensions=NB_POINTS_COLNAMES,
@@ -148,7 +129,7 @@ def make_scatter_matrix_classes(df, norm=None, hide_zeros=True):
         labels={col: col.replace("nb_points_", "").replace("vegetation", "veg") for col in df.columns},
         width=1500,
         height=1500,
-        title="Nombres de points par classe" + (f"Normalisation: ({norm})" if norm else "") + (" (zéros ignorés)" if hide_zeros else ""),
+        title="Nombres de points par classe" + (f"Normalisation: ({norm})" if norm else ""),
     )  # remove underscore
     fig.update_traces(diagonal_visible=False)
 

@@ -1,21 +1,36 @@
 """
-This module provides functions to extract patches of lidar data from a sampling geopackage 
-with columns 'split', 'geometry', and 'file_path' (to a LAZ file, which is a point cloud lidar format) 
-into a directory structure like:
+This module provides functions to extract and colorize patches of LiDAR data from a sampling geopackage and save them as LAZ files. 
+These files can be further processed for machine learning tasks.
+The sampling geopackage is expected to have columns 'split', 'geometry', and 'file_path' that represent 
+the desired train/validation/test split, the polygon geometry for each patch, and the path 
+to the corresponding LAZ file, respectively. 
 
-/dataset_path/
-    /train/
-        {input_laz_basename__without_suffix---patch_id}.laz
-    /val/
-    /test/
+The extracted patches are saved to a directory structure under the specified `dataset_root_path`, 
+with subdirectories for train, validation, and test data.
+dataset_root_path/
+├── train/
+│   ├── {input_laz_stem---patch_id}.laz
+├── val/
+│   ├── {input_laz_stem---patch_id}.laz
+├── test/
+│   ├── {input_laz_stem---patch_id}.laz
 
 Functions:
-    - `extract_lidar_patches`: Extracts patches of lidar data and saves them to files under the dataset path
-      using the provided split ratios for train, validation, and test datasets
-    - `extract_lidar_patches_end_to_end`: Provides an end-to-end function to extract lidar patches from a 
-      sampling geopackage file and save them to disk using the provided dataset path.
+    - `extract_laz_dataset(sampling_path: Path, dataset_root_path: Path) -> None`: Extracts LiDAR patches from a sampling geopackage and saves them to LAZ files under the dataset path.
+    - `extract_patches_from_all_clouds(sampling: GeoDataFrame, dataset_root_path: Path) -> Iterable[Path]`: Extracts patches from all LAZ files based on the given sampling information.
+    - `extract_patches_from_single_cloud(sampling: GeoDataFrame, dataset_root_path: Path) -> Iterable[Path]`: Extracts patches from a single LAZ file based on the given sampling information.
+    - `define_patch_path_for_extraction(dataset_root_path: Path, file_path: Path, patch_info) -> Path`: Formats the path to save the patch data. Creates dataset directory and split subdirectories as needed.
+    - `colorize_all_patches(paths_of_extracted_patches: Iterable[Path]) -> None`: Applies colorization to extracted patches.
+    - `colorize_single_patch(path_of_patch_data: Path) -> None`: Applies colorization to a single patch.
+
+Read and check the sampling geopackage:
+    - `load_sampling_df_with_checks(sampling_path: Path) -> GeoDataFrame`: Loads the sampling geopackage as a geopandas dataframe and checks if it follows the expected format.
+    - `check_sampling_format(sampling: GeoDataFrame) -> None`: Checks if the sampling geopackage follows the expected format.
+    - `all_files_can_be_accessed(files: Iterable[Path]) -> bool`: Checks if all LAZ files in the sampling geopackage can be accessed.
 
 """
+
+
 from pathlib import Path
 from typing import Iterable
 import geopandas as gpd

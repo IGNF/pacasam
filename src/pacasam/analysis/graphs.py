@@ -1,22 +1,17 @@
 import argparse
-from pathlib import Path
-import geopandas as gpd
-import plotly.express as px
-import numpy as np
 from pandas import DataFrame
+import geopandas as gpd
+import numpy as np
+import plotly.express as px
 
-from sklearn.preprocessing import QuantileTransformer
-
+from pathlib import Path
 import sys
-
-from pacasam.samplers.diversity import normalize_df
-
-# from pathlib import Path
 
 directory = Path(__file__).resolve().parent.parent.parent
 print(directory)
 sys.path.append(str(directory))
 
+from pacasam.samplers.diversity import normalize_df
 from pacasam.connectors.synthetic import NB_POINTS_COLNAMES
 
 REPORT_HTML_TEMPLATE_PATH = "./src/pacasam/analysis/sampling_dataviz_template.html"

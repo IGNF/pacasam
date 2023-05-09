@@ -1,5 +1,4 @@
 """Integration tests : run all samplers on synthetic data."""
-from pathlib import Path
 import tempfile
 import pytest
 from pacasam.main import main

@@ -1,7 +1,7 @@
 # copy of https://github.com/IGNF/panini/blob/main/connector.py
 
 import logging
-from typing import Generator, Iterable, Optional
+from typing import Generator, Optional
 import pandas as pd
 import geopandas as gpd
 
@@ -9,7 +9,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
 import yaml
-from pacasam.connectors.connector import TILE_INFO, Connector
+from pacasam.connectors.connector import Connector
 from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
 

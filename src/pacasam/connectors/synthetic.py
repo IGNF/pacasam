@@ -2,7 +2,6 @@ import logging
 from math import ceil
 from typing import List, Optional
 import numpy as np
-import pandas as pd
 from pandas import DataFrame
 import geopandas as gpd
 from shapely.geometry import box

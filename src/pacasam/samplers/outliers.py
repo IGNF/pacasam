@@ -59,9 +59,6 @@ class OutliersSampler(Sampler):
 
 
 def cluster(array: np.ndarray, hdbscan_kwargs: dict):
-    # TODO: have own config for lcustering that is not OutliersSampler.
-    clusterer = hdbscan.HDBSCAN(
-        **hdbscan_kwargs
-    )
+    clusterer = hdbscan.HDBSCAN(**hdbscan_kwargs)
     clusterer = clusterer.fit(array)
     return clusterer.labels_, clusterer.outlier_scores_

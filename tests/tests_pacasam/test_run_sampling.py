@@ -1,7 +1,7 @@
 """Integration tests : run all samplers on synthetic data."""
 import tempfile
 import pytest
-from pacasam.run_sampling import main
+from pacasam.run_sampling import run_sampling
 from pacasam.run_sampling import parser as main_parser
 from pacasam.utils import SAMPLERS_LIBRARY
 
@@ -29,7 +29,7 @@ def test_all_samplers_on_synthetic_data(sampler_class, make_html_report):
         ]
     )
     with tempfile.TemporaryDirectory() as args.output_path:
-        main(args)
+        run_sampling(args)
 
 
 def test_make_html_report_option_after_random_sampler():

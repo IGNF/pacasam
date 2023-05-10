@@ -14,10 +14,10 @@ from pacasam.extractors.laz import (
     all_files_can_be_accessed,
     check_sampling_format,
     colorize_all_patches,
-    define_patch_path_for_extraction,
+    format_new_patch_path,
     extract_laz_dataset,
     extract_patches_from_single_cloud,
-    load_sampling_df_with_checks,
+    load_sampling_with_checks,
 )
 from conftest import LEFTY, NUM_PATCHED_IN_EACH_FILE, RIGHTY
 
@@ -62,15 +62,15 @@ def test_check_sampling_format(tiny_synthetic_sampling):
 
 
 # todo: convert the toy data to LAZ format to gain even more space.
-def test_load_sampling_df_with_checks_from_toy_sampling(toy_sampling):
-    df_loaded = load_sampling_df_with_checks(toy_sampling.name)
+def test_load_sampling_with_checks_from_toy_sampling(toy_sampling):
+    df_loaded = load_sampling_with_checks(toy_sampling.name)
     assert len(df_loaded)
 
 
 def test_extract_patches_from_single_cloud(toy_sampling):
     with tempfile.TemporaryDirectory() as dataset_root:
         # Keep only patches relative to a single file
-        df_loaded = load_sampling_df_with_checks(toy_sampling.name)
+        df_loaded = load_sampling_with_checks(toy_sampling.name)
         first_file = df_loaded[FILE_COLNAME].iloc[0]
         sampling_of_single_cloud = df_loaded[df_loaded[FILE_COLNAME] == first_file]
 
@@ -127,12 +127,6 @@ def test_colorize_single_patch(cloud_path):
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))
 
 
-def test_colorize_all_patches():
-    # colorize_all_patches does not need tests as it is currently trivial.
-    # Reconsider if it implements multithreading.
-    ...
-
-
 def test_extract_dataset_from_toy_sampling(toy_sampling):
     """Test integration: end-to-end extraction+colorization"""
     with tempfile.TemporaryDirectory() as dataset_root:
@@ -143,7 +137,7 @@ def test_extract_dataset_from_toy_sampling(toy_sampling):
 def test_define_patch_path_for_extraction(cloud_path):
     with tempfile.TemporaryDirectory() as dataset_root:
         split = "train"
-        patch_path = define_patch_path_for_extraction(
+        patch_path = format_new_patch_path(
             Path(dataset_root),
             Path(cloud_path),
             Namespace(

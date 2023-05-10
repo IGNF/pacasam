@@ -29,7 +29,7 @@ parser.add_argument("--output_path", default=None)
 parser.add_argument("--make_html_report", default="N", choices=[True, False], type=lambda choice: choice == "Y")
 
 
-def main(args):
+def run_sampling(args):
     # config_file = Path("configs/Lipac.yml")
     task_name = f"{args.connector_class}-{args.sampler_class}"
     args.output_path = args.output_path if args.output_path is not None else f"outputs/samplings/{task_name}/"
@@ -74,4 +74,4 @@ def main(args):
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    main(args)
+    run_sampling(args)

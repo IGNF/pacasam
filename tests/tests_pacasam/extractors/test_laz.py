@@ -1,25 +1,23 @@
 from argparse import Namespace
+import logging
 from pathlib import Path
 import tempfile
 import numpy as np
 from pdaltools.color import decomp_and_color
 import laspy
 import pytest
+from pacasam.connectors.connector import PATCH_ID_COLNAME
+from pacasam.extractors.extractor import all_files_can_be_accessed, check_sampling_format, load_sampling_with_checks
 
 from pacasam.extractors.laz import (
     FILE_COLNAME,
-    PATCH_ID_COLNAME,
-    SPLIT_COLNAME,
     GEOMETRY_COLNAME,
-    all_files_can_be_accessed,
-    check_sampling_format,
-    colorize_all_patches,
+    LAZExtractor,
+    colorize_single_patch,
     format_new_patch_path,
-    extract_laz_dataset,
-    extract_patches_from_single_cloud,
-    load_sampling_with_checks,
 )
 from conftest import LEFTY, NUM_PATCHED_IN_EACH_FILE, RIGHTY
+from pacasam.samplers.sampler import SPLIT_COLNAME
 
 # Useful constants to avoid magic numbers
 WHITE_COLOR_VALUE = 65280
@@ -61,15 +59,16 @@ def test_check_sampling_format(tiny_synthetic_sampling):
         check_sampling_format(sampling)
 
 
-# todo: convert the toy data to LAZ format to gain even more space.
+# TODO: turn into a fixture that loads df_loaded and can be used in test_extract_patches_from_single_cloud
 def test_load_sampling_with_checks_from_toy_sampling(toy_sampling):
     df_loaded = load_sampling_with_checks(toy_sampling.name)
     assert len(df_loaded)
 
 
+# TODO: fix this test - we might use the other one that has uses LazExtractor !
 def test_extract_patches_from_single_cloud(toy_sampling):
     with tempfile.TemporaryDirectory() as dataset_root:
-        # Keep only patches relative to a single file
+        # Keep only patches relative to a single file for this test
         df_loaded = load_sampling_with_checks(toy_sampling.name)
         first_file = df_loaded[FILE_COLNAME].iloc[0]
         sampling_of_single_cloud = df_loaded[df_loaded[FILE_COLNAME] == first_file]
@@ -112,7 +111,7 @@ def test_colorize_single_patch(cloud_path):
     """
     with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_test_data_") as tmp_copy:
         # Copy to be extra safe that we do not modify input test files.
-        decomp_and_color(cloud_path, tmp_copy.name)
+        colorize_single_patch(cloud_path, tmp_copy.name)
         cloud = laspy.read(tmp_copy.name)
 
         # Assert presence of all necessary fields.
@@ -128,9 +127,19 @@ def test_colorize_single_patch(cloud_path):
 
 
 def test_extract_dataset_from_toy_sampling(toy_sampling):
-    """Test integration: end-to-end extraction+colorization"""
-    with tempfile.TemporaryDirectory() as dataset_root:
-        extract_laz_dataset(toy_sampling.name, Path(dataset_root))
+    """Test integration: end-to-end extraction+colorization.
+
+    This is very close to test_run_extraction.
+
+    """
+    with tempfile.TemporaryDirectory() as dataset_root_path:
+        extractor = LAZExtractor(log=logging.getLogger(), sampling_path=toy_sampling.name, dataset_root_path=Path(dataset_root_path))
+        extractor.extract()
+
+
+def test_run_extraction():
+    """Very close to test_extract_dataset_from_toy_sampling for now so we do not test it direcly."""
+    pass
 
 
 @pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])

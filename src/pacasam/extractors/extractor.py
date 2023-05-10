@@ -5,7 +5,8 @@ from geopandas import GeoDataFrame
 import geopandas as gpd
 from shapely import Polygon
 
-from pacasam.connectors.connector import FILE_COLNAME
+from pacasam.connectors.connector import FILE_COLNAME, PATCH_ID_COLNAME
+from pacasam.samplers.sampler import SPLIT_COLNAME
 
 
 class Extractor:
@@ -21,7 +22,7 @@ class Extractor:
         self.dataset_root_path = dataset_root_path
         self.sampling = load_sampling_with_checks(sampling_path)
 
-    def extract_dataset(self):
+    def extract(self):
         raise NotImplementedError("Abstract class.")
 
 
@@ -29,7 +30,8 @@ class Extractor:
 
 
 def load_sampling_with_checks(sampling_path: Path) -> GeoDataFrame:
-    sampling = gpd.read_file(sampling_path, converters={FILE_COLNAME: Path})
+    """General function to load a sampling, with useful checks."""
+    sampling: GeoDataFrame = gpd.read_file(sampling_path, converters={FILE_COLNAME: Path})
     sampling[FILE_COLNAME] = sampling[FILE_COLNAME].apply(Path)
     check_sampling_format(sampling)
     assert all_files_can_be_accessed(sampling[FILE_COLNAME])

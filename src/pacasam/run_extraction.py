@@ -29,7 +29,7 @@ def run_extraction(args):
     log.info(f"OUTPUT DATASET DIR: {args.dataset_root_path}")
 
     extractor: Extractor = LAZExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
-    extractor.make_dataset()
+    extractor.extract()
     log.info(f"Extracted data in {args.dataset_root_path}")
 
 

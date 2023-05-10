@@ -49,7 +49,7 @@ def toy_sampling():
         },
         crs="EPSG:2154",
     )
-    toy_sampling_path = tempfile.NamedTemporaryFile(suffix=".gpkg")
+    toy_sampling_path = tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="toy_sampling_path")
     df.to_file(toy_sampling_path)
     return toy_sampling_path
 

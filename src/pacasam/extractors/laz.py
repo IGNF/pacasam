@@ -40,66 +40,66 @@ Read and check the sampling geopackage:
 """
 
 
-import logging
 from pathlib import Path
-from typing import Generator, Iterable
-from geopandas import GeoDataFrame
+import tempfile
 import laspy
+from laspy import LasData
 from pdaltools.color import decomp_and_color
-
+from geopandas import GeoDataFrame
 from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME
-from pacasam.extractors.extractor import Extractor, format_new_patch_path, load_sampling_with_checks
+from pacasam.extractors.extractor import Extractor, format_new_patch_path
 
 
 class LAZExtractor(Extractor):
     """Extract a dataset of LAZ data patches."""
 
-    def make_dataset(self) -> None:
-        """Main extraction function. Handles both single-file and multiple-file samplings."""
+    def extract(self) -> None:
+        """Main extraction function.
 
+        Uses pandas groupby to handle both single-file and multiple-file samplings.
+
+        """
         for single_file_path, single_file_sampling in self.sampling.groupby(FILE_COLNAME):
-            self.log.info(f"{self.name}: Extraction + Colorization from {single_file_path} (k={len(single_file_sampling)} patches)")
-            new_patches_generator = extract_patches_from_single_cloud(
-                single_file_path=single_file_path, single_file_sampling=single_file_sampling, dataset_root_path=self.dataset_root_path
-            )
-            for extracted_laz_path in new_patches_generator:
-                colorize_single_patch(extracted_laz_path)
-            self.log.info(f"{self.name}: SUCCESS for {single_file_path}")
+            self._extract_from_single_file(single_file_path, single_file_sampling)
+
+    def _extract_from_single_file(self, single_file_path: Path, single_file_sampling: GeoDataFrame):
+        self.log.info(f"{self.name}: Extraction + Colorization from {single_file_path} (k={len(single_file_sampling)} patches)")
+
+        cloud = laspy.read(single_file_path)
+        header = cloud.header
+
+        for patch_info in single_file_sampling.itertuples():
+            tmp_nocolor_patch: Path = extract_single_patch_from_LasData(cloud, header, patch_info)
+            colorized_patch: Path = format_new_patch_path(self.dataset_root_path, single_file_path, patch_info)
+            colorize_single_patch(nocolor_patch=tmp_nocolor_patch, colorized_patch=colorized_patch)
+
+        self.log.info(f"{self.name}: SUCCESS for {single_file_path}")
 
 
-def extract_patches_from_single_cloud(
-    single_file_path: Path, single_file_sampling: GeoDataFrame, dataset_root_path: Path
-) -> Generator[Path]:
-    """Extract the patches of data from the sampling of a single LAZ.
+def extract_single_patch_from_LasData(cloud: LasData, header, patch_info) -> Path:
+    """Extracts data from a single patch from a (laspy.LasData) cloud..
+
+    Save to a tempfile since we will only keep colorized data, not this uncolorized data.
 
     Nota: using laspy and min/max conditions might not be efficient in case of many patches by file,
     but it is expected that only a few patches will be selected by file.
     Alternative could be using a KDTree.
 
-    TODO: we use geom.bounds --> make explicit that bbox are expected, and that extraction only supports rectangular geometries
+    """
+    polygon = getattr(patch_info, GEOMETRY_COLNAME)
+    new_patch_cloud = LasData(header)
+    xmin, ymin, xmax, ymax = polygon.bounds
+    new_patch_cloud.points = cloud.points[(cloud.x >= xmin) & (cloud.x <= xmax) & (cloud.y >= ymin) & (cloud.y <= ymax)]
+
+    new_patch_path = tempfile.NamedTemporaryFile(suffix=".laz", prefix="extracted_patch_without_color_information")
+    new_patch_cloud.write(new_patch_path)
+    return new_patch_path
+
+
+def colorize_single_patch(nocolor_patch: Path, colorized_patch: Path) -> None:
+    """Colorizes (RGBNIR) laz in a secure way to avoid corrupted files due to interruptions.
+
+    Wrapper to support Path objects since decomp_and_color does not accept Path objects, only strings as file paths.
 
     """
-    cloud = laspy.read(single_file_path)
-    header = cloud.header
-
-    for patch_info in single_file_sampling.itertuples():
-        # TODO: could be replaced by a tmp file here, so that it is easier to make sure everything was properly colorized later.
-        new_patch_path = format_new_patch_path(dataset_root_path, single_file_path, patch_info)
-
-        polygon = getattr(patch_info, GEOMETRY_COLNAME)
-        new_patch_cloud = laspy.LasData(header)
-        xmin, ymin, xmax, ymax = polygon.bounds
-        new_patch_cloud.points = cloud.points[(cloud.x >= xmin) & (cloud.x <= xmax) & (cloud.y >= ymin) & (cloud.y <= ymax)]
-        new_patch_cloud.write(new_patch_path)
-
-        yield new_patch_path
-
-
-def colorize_single_patch(path_of_patch_data: Path) -> None:
-    """Colorization, in a secure way to avoid corrupted files due to interruptions."""
-    # TODO Use a tmp file first for colorization, replace afterward, to avoid unwanted deletion...
-
-    # Note: decomp_and_color does not accept Path objects, only strings as file paths.
-    tmp_colorized_patch_path = path_of_patch_data.with_suffix(".laz.tmp_colorization")
-    decomp_and_color(str(path_of_patch_data), str(tmp_colorized_patch_path))
-    #
+    decomp_and_color(str(nocolor_patch), str(colorized_patch))

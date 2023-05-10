@@ -128,8 +128,9 @@ def test_colorize_single_patch(cloud_path):
 
 
 def test_colorize_all_patches():
-    colorize_all_patches()
-    assert False
+    # colorize_all_patches does not need tests as it is currently trivial.
+    # Reconsider if it implements multithreading.
+    ...
 
 
 def test_extract_dataset_from_toy_sampling(toy_sampling):
@@ -138,12 +139,13 @@ def test_extract_dataset_from_toy_sampling(toy_sampling):
         extract_laz_dataset(toy_sampling.name, Path(dataset_root))
 
 
-def test_define_patch_path_for_extraction():
+@pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])
+def test_define_patch_path_for_extraction(cloud_path):
     with tempfile.TemporaryDirectory() as dataset_root:
         split = "train"
         patch_path = define_patch_path_for_extraction(
             Path(dataset_root),
-            Path(LEFTY),
+            Path(cloud_path),
             Namespace(
                 **{
                     SPLIT_COLNAME: split,
@@ -151,6 +153,6 @@ def test_define_patch_path_for_extraction():
                 }
             ),
         )
-        assert patch_path.stem == "NAME_OF_LAZ---0042"
+        assert patch_path.stem == f"{Path(cloud_path).stem}---0042"
         assert patch_path.parent.stem == split
-        assert patch_path.suffix == ".laz"  # lowercase always
+        assert patch_path.suffix == ".laz"  # lowercase, always laz

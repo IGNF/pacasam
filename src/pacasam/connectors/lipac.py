@@ -1,5 +1,3 @@
-# copy of https://github.com/IGNF/panini/blob/main/connector.py
-
 import logging
 from typing import Generator, Optional
 import pandas as pd
@@ -13,7 +11,7 @@ from pacasam.connectors.connector import Connector
 from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
 
-# TODO: abstract a GeoDataframeConnector that wokr on a geopandas, and inherit from it for SuyntheticConnector and LiPaCConnector
+# TODO: abstract a GeoDataframeConnector that works on a geopandas, and inherit from it for SyntheticConnector and LiPaCConnector
 class LiPaCConnector(Connector):
     lambert_93_crs = 2154
 

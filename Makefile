@@ -30,7 +30,7 @@ help:
 all: $(SAMPLERS)
 
 $(SAMPLERS):
-	python ./src/pacasam/main.py --config_file=$(CONFIG) \
+	python ./src/pacasam/run_sampling.py --config_file=$(CONFIG) \
 		--connector_class=$(CONNECTOR) \
 		--sampler_class=$@ \
 		--make_html_report=$(REPORTS)

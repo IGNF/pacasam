@@ -125,8 +125,8 @@ def colorize_all_patches(paths_of_extracted_patches: Iterable[Path]) -> None:
 
 def colorize_single_patch(path_of_patch_data: Path) -> None:
     # TODO Use a tmp file first for colorization, replace afterward, to avoid unwanted deletion...
-    # Find a good pattern to do so
-    decomp_and_color(path_of_patch_data, path_of_patch_data)
+    # decomp_and_color does not accept Path objects, only strings as file paths.
+    decomp_and_color(str(path_of_patch_data), str(path_of_patch_data))
 
 
 # READING

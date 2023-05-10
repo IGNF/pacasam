@@ -64,7 +64,7 @@ make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml REPORTS=N
 ### Lancer un échantillonnage "triple" sur des données synthétiques :
 ```python
 conda activate pacasam
-python ./src/pacasam/main.py --config_file=configs/Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
+python ./src/pacasam/run_sampling.py --config_file=configs/Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
 ```
 
 ### Lancer un échantillonnage sur des données réelles - base PostGIS LiPaC:
@@ -76,14 +76,14 @@ python ./src/pacasam/main.py --config_file=configs/Synthetic.yml --connector_cla
 3. (Optionnel) Afficher les options de sampling. 
 
 ```bash
-python ./src/pacasam/main.py --help
+python ./src/pacasam/run_sampling.py --help
 ```
 Par défaut la base LiPaC est interrogée.
 
 4. Lancer le sampling.
 ```bash
 conda activate pacasam
-python ./src/pacasam/main.py --config_file=lipac/Synthetic.yml
+python ./src/pacasam/run_sampling.py --config_file=lipac/Synthetic.yml
 ```
 
 5. Visualisation de l'échantillonnage

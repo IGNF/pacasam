@@ -1,6 +1,6 @@
 from pathlib import Path
 import tempfile
-from pacasam.analysis.graphs import parser as graphs_parser, main
+from pacasam.analysis.graphs import parser as graphs_parser, main as main_graphs
 
 
 def test_main_graphs(tiny_synthetic_sampling):
@@ -14,4 +14,4 @@ def test_main_graphs(tiny_synthetic_sampling):
         namespace, _ = graphs_parser.parse_known_args(args="")
         namespace.gpkg_path = sampling_path
         namespace.output_path = Path(output_path)
-        main(namespace)
+        main_graphs(namespace)

@@ -20,7 +20,10 @@ from pacasam.extractors.laz import (
 )
 from tests.conftest import LEFTY, NUM_PATCHED_IN_EACH_FILE, RIGHTY
 
+# Useful constants to avoid magic numbers
 WHITE_COLOR_VALUE = 65280
+PATCH_WIDTH_METERS = 50
+ONE_METER_ABS_TOLERANCE = 1
 
 
 def test_check_files_accessibility():
@@ -74,8 +77,11 @@ def test_extract_patches_from_single_cloud(toy_sampling):
         # Assert that the files were created
         assert len(list_of_extracted_path) == len(sampling_of_single_cloud) == NUM_PATCHED_IN_EACH_FILE
         assert all_files_can_be_accessed(list_of_extracted_path)
-
-        # TODO: check that the content of the file is compliant e.g. that all points in the las are contained in the shape?
+        # Check that files are compliant laz files.
+        for file_path in list_of_extracted_path:
+            cloud = laspy.read(file_path)
+            for dim in ["x", "y"]:
+                assert cloud[dim].max() - cloud[dim].min() == pytest.approx(PATCH_WIDTH_METERS, abs=ONE_METER_ABS_TOLERANCE)
 
 
 def test_lefty_and_righty_color_are_white_and_equal():
@@ -95,7 +101,7 @@ def test_colorize_single_patch():
     """Tests RGB+NIR colorization from orthoimages using pdaltools package.
 
     Why we use pytest-timeout:
-        Colorization of small patch is usually almost instantaneous. But sometimes the geoportail is unstable 
+        Colorization of small patch is usually almost instantaneous. But sometimes the geoportail is unstable
         and in those cases a a few retries are performed in decomp_and_color (every 15 seconds).
         Ref on pytest-timeout: https://pytest-with-eric.com/pytest-best-practices/pytest-timeout/
 
@@ -111,7 +117,7 @@ def test_colorize_single_patch():
         assert "green" in cloud.point_format.dimension_names
         assert "nir" in cloud.point_format.dimension_names
 
-        # Assert both modification and non-trivial colorization
+        # Assert both non-white (i.e. colorization *did* happen) and non-trivial colorization
         for dim in ["red", "green", "blue", "nir"]:
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=WHITE_COLOR_VALUE))
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))

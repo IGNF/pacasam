@@ -113,6 +113,12 @@ def extract_patches_from_all_clouds(sampling: GeoDataFrame, dataset_root_path: P
 
 
 def colorize_all_patches(paths_of_extracted_patches: Iterable[Path]) -> None:
+    """Colorize a set of patches.
+
+    Note: we could multithread here, but we prefer to paralellize at the LAZ file level instead.
+    Indeed, there will be a large number of LAZ file, and a small number of patches to extract in each of them.
+
+    """
     for path in paths_of_extracted_patches:
         colorize_single_patch(path)
 
@@ -121,7 +127,6 @@ def colorize_single_patch(path_of_patch_data: Path) -> None:
     # TODO Use a tmp file first for colorization, replace afterward, to avoid unwanted deletion...
     # Find a good pattern to do so
     decomp_and_color(path_of_patch_data, path_of_patch_data)
-    a = 1
 
 
 # READING

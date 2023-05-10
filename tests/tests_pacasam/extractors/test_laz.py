@@ -1,11 +1,11 @@
 from argparse import Namespace
 from pathlib import Path
-import shutil
 import tempfile
 import numpy as np
 from pdaltools.color import decomp_and_color
 import laspy
 import pytest
+
 from pacasam.extractors.laz import (
     FILE_COLNAME,
     PATCH_ID_COLNAME,
@@ -13,17 +13,19 @@ from pacasam.extractors.laz import (
     GEOMETRY_COLNAME,
     all_files_can_be_accessed,
     check_sampling_format,
+    colorize_all_patches,
     define_patch_path_for_extraction,
     extract_laz_dataset,
     extract_patches_from_single_cloud,
     load_sampling_df_with_checks,
 )
-from tests.conftest import LEFTY, NUM_PATCHED_IN_EACH_FILE, RIGHTY
+from conftest import LEFTY, NUM_PATCHED_IN_EACH_FILE, RIGHTY
 
 # Useful constants to avoid magic numbers
 WHITE_COLOR_VALUE = 65280
 PATCH_WIDTH_METERS = 50
 ONE_METER_ABS_TOLERANCE = 1
+RANDOM_INT = 55
 
 
 def test_check_files_accessibility():
@@ -32,7 +34,7 @@ def test_check_files_accessibility():
     assert all_files_can_be_accessed(file_paths)
 
     # Test when some files do not exist
-    file_paths = [LEFTY, Path("non_existing_file.txt"), RIGHTY]
+    file_paths = [LEFTY, Path("fake_non_existing_file.txt"), RIGHTY]
     assert not all_files_can_be_accessed(file_paths)
 
 
@@ -43,13 +45,13 @@ def test_check_sampling_format(tiny_synthetic_sampling):
 
     # bad type
     bad_split_type = sampling.copy()
-    bad_split_type[SPLIT_COLNAME] = 55
+    bad_split_type[SPLIT_COLNAME] = RANDOM_INT
     with pytest.raises(TypeError):
         check_sampling_format(bad_split_type)
 
     # bad type
     bad_geom_type = sampling.copy()
-    bad_geom_type[GEOMETRY_COLNAME] = 55
+    bad_geom_type[GEOMETRY_COLNAME] = RANDOM_INT
     with pytest.raises(TypeError):
         check_sampling_format(bad_geom_type)
 
@@ -67,13 +69,13 @@ def test_load_sampling_df_with_checks_from_toy_sampling(toy_sampling):
 
 def test_extract_patches_from_single_cloud(toy_sampling):
     with tempfile.TemporaryDirectory() as dataset_root:
-        df_loaded = load_sampling_df_with_checks(toy_sampling.name)
-
         # Keep only patches relative to a single file
+        df_loaded = load_sampling_df_with_checks(toy_sampling.name)
         first_file = df_loaded[FILE_COLNAME].iloc[0]
         sampling_of_single_cloud = df_loaded[df_loaded[FILE_COLNAME] == first_file]
-        list_of_extracted_path = extract_patches_from_single_cloud(sampling_of_single_cloud, Path(dataset_root))
 
+        # Perform extraction
+        list_of_extracted_path = extract_patches_from_single_cloud(sampling_of_single_cloud, Path(dataset_root))
         # Assert that the files were created
         assert len(list_of_extracted_path) == len(sampling_of_single_cloud) == NUM_PATCHED_IN_EACH_FILE
         assert all_files_can_be_accessed(list_of_extracted_path)
@@ -84,20 +86,22 @@ def test_extract_patches_from_single_cloud(toy_sampling):
                 assert cloud[dim].max() - cloud[dim].min() == pytest.approx(PATCH_WIDTH_METERS, abs=ONE_METER_ABS_TOLERANCE)
 
 
-def test_lefty_and_righty_color_are_white_and_equal():
+@pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])
+def test_lefty_and_righty_color_are_white_and_equal(cloud_path):
     """Verifies that test data is pure white (R==G==B, filled with 65280).
 
     Note: This is useful to tets colorization in test_colorize_single_patch.
 
     """
-    lefty = laspy.read(LEFTY)
+    lefty = laspy.read(cloud_path)
     assert np.array_equal(lefty.red, np.full_like(lefty.red, fill_value=WHITE_COLOR_VALUE))
     assert np.array_equal(lefty.red, lefty.green)
     assert np.array_equal(lefty.red, lefty.blue)
 
 
 @pytest.mark.timeout(60)
-def test_colorize_single_patch():
+@pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])
+def test_colorize_single_patch(cloud_path):
     """Tests RGB+NIR colorization from orthoimages using pdaltools package.
 
     Why we use pytest-timeout:
@@ -106,9 +110,9 @@ def test_colorize_single_patch():
         Ref on pytest-timeout: https://pytest-with-eric.com/pytest-best-practices/pytest-timeout/
 
     """
-    with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_lefty_test_data_") as tmp_copy:
+    with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_test_data_") as tmp_copy:
         # Copy to be extra safe that we do not modify input test files.
-        decomp_and_color(LEFTY, tmp_copy.name)
+        decomp_and_color(cloud_path, tmp_copy.name)
         cloud = laspy.read(tmp_copy.name)
 
         # Assert presence of all necessary fields.
@@ -123,13 +127,13 @@ def test_colorize_single_patch():
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))
 
 
-@pytest.mark.xfail(strict=True)
 def test_colorize_all_patches():
+    colorize_all_patches()
     assert False
 
 
 def test_extract_dataset_from_toy_sampling(toy_sampling):
-    # integration test to be sure that all runs smoothly together
+    """Test integration: end-to-end extraction+colorization"""
     with tempfile.TemporaryDirectory() as dataset_root:
         extract_laz_dataset(toy_sampling.name, Path(dataset_root))
 

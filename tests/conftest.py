@@ -6,10 +6,15 @@ import geopandas as gpd
 import shapely
 import pytest
 
+# Nota: use `pytest --fixture` to list them.
+
 # Add the src subdir to have simple import in the test suite
 # e.g. "import pacasam" instead of "import src.pacasam"
+# Add the tests subdir for the same reason, to import from e.g. conftest.py
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir / "src"))
+sys.path.append(str(root_dir / "tests"))
+
 
 from pacasam.utils import CONNECTORS_LIBRARY
 from pacasam.samplers.sampler import SPLIT_COLNAME
@@ -30,6 +35,7 @@ RIGHTY_UP_GEOMETRY = shapely.box(xmin=792050, ymin=6271171 + 50, xmax=792100, ym
 RIGHTY_DOWN_GEOMETRY = shapely.box(xmin=792050, ymin=6271171, xmax=792100, ymax=6271271 - 50)
 
 NUM_PATCHED_IN_EACH_FILE = 2
+
 
 @pytest.fixture(scope="session")
 def toy_sampling():

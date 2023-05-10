@@ -3,18 +3,21 @@ import tempfile
 import pytest
 from pacasam.main import main
 from pacasam.main import parser as main_parser
+from pacasam.utils import SAMPLERS_LIBRARY
 
 # ref : https://stackoverflow.com/questions/73178047/how-to-pytest-monkeypatch-multiple-argv-arguments
 
 
 @pytest.mark.parametrize(
-    "sampler_class", ["RandomSampler", "SpatialSampler", "TargettedSampler", "DiversitySampler", "TripleSampler", "OutliersSampler"]
+    "sampler_class", SAMPLERS_LIBRARY.keys()
 )
 @pytest.mark.parametrize("make_html_report", ["N"])
 def test_all_samplers_on_synthetic_data(sampler_class, make_html_report):
-    # Warning: overrident args should be already casted to Path and bool
-    # TODO: could refactor by parsing args and adding them to the previously created namespace
-    # so that we can give make_html_report="N" for instance.
+    """Test all samplers on synthetic data.
+
+    Note: make_html_report is a parameter for activation in test_make_html_report_option_after_random_sampler.
+
+    """
     args = main_parser.parse_args(
         args=[
             "--sampler_class",

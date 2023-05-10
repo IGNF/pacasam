@@ -28,6 +28,7 @@ dependencies:
   # --------- tests ----------- #
   - pytest
   - pytest-cov
+  - pytest-timeout  
   # Dependencies to ign-pdal-tools that currently need manual install
   - conda-forge:pdal==2.5.*
   - conda-forge:python-pdal==3.2.*

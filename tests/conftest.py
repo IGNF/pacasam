@@ -31,7 +31,6 @@ RIGHTY_DOWN_GEOMETRY = shapely.box(xmin=792050, ymin=6271171, xmax=792100, ymax=
 
 NUM_PATCHED_IN_EACH_FILE = 2
 
-
 @pytest.fixture(scope="session")
 def toy_sampling():
     """Returns the temporary files to a toy sampling."""

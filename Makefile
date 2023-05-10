@@ -40,7 +40,11 @@ all_for_all_connectors:
 	make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 
 tests:
-	pytest -s
+	# Runb pytest- paralellization with at most 6 processes.
+	# See https://pytest-xdist.readthedocs.io/en/stable/distribution.html#running-tests-across-multiple-cpus
+	# Also, `-s` to show stout is not supported in pytest-xdist - remove paralellization for more logs.
+	# See https://pytest-xdist.readthedocs.io/en/stable/known-limitations.html#output-stdout-and-stderr-from-workers
+	pytest -s -n auto --dist worksteal --maxprocesses=6
 
 open_coverage_report:
 	firefox htmlcov/index.html

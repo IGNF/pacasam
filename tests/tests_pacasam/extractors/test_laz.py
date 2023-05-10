@@ -75,14 +75,13 @@ def test_extract_patches_from_single_cloud(toy_sampling):
         # TODO: check that the content of the file is compliant e.g. that all points in the las are contained in the shape?
 
 
-# This will mark the test as an expected failure only if it fails with an AssertionError.
-# If it fails for any other reason, it will be treated as a regular test failure.
-# TODO: remove when extraction is implemented.
 def test_colorize_single_patch():
     with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_lefty_test_data_") as tmp_copy:
         shutil.copy(LEFTY, tmp_copy.name)
         decomp_and_color(tmp_copy.name, tmp_copy.name)
         # TODO: attest that it was colorized and has the right channels.
+        # Inut data should be pure white so we might test the data in the fixture (R==G==B)
+        # and here test that they are different, and that Infrared was created.
 
 
 @pytest.mark.xfail(strict=True)

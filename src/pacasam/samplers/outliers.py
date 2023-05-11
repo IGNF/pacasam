@@ -1,6 +1,6 @@
 from typing import Optional
 import numpy as np
-from pacasam.connectors.connector import TILE_INFO
+from pacasam.connectors.connector import FILE_ID_COLNAME, TILE_INFO
 
 from pacasam.samplers.diversity import normalize_df
 from pacasam.samplers.sampler import Sampler
@@ -45,7 +45,7 @@ class OutliersSampler(Sampler):
         df = df.sort_values(by="outlier_scores", ascending=False).head(num_to_sample)
 
         patches = df[TILE_INFO + ["cluster_id", "outlier_scores"]]
-        self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id", "dalle_id"])
+        self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id", FILE_ID_COLNAME])
         patches["sampler"] = self.name
         self.log.info(f"{self.name}: N={num_to_sample} patches.")
 

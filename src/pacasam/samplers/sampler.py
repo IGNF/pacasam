@@ -3,7 +3,7 @@ from math import floor
 from typing import Dict, List, Union
 from geopandas import GeoDataFrame
 from pacasam.samplers.algos import sample_with_stratification
-from pacasam.connectors.connector import PATCH_ID_COLNAME, Connector
+from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_ID_COLNAME, Connector
 
 # Schema of all DataFrame outputs of sampler.get_patches(...) calls.
 
@@ -38,7 +38,7 @@ class Sampler:
         self.log.info(f"{self.name}: {n_sampled} ids --> {n_distinct} distinct ids (uniqueness ratio: {n_distinct/n_sampled:.03f}) ")
         return gdf
 
-    def _set_validation_patches_with_stratification(self, patches: GeoDataFrame, keys: Union[str, List[str]]):
+    def _set_validation_patches_with_stratification(self, patches: GeoDataFrame, keys: Union[str, List[str]] = FILE_ID_COLNAME):
         """(Inplace) Set a binary flag for the validation patches, selected spatially by slab."""
         patches[SPLIT_COLNAME] = "test"
         if self.cf["frac_validation_set"] is not None:

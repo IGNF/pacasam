@@ -4,17 +4,24 @@ import pandas as pd
 from pandas import DataFrame
 from math import floor
 
-from pacasam.connectors.connector import PATCH_ID_COLNAME
+from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_ID_COLNAME
+
+GLOBAL_RANDOM_STATE = 0
 
 
 def sample_randomly(patches: DataFrame, num_to_sample: int):
-    return patches.sample(n=num_to_sample, replace=False, random_state=0)
+    if num_to_sample > len(patches):
+        num_to_sample = len(patches)
+    return patches.sample(n=num_to_sample, replace=False, random_state=GLOBAL_RANDOM_STATE)
 
 
-def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Union[str, List[str]] = ["dalle_id"]):
+def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Union[str, List[str]] = FILE_ID_COLNAME):
     """Efficient spatial sampling by sampling in each slab, iteratively."""
 
     if len(patches) == 0:
+        return patches
+
+    if num_to_sample > len(patches):
         return patches
 
     # Step 1: start by sampling in each strata the minimal number of patches by strata we would want.
@@ -24,11 +31,12 @@ def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Uni
     min_n_by_strata = floor(num_to_sample / nunique)
     min_n_by_strata = max(min_n_by_strata, 1)
     # Sample with replacement in case a strata has few patches (e.g. near a water surface).
-    sampled_patches = patches.groupby(keys).sample(n=min_n_by_strata, random_state=0, replace=True)
+    sampled_patches = patches.groupby(keys).sample(n=min_n_by_strata, random_state=GLOBAL_RANDOM_STATE, replace=True)
     sampled_patches = sampled_patches.drop_duplicates(subset=PATCH_ID_COLNAME)
+
+    # Case where we  have all the sample we need (i.e. num_samples_to_sample < number of stratas, and we got 1 in each tile)
     if len(sampled_patches) > num_to_sample:
-        # We alreay have all the sample we need (case where num_samples_to_sample < number of stratas, and we got 1 in each tile)
-        return sampled_patches.sample(n=num_to_sample, random_state=0)
+        return sampled_patches.sample(n=num_to_sample, random_state=GLOBAL_RANDOM_STATE)
 
     # Step 2: Complete, accounting for strata with a small number of patches by removing the already selected
     # ones from the pool, and sampling one tile at each iteration.
@@ -36,10 +44,10 @@ def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Uni
     # loop to get every tile within (with a maximum of n~400 iterations since it is the max num of tile per strata.)
     while len(sampled_patches) < num_to_sample:
         remaining_ids = patches[~patches[PATCH_ID_COLNAME].isin(sampled_patches[PATCH_ID_COLNAME])]
-        add_these_ids = remaining_ids.groupby(keys).sample(n=1, random_state=0)
+        add_these_ids = remaining_ids.groupby(keys).sample(n=1, random_state=GLOBAL_RANDOM_STATE)
 
         if len(add_these_ids) + len(sampled_patches) > num_to_sample:
-            add_these_ids = add_these_ids.sample(n=num_to_sample - len(sampled_patches), random_state=0)
+            add_these_ids = add_these_ids.sample(n=num_to_sample - len(sampled_patches), random_state=GLOBAL_RANDOM_STATE)
 
         sampled_patches: DataFrame = pd.concat([sampled_patches, add_these_ids], verify_integrity=True)
 

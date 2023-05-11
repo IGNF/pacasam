@@ -6,7 +6,7 @@ from pandas import DataFrame
 import geopandas as gpd
 from shapely.geometry import box
 
-from pacasam.connectors.connector import Connector
+from pacasam.connectors.connector import FILE_ID_COLNAME, Connector
 from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
 # Should match what is in the database. Also used for histograms.
@@ -37,8 +37,8 @@ class SyntheticConnector(Connector):
         self.log = log
         self.db_size = db_size
         # TODO: make db an attribute so that it is created when accessed instead of at initialization of the object.
-        df_geom, df_dalle_id = self._make_synthetic_geometries_and_slabs()
-        # WARNING: the synthetic geometries will not be compliant with the dalle_id.
+        df_geom, df_file_ids = self._make_synthetic_geometries_and_slabs()
+        # WARNING: the synthetic geometries will not be compliant with the FILE_ID_COLNAME.
         self.db = gpd.GeoDataFrame(
             geometry=df_geom,
             crs="EPSG:2154",
@@ -55,7 +55,7 @@ class SyntheticConnector(Connector):
             self.db[nb_point_colname] = d
 
         self.db[PATCH_ID_COLNAME] = range(len(self.db))
-        self.db["dalle_id"] = df_dalle_id
+        self.db[FILE_ID_COLNAME] = df_file_ids
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract everything using ids."""
@@ -86,5 +86,5 @@ class SyntheticConnector(Connector):
             ),
             axis=1,
         )
-        df_dalle_id = (df_xy // SLAB_SIZE).apply(lambda row: str(row["x"]) + "_" + str(row["y"]), axis=1)
-        return df_geom, df_dalle_id
+        df_file_ids = (df_xy // SLAB_SIZE).apply(lambda row: str(row["x"]) + "_" + str(row["y"]), axis=1)
+        return df_geom, df_file_ids

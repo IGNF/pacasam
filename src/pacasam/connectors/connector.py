@@ -4,15 +4,14 @@ from pandas import Series
 from geopandas import GeoDataFrame
 
 
-# TODO: document the necessary columns names for the sql request, in particular FILE_COLNAME
+# Those are the necessary columns that define are needed for a sampling.
 
-FILE_COLNAME = "file_path"
-GEOMETRY_COLNAME = "geometry"
-PATCH_ID_COLNAME = "id"
+FILE_COLNAME = "file_path"  # path for later extraction e.g. "/path/to/file.LAZ"
+GEOMETRY_COLNAME = "geometry"  # Shapely geometry (note: only rectangular shapes aligend with x/y are supported)
+PATCH_ID_COLNAME = "patch_id"  # Unique identifier to each patch
+FILE_ID_COLNAME = "file_id"  # Unique identifier to each file.
 
-# TODO: generalize so that we do not need dalle_id, or at least it is called something else more general
-# We could impose that patch_id and file_id are always present.
-TILE_INFO = [PATCH_ID_COLNAME, "dalle_id"]
+TILE_INFO = [PATCH_ID_COLNAME, FILE_ID_COLNAME]
 
 log = logging.getLogger(__name__)
 

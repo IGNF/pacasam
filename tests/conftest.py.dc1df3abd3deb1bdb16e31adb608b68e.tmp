@@ -38,7 +38,7 @@ NUM_PATCHED_IN_EACH_FILE = 2
 
 
 @pytest.fixture(scope="session")
-def toy_sampling_file():
+def toy_sampling_file() -> tempfile._TemporaryFileWrapper[bytes]:
     """Returns a temporary file of a toy sampling (geopackage).
 
     Note: We do not return `toy_sampling_file.name: str` directly since this would delete the temporary file

@@ -60,16 +60,16 @@ def test_check_sampling_format(tiny_synthetic_sampling):
 
 
 # TODO: turn into a fixture that loads df_loaded and can be used in test_extract_patches_from_single_cloud
-def test_load_sampling_with_checks_from_toy_sampling(toy_sampling):
-    df_loaded = load_sampling_with_checks(toy_sampling.name)
+def test_load_sampling_with_checks_from_toy_sampling(toy_sampling_file):
+    df_loaded = load_sampling_with_checks(toy_sampling_file.name)
     assert len(df_loaded)
 
 
 # TODO: fix this test - we might use the other one that has uses LazExtractor !
-def test_extract_patches_from_single_cloud(toy_sampling):
+def test_extract_patches_from_single_cloud(toy_sampling_file):
     with tempfile.TemporaryDirectory() as dataset_root:
         # Keep only patches relative to a single file for this test
-        df_loaded = load_sampling_with_checks(toy_sampling.name)
+        df_loaded = load_sampling_with_checks(toy_sampling_file.name)
         first_file = df_loaded[FILE_COLNAME].iloc[0]
         sampling_of_single_cloud = df_loaded[df_loaded[FILE_COLNAME] == first_file]
 
@@ -126,14 +126,14 @@ def test_colorize_single_patch(cloud_path):
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))
 
 
-def test_extract_dataset_from_toy_sampling(toy_sampling):
+def test_extract_dataset_from_toy_sampling(toy_sampling_file):
     """Test integration: end-to-end extraction+colorization.
 
     This is very close to test_run_extraction.
 
     """
     with tempfile.TemporaryDirectory() as dataset_root_path:
-        extractor = LAZExtractor(log=logging.getLogger(), sampling_path=toy_sampling.name, dataset_root_path=Path(dataset_root_path))
+        extractor = LAZExtractor(log=logging.getLogger(), sampling_path=toy_sampling_file.name, dataset_root_path=Path(dataset_root_path))
         extractor.extract()
 
 

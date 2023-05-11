@@ -1,5 +1,7 @@
 """
 Pytest fixtures.
+Run `pytest --fixture` to list them.
+
 _______________
 
 General notes:
@@ -26,7 +28,7 @@ import geopandas as gpd
 import shapely
 import pytest
 
-# Nota: use `pytest --fixture` to list them.
+#
 
 # Add the src subdir to have simple import in the test suite
 # e.g. "import pacasam" instead of "import src.pacasam"

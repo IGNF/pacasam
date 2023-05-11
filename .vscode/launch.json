@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_extract_single_patch_from_LasData",
+                "test_run_extraction_laz",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

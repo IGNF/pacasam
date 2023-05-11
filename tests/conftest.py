@@ -1,3 +1,13 @@
+"""
+
+
+Note on tempfiles: we often return tempfile._TemporaryFileWrapper, which need to be kept in the scope in order
+for the underlying file not to be deleted automatically. To read and write to the file, most functions will need
+the actual name instead of an tempfile._TemporaryFileWrapper object. It is accessed with `temp_file_object.name`
+
+"""
+
+
 from pathlib import Path
 import tempfile
 import sys
@@ -21,10 +31,6 @@ from pacasam.samplers.sampler import SPLIT_COLNAME
 from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.connectors.synthetic import SyntheticConnector
 
-# idea: for now we create a fake sampling that includes patches from
-# toy las. Later on we might automate this and it might become
-# its own Connector, that takes LAS as input and returns the metadata
-# as outputs.
 
 LEFTY = "tests/data/792000_6272000-50mx100m-left.laz"
 LEFTY_UP_GEOMETRY = shapely.box(xmin=792000, ymin=6271171 + 50, xmax=792050, ymax=6271271)
@@ -38,7 +44,7 @@ NUM_PATCHED_IN_EACH_FILE = 2
 
 
 @pytest.fixture(scope="session")
-def toy_sampling_file():
+def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
     """Returns a temporary file of a toy sampling (geopackage).
 
     Note: We do not return `toy_sampling_file.name: str` directly since this would delete the temporary file
@@ -53,9 +59,9 @@ def toy_sampling_file():
         },
         crs="EPSG:2154",
     )
-    toy_sampling_file = tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="toy_sampling_file")
-    df.to_file(toy_sampling_file)
-    return toy_sampling_file
+    toy_sampling_tmp_file = tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="toy_sampling_tmp_file_")
+    df.to_file(toy_sampling_tmp_file)
+    return toy_sampling_tmp_file
 
 
 @pytest.fixture(scope="session")

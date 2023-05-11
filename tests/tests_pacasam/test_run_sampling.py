@@ -2,7 +2,7 @@
 import tempfile
 import pytest
 from pacasam.run_sampling import run_sampling
-from pacasam.run_sampling import parser as main_parser
+from pacasam.run_sampling import parser
 from pacasam.utils import SAMPLERS_LIBRARY
 
 # ref : https://stackoverflow.com/questions/73178047/how-to-pytest-monkeypatch-multiple-argv-arguments
@@ -16,7 +16,7 @@ def test_all_samplers_on_synthetic_data(sampler_class, make_html_report):
     Note: make_html_report is a parameter for activation in test_make_html_report_option_after_random_sampler.
 
     """
-    args = main_parser.parse_args(
+    args = parser.parse_args(
         args=[
             "--sampler_class",
             sampler_class,

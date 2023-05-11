@@ -26,6 +26,7 @@ class Connector:
     db_size: int
     db: GeoDataFrame
 
+    # TODO: log should always be a param here?
     def __init__(self):
         self.name: str = self.__class__.__name__
         self.log = None

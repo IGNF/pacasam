@@ -1,5 +1,4 @@
 from argparse import Namespace
-import logging
 from pathlib import Path
 import tempfile
 import numpy as np
@@ -10,13 +9,19 @@ from pacasam.connectors.connector import PATCH_ID_COLNAME
 from pacasam.extractors.extractor import all_files_can_be_accessed, check_sampling_format, load_sampling_with_checks
 
 from pacasam.extractors.laz import (
-    FILE_COLNAME,
     GEOMETRY_COLNAME,
-    LAZExtractor,
     colorize_single_patch,
+    extract_single_patch_from_LasData,
     format_new_patch_path,
 )
-from conftest import LEFTY, NUM_PATCHED_IN_EACH_FILE, RIGHTY
+from conftest import (
+    LEFTY,
+    LEFTY_DOWN_GEOMETRY,
+    LEFTY_UP_GEOMETRY,
+    RIGHTY,
+    RIGHTY_DOWN_GEOMETRY,
+    RIGHTY_UP_GEOMETRY,
+)
 from pacasam.samplers.sampler import SPLIT_COLNAME
 
 # Useful constants to avoid magic numbers
@@ -65,24 +70,25 @@ def test_load_sampling_with_checks_from_toy_sampling(toy_sampling_file):
     assert len(df_loaded)
 
 
-# TODO: fix this test - we might use the other one that has uses LazExtractor !
-def test_extract_patches_from_single_cloud(toy_sampling_file):
-    with tempfile.TemporaryDirectory() as dataset_root:
-        # Keep only patches relative to a single file for this test
-        df_loaded = load_sampling_with_checks(toy_sampling_file.name)
-        first_file = df_loaded[FILE_COLNAME].iloc[0]
-        sampling_of_single_cloud = df_loaded[df_loaded[FILE_COLNAME] == first_file]
-
-        # Perform extraction
-        list_of_extracted_path = extract_patches_from_single_cloud(sampling_of_single_cloud, Path(dataset_root))
-        # Assert that the files were created
-        assert len(list_of_extracted_path) == len(sampling_of_single_cloud) == NUM_PATCHED_IN_EACH_FILE
-        assert all_files_can_be_accessed(list_of_extracted_path)
-        # Check that files are compliant laz files.
-        for file_path in list_of_extracted_path:
-            cloud = laspy.read(file_path)
-            for dim in ["x", "y"]:
-                assert cloud[dim].max() - cloud[dim].min() == pytest.approx(PATCH_WIDTH_METERS, abs=ONE_METER_ABS_TOLERANCE)
+@pytest.mark.parametrize(
+    "cloud_path_and_bounds",
+    [
+        (LEFTY, LEFTY_UP_GEOMETRY.bounds),
+        (LEFTY, LEFTY_DOWN_GEOMETRY.bounds),
+        (RIGHTY, RIGHTY_UP_GEOMETRY.bounds),
+        (RIGHTY, RIGHTY_DOWN_GEOMETRY.bounds),
+    ],
+)
+def test_extract_single_patch_from_LasData(cloud_path_and_bounds):
+    cloud_path, patch_bounds = cloud_path_and_bounds
+    """Test the extraction of a single patch to the tmp file, based on bounds."""
+    cloud = laspy.read(cloud_path)
+    nocolor_patch_tmp_file: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, cloud.header, patch_bounds)
+    patch_data = laspy.read(nocolor_patch_tmp_file.name)
+    # Test that non empty and the right size
+    assert len(patch_data) > 0
+    for dim in ["x", "y"]:
+        assert patch_data[dim].max() - patch_data[dim].min() == pytest.approx(PATCH_WIDTH_METERS, abs=ONE_METER_ABS_TOLERANCE)
 
 
 @pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])
@@ -124,22 +130,6 @@ def test_colorize_single_patch(cloud_path):
         for dim in ["red", "green", "blue", "nir"]:
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=WHITE_COLOR_VALUE))
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))
-
-
-def test_extract_dataset_from_toy_sampling(toy_sampling_file):
-    """Test integration: end-to-end extraction+colorization.
-
-    This is very close to test_run_extraction.
-
-    """
-    with tempfile.TemporaryDirectory() as dataset_root_path:
-        extractor = LAZExtractor(log=logging.getLogger(), sampling_path=toy_sampling_file.name, dataset_root_path=Path(dataset_root_path))
-        extractor.extract()
-
-
-def test_run_extraction():
-    """Very close to test_extract_dataset_from_toy_sampling for now so we do not test it direcly."""
-    pass
 
 
 @pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])

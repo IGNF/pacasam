@@ -18,6 +18,7 @@ class Extractor:
 
     def __init__(self, log: logging.Logger, sampling_path: Path, dataset_root_path: Path):
         """Initialization of extractor. Always load the sampling with sanity checks on format."""
+        self.name: str = self.__class__.__name__
         self.log = log
         self.dataset_root_path = dataset_root_path
         self.sampling = load_sampling_with_checks(sampling_path)
@@ -70,8 +71,8 @@ def all_files_can_be_accessed(files: Iterable[Path]) -> bool:
 
 # WRITING
 
-
-def format_new_patch_path(dataset_root_path, file_path, patch_info, suffix=".laz"):
+# TODO: should not use patch_info but a simpler format instead.
+def format_new_patch_path(dataset_root_path: Path, file_path: Path, patch_info, suffix=".laz") -> Path:
     """Formats the path to save the patch data. Creates dataset dir and split subdir(s) as needed.
     Format is /{dataset_root_path}/{split}/{file_path_stem}---{zfilled patch_id}.laz
 

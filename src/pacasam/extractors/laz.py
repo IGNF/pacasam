@@ -43,7 +43,7 @@ Read and check the sampling geopackage:
 from pathlib import Path
 import tempfile
 import laspy
-from laspy import LasData
+from laspy import LasData, LasHeader
 from pdaltools.color import decomp_and_color
 from geopandas import GeoDataFrame
 from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME
@@ -69,15 +69,15 @@ class LAZExtractor(Extractor):
         header = cloud.header
 
         for patch_info in single_file_sampling.itertuples():
-            tmp_nocolor_patch: Path = extract_single_patch_from_LasData(cloud, header, patch_info)
+            patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
+            tmp_nocolor_patch: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, header, patch_bounds)
             colorized_patch: Path = format_new_patch_path(self.dataset_root_path, single_file_path, patch_info)
-            colorize_single_patch(nocolor_patch=tmp_nocolor_patch, colorized_patch=colorized_patch)
-
+            colorize_single_patch(nocolor_patch=Path(tmp_nocolor_patch.name), colorized_patch=colorized_patch)
         self.log.info(f"{self.name}: SUCCESS for {single_file_path}")
 
 
-def extract_single_patch_from_LasData(cloud: LasData, header, patch_info) -> Path:
-    """Extracts data from a single patch from a (laspy.LasData) cloud..
+def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_bounds) -> tempfile._TemporaryFileWrapper:
+    """Extracts data from a single patch from a (laspy.LasData) cloud.
 
     Save to a tempfile since we will only keep colorized data, not this uncolorized data.
 
@@ -86,14 +86,15 @@ def extract_single_patch_from_LasData(cloud: LasData, header, patch_info) -> Pat
     Alternative could be using a KDTree.
 
     """
-    polygon = getattr(patch_info, GEOMETRY_COLNAME)
     new_patch_cloud = LasData(header)
-    xmin, ymin, xmax, ymax = polygon.bounds
+    xmin, ymin, xmax, ymax = patch_bounds
     new_patch_cloud.points = cloud.points[(cloud.x >= xmin) & (cloud.x <= xmax) & (cloud.y >= ymin) & (cloud.y <= ymax)]
 
-    new_patch_path = tempfile.NamedTemporaryFile(suffix=".laz", prefix="extracted_patch_without_color_information")
-    new_patch_cloud.write(new_patch_path)
-    return new_patch_path
+    patch_tmp_file: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(
+        suffix=".laz", prefix="extracted_patch_without_color_information"
+    )
+    new_patch_cloud.write(patch_tmp_file.name)
+    return patch_tmp_file
 
 
 def colorize_single_patch(nocolor_patch: Path, colorized_patch: Path) -> None:
@@ -102,4 +103,5 @@ def colorize_single_patch(nocolor_patch: Path, colorized_patch: Path) -> None:
     Wrapper to support Path objects since decomp_and_color does not accept Path objects, only strings as file paths.
 
     """
-    decomp_and_color(str(nocolor_patch), str(colorized_patch))
+
+    decomp_and_color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()))

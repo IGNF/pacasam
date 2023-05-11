@@ -60,20 +60,19 @@ class LAZExtractor(Extractor):
 
         """
         for single_file_path, single_file_sampling in self.sampling.groupby(FILE_COLNAME):
+            self.log.info(f"{self.name}: Extraction + Colorization from {single_file_path} (k={len(single_file_sampling)} patches)")
             self._extract_from_single_file(single_file_path, single_file_sampling)
+            self.log.info(f"{self.name}: SUCCESS for {single_file_path}")
 
     def _extract_from_single_file(self, single_file_path: Path, single_file_sampling: GeoDataFrame):
-        self.log.info(f"{self.name}: Extraction + Colorization from {single_file_path} (k={len(single_file_sampling)} patches)")
-
+        """Extract all patches from a single file based on its sampling."""
         cloud = laspy.read(single_file_path)
         header = cloud.header
-
         for patch_info in single_file_sampling.itertuples():
             patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
             tmp_nocolor_patch: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, header, patch_bounds)
             colorized_patch: Path = format_new_patch_path(self.dataset_root_path, single_file_path, patch_info)
             colorize_single_patch(nocolor_patch=Path(tmp_nocolor_patch.name), colorized_patch=colorized_patch)
-        self.log.info(f"{self.name}: SUCCESS for {single_file_path}")
 
 
 def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_bounds) -> tempfile._TemporaryFileWrapper:

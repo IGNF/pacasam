@@ -48,7 +48,6 @@ DiversitySampler:
   # Gestion par parties (chunk) des vignettes via FPS.
   # Les vignettes sont ordonnées par leur identifiant "id", et l'id est supposé avoir été choisi incrémentalement
   # à mesure que la base LiPaC est peuplée. D'où un notion de diversité qui va être également spatialisée.
-  # TODO: On pourrait rendre cela plus robuste. Comment ?
   max_chunk_size_for_fps: 20000
   # standardization or quantilization
   normalization: quantilization

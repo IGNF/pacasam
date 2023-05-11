@@ -1,10 +1,9 @@
 """Integration tests : run extraction."""
 import tempfile
+import pytest
 from pacasam.run_extraction import run_extraction, parser
 
-# ref : https://stackoverflow.com/questions/73178047/how-to-pytest-monkeypatch-multiple-argv-arguments
-
-
+@pytest.mark.timeout(60)
 def test_run_extraction_laz(toy_sampling_file):
     """Run them
 

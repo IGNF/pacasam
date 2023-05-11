@@ -1,9 +1,19 @@
 """
+Pytest fixtures.
+_______________
 
+General notes:
 
-Note on tempfiles: we often return tempfile._TemporaryFileWrapper, which need to be kept in the scope in order
-for the underlying file not to be deleted automatically. To read and write to the file, most functions will need
-the actual name instead of an tempfile._TemporaryFileWrapper object. It is accessed with `temp_file_object.name`
+Use of tempfile: 
+    We often return tempfile._TemporaryFileWrapper objects, both in test and in pacasam.
+    They need to be kept in the scope to avoid automatic deletion while they are still needed. 
+    To read and write to the file, most functions will need the name and not the tempfile._TemporaryFileWrapper object. 
+    The name is accessed with `temp_file_object.name`.
+
+Use pytest-timeout:
+    Colorization of small patch is usually almost instantaneous. But sometimes IGN geoportail is unstable
+    and in those cases a a few retries are performed in decomp_and_color (every 15 seconds).
+    Ref on pytest-timeout: https://pytest-with-eric.com/pytest-best-practices/pytest-timeout/
 
 """
 

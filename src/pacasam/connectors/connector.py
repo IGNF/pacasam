@@ -11,6 +11,7 @@ GEOMETRY_COLNAME = "geometry"
 PATCH_ID_COLNAME = "id"
 
 # TODO: generalize so that we do not need dalle_id, or at least it is called something else more general
+# We could impose that patch_id and file_id are always present.
 TILE_INFO = [PATCH_ID_COLNAME, "dalle_id"]
 
 log = logging.getLogger(__name__)

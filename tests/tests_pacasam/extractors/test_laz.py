@@ -107,14 +107,7 @@ def test_lefty_and_righty_color_are_white_and_equal(cloud_path):
 @pytest.mark.timeout(60)
 @pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])
 def test_colorize_single_patch(cloud_path):
-    """Tests RGB+NIR colorization from orthoimages using pdaltools package.
-
-    Why we use pytest-timeout:
-        Colorization of small patch is usually almost instantaneous. But sometimes the geoportail is unstable
-        and in those cases a a few retries are performed in decomp_and_color (every 15 seconds).
-        Ref on pytest-timeout: https://pytest-with-eric.com/pytest-best-practices/pytest-timeout/
-
-    """
+    """Tests RGB+NIR colorization from orthoimages using pdaltools package."""
     with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_test_data_") as tmp_copy:
         # Copy to be extra safe that we do not modify input test files.
         colorize_single_patch(cloud_path, tmp_copy.name)

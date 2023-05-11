@@ -1,12 +1,9 @@
-from typing import List, Optional
-import numpy as np
-from math import ceil, floor
+from typing import List
+from math import ceil
 import pandas as pd
-from pandas import DataFrame
-from sklearn.preprocessing import QuantileTransformer
 
 from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_ID_COLNAME, TILE_INFO
-from pacasam.samplers.algos import GLOBAL_RANDOM_STATE, fps
+from pacasam.samplers.algos import fps, normalize_df, yield_chunks
 from pacasam.samplers.sampler import Sampler
 
 
@@ -98,30 +95,3 @@ class DiversitySampler(Sampler):
                 diverse = self._set_validation_patches_with_stratification(patches=diverse, keys=FILE_ID_COLNAME)
             diverse = diverse[self.sampling_schema]
             yield diverse
-
-
-def yield_chunks(df, max_chunk_size):
-    """Generator for splitting the dataframe."""
-    for pos in range(0, len(df), max_chunk_size):
-        yield df.iloc[pos : pos + max_chunk_size]
-
-
-def normalize_df(df: DataFrame, columns: List[str], normalization="standardization", n_quantiles: Optional[int] = 50):
-    """Normalize columns defining the classes histogram, ignoring zeros values
-
-    Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
-    """
-    # 1/3 Set zeros as NaN to ignore them.
-    df = df.replace(to_replace=0, value=np.nan)
-
-    # 2/3 Normalize columns to define a meaningful distance between histogram patches.
-
-    if normalization == "standardization":
-        df.loc[:, columns] = (df.loc[:, columns] - df.loc[:, columns].mean()) / df.loc[:, columns].std()
-    else:
-        qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=GLOBAL_RANDOM_STATE, subsample=100_000)
-        df.loc[:, columns] = qt.fit_transform(df[columns].values)
-
-    # 3/3 Set back zeros to the lowest present value (which comes from a value really close to zero).
-    df = df.fillna(df.min(numeric_only=True))
-    return df

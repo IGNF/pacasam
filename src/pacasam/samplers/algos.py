@@ -1,13 +1,17 @@
-from typing import List, Union
+from typing import List, Optional, Union
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from math import floor
 
+from sklearn.preprocessing import QuantileTransformer
+
 from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_ID_COLNAME
+from pacasam.exceptions import UnexpectedNaNValuesError
 
 GLOBAL_RANDOM_STATE = 0
-
+# To avoid DIV0 leading to nan values
+EPSILON = 10e-6
 
 def sample_randomly(patches: DataFrame, num_to_sample: int):
     if num_to_sample > len(patches):
@@ -18,10 +22,7 @@ def sample_randomly(patches: DataFrame, num_to_sample: int):
 def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Union[str, List[str]] = FILE_ID_COLNAME):
     """Efficient spatial sampling by sampling in each slab, iteratively."""
 
-    if len(patches) == 0:
-        return patches
-
-    if num_to_sample > len(patches):
+    if len(patches) <= num_to_sample:
         return patches
 
     # Step 1: start by sampling in each strata the minimal number of patches by strata we would want.
@@ -52,6 +53,42 @@ def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Uni
         sampled_patches: DataFrame = pd.concat([sampled_patches, add_these_ids], verify_integrity=True)
 
     return sampled_patches
+
+
+
+def yield_chunks(df, max_chunk_size):
+    """Generator for splitting the dataframe."""
+    for pos in range(0, len(df), max_chunk_size):
+        yield df.iloc[pos : pos + max_chunk_size]
+
+
+def normalize_df(df: DataFrame, columns: List[str], normalization="standardization", n_quantiles: Optional[int] = 50):
+    """Normalize columns defining the classes histogram, ignoring zeros values
+
+    Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
+    """
+
+    # Sanity check: normalization methods here expect all columns to have some values
+    # TODO: this check could be somewhere higher in the abstraction, an initialization of connectors for instance.
+    if any(df.isna().sum() > 0):
+        raise UnexpectedNaNValuesError(df)
+
+    # 1/3 Set zeros as NaN to ignore them during
+    df = df.replace(to_replace=0, value=np.nan)
+
+    # 2/3 Normalize columns to define a meaningful distance between histogram patches.
+
+    if normalization == "standardization":
+        df.loc[:, columns] = (df.loc[:, columns] - df.loc[:, columns].mean()) / (df.loc[:, columns].std() + EPSILON)
+    else:
+        qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=GLOBAL_RANDOM_STATE, subsample=100_000)
+        df.loc[:, columns] = qt.fit_transform(df[columns].values)
+
+    # 3/3 Set back zeros to the lowest present value (which comes from a value really close to zero).
+    # Fillna with zero in case all input values where zero (typically when debugging with small data)
+    fillna_values = df.min(numeric_only=True).fillna(0)
+    df = df.fillna(fillna_values)
+    return df
 
 
 def fps(arr: np.ndarray, num_to_sample: int):

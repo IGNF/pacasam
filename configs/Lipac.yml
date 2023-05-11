@@ -48,6 +48,7 @@ connector_kwargs:
       vignette
     WHERE
       nb_points_total > 50
+    LIMIT 1000
 
   max_chunksize_for_postgis_extraction: 100000
 

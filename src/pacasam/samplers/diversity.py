@@ -58,7 +58,6 @@ class DiversitySampler(Sampler):
         db = self.connector.db
         # We sort by id with the assumption that the chunks are consecutive patches, from consecutive slabs.
         # This enables FPS to have a notion of "diversity" that is spatially specific.
-        # TODO: we could add bloc_id to make sure to work on consecutive slabs.
         db = db.sort_values(by=[FILE_ID_COLNAME, PATCH_ID_COLNAME])
         db = db[TILE_INFO + cols_for_fps]
         db = normalize_df(

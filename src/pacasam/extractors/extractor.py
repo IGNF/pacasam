@@ -72,7 +72,8 @@ def all_files_can_be_accessed(files: Iterable[Path]) -> bool:
 # WRITING
 
 
-# TODO: should not use patch_info but a simpler format instead.
+# TODO: Consider using the file_id instead of the file_path, in order to have uniform naming in the dataset.
+# ALternativeley : keeping the full filename may be more informative?
 def format_new_patch_path(dataset_root_path: Path, file_path: Path, patch_id: int, split: str, patch_suffix: str) -> Path:
     """Formats the path to save the patch data. Creates dataset dir and split subdir(s) as needed.
     Format is /{dataset_root_path}/{split}/{file_path_stem}---{zfilled patch_id}.laz
@@ -82,5 +83,5 @@ def format_new_patch_path(dataset_root_path: Path, file_path: Path, patch_id: in
     """
     dir_to_save_patch: Path = dataset_root_path / split
     dir_to_save_patch.mkdir(parents=True, exist_ok=True)
-    patch_path = dir_to_save_patch / f"{file_path.stem}---{str(patch_id).zfill(4)}{patch_suffix}"
+    patch_path = dir_to_save_patch / f"{file_path.stem}--{str(patch_id).zfill(4)}{patch_suffix}"
     return patch_path

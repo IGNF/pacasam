@@ -120,7 +120,7 @@ Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur mac
     - [X] main pour les méthodes sur jeu de données synthétique.
     - [ ] Test impliquant LiPaC connector
     - [X] Tests impliquant les graphes et la création d'un rapport
-- [ ] Module extractor
+- [X] Module extractor
     - [X] API unique : objet extractor abstrait dès le début, pour l'instant dans le même module, pour définir l'interface. En entrée un objet gpd compatible, avec à minima : geometry, split, LAZ file, (id). On préciser : la classe de l'objet : LAZExtractor.
     - [X] Est-ce que main se fait remplacer par un autre objet ? Ou bien deux scripts séparés, appelés dans un troisième ? Quelles sont les bonnes pratiques là dessus (un seul point d'entrée ?). L'extraction est une opération longue donc on peut préférer un entrypoint différent, on ne souhaite pas enchaîner les deux...
         -  Need : 2 carrés de 100m*100m, qu'on décrira avec un nouveau connector ? Occasion de créer le connector qui effectue une description ? "geopandas" ? NON, trop lourd pour l'instant. Privilégier.

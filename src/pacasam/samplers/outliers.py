@@ -38,7 +38,6 @@ class OutliersSampler(Sampler):
         # Always use the default normalization method : standardization,
         # because it is the only one that gives good outliers.
         df = normalize_df(df=df, columns=self.cf["OutliersSampler"]["columns"])
-        # FIXME: yields an empty array error when LIMIT=1000 is set in the Lipac connector. Why???
 
         df["cluster_id"], df["outlier_scores"] = cluster(
             array=df[cols_for_clustering].values, hdbscan_kwargs=self.cf["OutliersSampler"]["hdbscan_kwargs"]

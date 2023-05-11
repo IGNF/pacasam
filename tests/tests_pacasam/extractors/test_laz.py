@@ -1,17 +1,14 @@
-from argparse import Namespace
 from pathlib import Path
 import tempfile
 import numpy as np
 import laspy
 import pytest
-from pacasam.connectors.connector import PATCH_ID_COLNAME
 from pacasam.extractors.extractor import all_files_can_be_accessed, check_sampling_format, load_sampling_with_checks
 
 from pacasam.extractors.laz import (
     GEOMETRY_COLNAME,
     colorize_single_patch,
-    extract_single_patch_from_LasData,
-    format_new_patch_path,
+    extract_single_patch_from_LasData
 )
 from conftest import (
     LEFTY,

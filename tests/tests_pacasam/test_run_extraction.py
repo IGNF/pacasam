@@ -3,6 +3,7 @@ import tempfile
 import pytest
 from pacasam.run_extraction import run_extraction, parser
 
+
 @pytest.mark.timeout(60)
 def test_run_extraction_laz(toy_sampling_file):
     """Run them

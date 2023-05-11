@@ -8,8 +8,8 @@ General notes:
 
 Use of tempfile: 
     We often return tempfile._TemporaryFileWrapper objects, both in test and in pacasam.
-    They need to be kept in the scope to avoid automatic deletion while they are still needed. 
-    To read and write to the file, most functions will need the name and not the tempfile._TemporaryFileWrapper object. 
+    They need to be kept in the scope to avoid automatic deletion while they are still needed.
+    To read and write to the file, most functions will need the name and not the tempfile._TemporaryFileWrapper object.
     The name is accessed with `temp_file_object.name`.
 
 Use pytest-timeout:

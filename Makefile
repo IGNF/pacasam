@@ -23,11 +23,14 @@ help:
 	@echo "  all - Exécute tous les samplers pour un connecteur donné (par défaut: connecteur Lipac)"
 	@echo "  all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml - pour passer le connectuer Synthetic"
 	@echo "  all_for_all_connectors - 'Make all' pour les deux connecteurs (Lipac et Synthetic)."
-	@echo "  L'option 'REPORTS=Y' permet la création d'un rapport HTML à partir du sampling."
+	@echo "  clean_extractions - Supprime ./outputs/samplings/"
+	@echo "Note: L'option 'REPORTS=Y' permet la création d'un rapport HTML à partir du sampling."
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
 	@echo "  extraction_of_laz_test_data - Lance une extraction d'un jeu de données laz depuis les données laz de test."
+	@echo "  clean_extractions - Supprime ./outputs/extractions/"
 	@echo "------------------------------------"
+
 
 .PHONY: all help $(SAMPLERS) tests open_coverage_report
 
@@ -56,4 +59,10 @@ open_coverage_report:
 extraction_of_laz_test_data:
 	python ./src/pacasam/run_extraction.py \
 		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
-		--dataset_root_path ./outputs/toy_laz_dataset/
+		--dataset_root_path ./outputs/extractions/toy_laz_dataset/
+
+clean_samplings:
+	rm -r ./outputs/samplings/
+
+clean_extractions:
+	rm -r ./outputs/extractions/

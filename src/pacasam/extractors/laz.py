@@ -42,6 +42,7 @@ Read and check the sampling geopackage:
 
 from pathlib import Path
 import tempfile
+from typing import Union
 import laspy
 from laspy import LasData, LasHeader
 from pdaltools.color import decomp_and_color
@@ -53,6 +54,7 @@ from pacasam.samplers.sampler import SPLIT_COLNAME
 
 class LAZExtractor(Extractor):
     """Extract a dataset of LAZ data patches."""
+
     patch_suffix: str = ".laz"
 
     def extract(self) -> None:
@@ -104,11 +106,15 @@ def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_b
     return patch_tmp_file
 
 
-def colorize_single_patch(nocolor_patch: Path, colorized_patch: Path) -> None:
+def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Union[str, Path]) -> None:
     """Colorizes (RGBNIR) laz in a secure way to avoid corrupted files due to interruptions.
 
     Wrapper to support Path objects since decomp_and_color does not accept Path objects, only strings as file paths.
 
     """
+    if isinstance(nocolor_patch, str):
+        nocolor_patch = Path(nocolor_patch)
+    if isinstance(colorized_patch, str):
+        colorized_patch = Path(colorized_patch)
 
     decomp_and_color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()))

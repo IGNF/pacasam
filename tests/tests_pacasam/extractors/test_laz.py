@@ -103,12 +103,11 @@ def test_lefty_and_righty_color_are_white_and_equal(cloud_path):
 
 
 @pytest.mark.timeout(60)
-@pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])
+@pytest.mark.parametrize("cloud_path", [Path(LEFTY), RIGHTY])
 def test_colorize_single_patch(cloud_path):
     """Tests RGB+NIR colorization from orthoimages using pdaltools package."""
     with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_test_data_") as tmp_copy:
-        # Copy to be extra safe that we do not modify input test files.
-        colorize_single_patch(cloud_path, tmp_copy.name)
+        colorize_single_patch(cloud_path, Path(tmp_copy.name))
         cloud = laspy.read(tmp_copy.name)
 
         # Assert presence of all necessary fields.

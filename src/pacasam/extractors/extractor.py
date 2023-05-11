@@ -72,16 +72,16 @@ def all_files_can_be_accessed(files: Iterable[Path]) -> bool:
 # WRITING
 
 
-# TODO: Consider using the file_id instead of the file_path, in order to have uniform naming in the dataset.
 # ALternativeley : keeping the full filename may be more informative?
 def format_new_patch_path(dataset_root_path: Path, file_path: Path, patch_id: int, split: str, patch_suffix: str) -> Path:
     """Formats the path to save the patch data. Creates dataset dir and split subdir(s) as needed.
     Format is /{dataset_root_path}/{split}/{file_path_stem}---{zfilled patch_id}.laz
 
-    The suffix is always lowercase for consistency across patches extractions.
+    The suffix is not infered from input data for consistency across extractions, for instance when
+    there are both las and laz files.
 
     """
     dir_to_save_patch: Path = dataset_root_path / split
     dir_to_save_patch.mkdir(parents=True, exist_ok=True)
-    patch_path = dir_to_save_patch / f"{file_path.stem}--{str(patch_id).zfill(4)}{patch_suffix}"
+    patch_path = dir_to_save_patch / f"{split.upper()}-{file_path.stem}-patch_{str(patch_id).zfill(4)}{patch_suffix}"
     return patch_path

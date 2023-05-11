@@ -1,13 +1,12 @@
 import sys
 from pathlib import Path
-import numpy as np
-import yaml
-from pacasam.extractors.extractor import Extractor
-from pacasam.extractors.laz import LAZExtractor
-
 
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
+from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.samplers.sampler import SPLIT_COLNAME
+from pacasam.extractors.extractor import Extractor
+from pacasam.extractors.laz import LAZExtractor
 from pacasam.utils import set_log_text_handler, setup_custom_logger
 
 log = setup_custom_logger()
@@ -16,8 +15,23 @@ log = setup_custom_logger()
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("-s", "--sampling_path", default=None, type=lambda p: Path(p).absolute())
-parser.add_argument("-d", "--dataset_root_path", default="./outputs/laz_dataset/", type=lambda p: Path(p).absolute())
+parser.add_argument(
+    "-s",
+    "--sampling_path",
+    default=None,
+    type=lambda p: Path(p).absolute(),
+    help=(
+        "Path to a valid patches sampling i.e. geopackage with columns:"
+        f"{FILE_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
+    ),
+)
+parser.add_argument(
+    "-d",
+    "--dataset_root_path",
+    default="./outputs/laz_dataset/",
+    type=lambda p: Path(p).absolute(),
+    help="Path to extract data to. Created if needed.",
+)
 
 
 def run_extraction(args):

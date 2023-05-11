@@ -13,13 +13,13 @@ connector_kwargs:
   # Création a la volée des indicateurs booléens nécessaires à TargettedSampler.
   # Quatre variables sont requises pour procéder à l'échantillonnage, qui sont des variables
   # du module pacasam.connector.connector.
-  # TODO: geometry could be renamed geometry directly here
+  # TODO: Update the query with the new database schema.
   extraction_sql_query: >
     SELECT 
       id AS patch_id, 
       dalle_id AS file_id, 
-      1 as file_path,
-      geometrie,
+      dalle_id as file_path,
+      geometrie as geometry,
       nb_points_total,
       nb_points_sol, nb_points_bati,
       nb_points_vegetation_basse,

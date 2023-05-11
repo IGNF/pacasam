@@ -13,6 +13,7 @@ GLOBAL_RANDOM_STATE = 0
 # To avoid DIV0 leading to nan values
 EPSILON = 10e-6
 
+
 def sample_randomly(patches: DataFrame, num_to_sample: int):
     if num_to_sample > len(patches):
         num_to_sample = len(patches)
@@ -53,7 +54,6 @@ def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Uni
         sampled_patches: DataFrame = pd.concat([sampled_patches, add_these_ids], verify_integrity=True)
 
     return sampled_patches
-
 
 
 def yield_chunks(df, max_chunk_size):

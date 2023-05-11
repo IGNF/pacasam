@@ -5,8 +5,7 @@ from geopandas import GeoDataFrame
 import geopandas as gpd
 from shapely import Polygon
 
-from pacasam.connectors.connector import FILE_COLNAME, PATCH_ID_COLNAME
-from pacasam.samplers.sampler import SPLIT_COLNAME
+from pacasam.connectors.connector import FILE_COLNAME
 
 
 class Extractor:

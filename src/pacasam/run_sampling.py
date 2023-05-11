@@ -1,7 +1,6 @@
 import shutil
 import sys
 from pathlib import Path
-import numpy as np
 import geopandas as gpd
 import yaml
 
@@ -12,9 +11,6 @@ from pacasam.analysis.graphs import make_all_graphs_and_a_report
 from pacasam.analysis.stats import Comparer
 
 log = setup_custom_logger()
-# Make sure that random operations in numpy (and pandas!) are deterministic.
-# TODO: this seems not to be used in pandas sampling operations...
-np.random.seed(0)
 
 # PARAMETERS
 import argparse

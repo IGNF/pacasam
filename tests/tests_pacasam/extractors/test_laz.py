@@ -2,7 +2,6 @@ from argparse import Namespace
 from pathlib import Path
 import tempfile
 import numpy as np
-from pdaltools.color import decomp_and_color
 import laspy
 import pytest
 from pacasam.connectors.connector import PATCH_ID_COLNAME
@@ -64,8 +63,7 @@ def test_check_sampling_format(tiny_synthetic_sampling):
         check_sampling_format(sampling)
 
 
-# TODO: turn into a fixture that loads df_loaded and can be used in test_extract_patches_from_single_cloud
-def test_load_sampling_with_checks_from_toy_sampling(toy_sampling_file):
+def test_load_sampling_with_checks(toy_sampling_file):
     df_loaded = load_sampling_with_checks(toy_sampling_file.name)
     assert len(df_loaded)
 

@@ -73,6 +73,11 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
     )
     toy_sampling_tmp_file = tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="toy_sampling_tmp_file_")
     df.to_file(toy_sampling_tmp_file)
+
+    # Note: Uncomment to update the saved gpkg.
+    # Versionnning this file is intended to facilitate CLI tests by users (see Makefile).
+    # df.to_file(Path("./tests/data/lefty_righty_sampling.gpkg"))
+
     return toy_sampling_tmp_file
 
 

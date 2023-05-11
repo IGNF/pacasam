@@ -26,11 +26,7 @@ parser.add_argument(
     ),
 )
 parser.add_argument(
-    "-d",
-    "--dataset_root_path",
-    default="./outputs/laz_dataset/",
-    type=lambda p: Path(p).absolute(),
-    help="Path to extract data to. Created if needed.",
+    "-d", "--dataset_root_path", default=None, type=lambda p: Path(p).absolute(), help="Path to extract data to. Created if needed."
 )
 
 

@@ -16,14 +16,18 @@ REPORTS ?= N # N(o) ou Y(es). No pour des résultats plus rapides.
 SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler TripleSampler OutliersSampler
 
 help:
-	@echo "Liste des cibles disponibles :"
+	@echo "Makefile"
+	@echo "------------------------------------"
+	@echo "Cibles pour l'échantillonnage:"
 	@echo "  $(SAMPLERS) - Exécute chaque échantillonneur individuellement."
-	@echo "  all - Exécute toutes les tâches pour un connecteur donné. Par défaut: Lipac"
-	@echo "  all_for_all_connectors - Make all appliqué aux connecteurs Lipac et Synthetic."
-	@echo "  help - Affiche cette aide."
-	@echo "Run complet :"
-	@echo "  make all REPORTS=Y"
-	@echo "  make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml"
+	@echo "  all - Exécute tous les samplers pour un connecteur donné (par défaut: connecteur Lipac)"
+	@echo "  all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml - pour passer le connectuer Synthetic"
+	@echo "  all_for_all_connectors - 'Make all' pour les deux connecteurs (Lipac et Synthetic)."
+	@echo "  L'option 'REPORTS=Y' permet la création d'un rapport HTML à partir du sampling."
+	@echo "------------------------------------"
+	@echo "Cibles pour l'extraction:"
+	@echo "  extraction_of_laz_test_data - Lance une extraction d'un jeu de données laz depuis les données laz de test."
+	@echo "------------------------------------"
 
 .PHONY: all help $(SAMPLERS) tests open_coverage_report
 
@@ -48,3 +52,8 @@ tests:
 
 open_coverage_report:
 	firefox htmlcov/index.html
+
+extraction_of_laz_test_data:
+	python ./src/pacasam/run_extraction.py \
+		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
+		--dataset_root_path ./outputs/toy_laz_dataset/

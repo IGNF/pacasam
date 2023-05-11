@@ -69,7 +69,6 @@ def normalize_df(df: DataFrame, columns: List[str], normalization="standardizati
     """
 
     # Sanity check: normalization methods here expect all columns to have some values
-    # TODO: this check could be somewhere higher in the abstraction, an initialization of connectors for instance.
     if any(df.isna().sum() > 0):
         raise UnexpectedNaNValuesError(df)
 

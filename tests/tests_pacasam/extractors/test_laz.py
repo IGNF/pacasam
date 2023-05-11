@@ -120,23 +120,3 @@ def test_colorize_single_patch(cloud_path):
         for dim in ["red", "green", "blue", "nir"]:
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=WHITE_COLOR_VALUE))
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))
-
-
-# TODO: rewrite this test once the function is really stable.
-# @pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])
-# def test_define_patch_path_for_extraction(cloud_path):
-#     with tempfile.TemporaryDirectory() as dataset_root:
-#         split = "train"
-#         patch_path = format_new_patch_path(
-#             Path(dataset_root),
-#             Path(cloud_path),
-#             Namespace(
-#                 **{
-#                     SPLIT_COLNAME: split,
-#                     PATCH_ID_COLNAME: 42,
-#                 }
-#             ),
-#         )
-#         assert patch_path.stem == f"{Path(cloud_path).stem}--0042"
-#         assert patch_path.parent.stem == split
-#         assert patch_path.suffix == ".laz"  # lowercase, always laz

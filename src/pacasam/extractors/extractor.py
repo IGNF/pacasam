@@ -34,7 +34,7 @@ def load_sampling_with_checks(sampling_path: Path) -> GeoDataFrame:
     sampling: GeoDataFrame = gpd.read_file(sampling_path, converters={FILE_COLNAME: Path})
     sampling[FILE_COLNAME] = sampling[FILE_COLNAME].apply(Path)
     check_sampling_format(sampling)
-    assert all_files_can_be_accessed(sampling[FILE_COLNAME])
+    check_all_files_exist(sampling[FILE_COLNAME])
     return sampling
 
 
@@ -64,8 +64,12 @@ def check_sampling_format(sampling: GeoDataFrame) -> None:
         raise TypeError("Column 'geometry' should be a geometry column")
 
 
-def all_files_can_be_accessed(files: Iterable[Path]) -> bool:
-    return all(Path(f).exists() for f in files)
+def check_all_files_exist(files: Iterable[Path]):
+    """Raise an informative error if some file(s) cannot be reached."""
+    files_not_found = [str(f) for f in files if not Path(f).exists()]
+    if files_not_found:
+        files_not_found_str = "\n".join(files_not_found)
+        raise FileNotFoundError(f"Expected files to exists and be accessible: \n{files_not_found_str}")
 
 
 # WRITING

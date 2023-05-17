@@ -3,13 +3,9 @@ import tempfile
 import numpy as np
 import laspy
 import pytest
-from pacasam.extractors.extractor import all_files_can_be_accessed, check_sampling_format, load_sampling_with_checks
+from pacasam.extractors.extractor import check_all_files_exist, check_sampling_format, load_sampling_with_checks
 
-from pacasam.extractors.laz import (
-    GEOMETRY_COLNAME,
-    colorize_single_patch,
-    extract_single_patch_from_LasData
-)
+from pacasam.extractors.laz import GEOMETRY_COLNAME, colorize_single_patch, extract_single_patch_from_LasData
 from conftest import (
     LEFTY,
     LEFTY_DOWN_GEOMETRY,
@@ -30,11 +26,12 @@ RANDOM_INT = 55
 def test_check_files_accessibility():
     # Test when all files exist - we test this with this module's own path.
     file_paths = [LEFTY, RIGHTY]
-    assert all_files_can_be_accessed(file_paths)
+    check_all_files_exist(file_paths)
 
     # Test when some files do not exist
     file_paths = [LEFTY, Path("fake_non_existing_file.txt"), RIGHTY]
-    assert not all_files_can_be_accessed(file_paths)
+    with pytest.raises(FileNotFoundError):
+        check_all_files_exist(file_paths)
 
 
 def test_check_sampling_format(tiny_synthetic_sampling):

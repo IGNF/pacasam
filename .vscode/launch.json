@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_run_extraction_laz",
+                "test_check_files_accessibility",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

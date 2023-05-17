@@ -23,7 +23,7 @@
             "name": "Run Sampling (Outliers+Lipac)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -34,7 +34,7 @@
             "name": "Run Sampling (Outliers+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -47,7 +47,7 @@
             "name": "Run Sampling (Triple+LiPaC)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
         },
@@ -55,7 +55,7 @@
             "name": "Run Sampling (Triple+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -68,7 +68,7 @@
             "name": "Run Sampling (Diversity+Lipac)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -79,7 +79,7 @@
             "name": "Run Sampling (Diversity+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -92,7 +92,7 @@
             "name": "Run Sampling (Spatial+Lipac)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -103,10 +103,11 @@
             "name": "Run Sampling (Spatial+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
+                "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
                 "--sampler_class=SpatialSampler",
             ]
@@ -115,7 +116,7 @@
             "name": "Run Sampling (Random+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -128,7 +129,7 @@
             "name": "Run Sampling (Targetted+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/run_sampling.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [

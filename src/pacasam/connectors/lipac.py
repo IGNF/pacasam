@@ -1,7 +1,5 @@
-# copy of https://github.com/IGNF/panini/blob/main/connector.py
-
 import logging
-from typing import Generator, Iterable, Optional
+from typing import Generator, Optional
 import pandas as pd
 import geopandas as gpd
 
@@ -9,15 +7,11 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
 import yaml
-from pacasam.connectors.connector import TILE_INFO, Connector
+from pacasam.connectors.connector import GEOMETRY_COLNAME, Connector
+from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
 
-def geometrie_to_geometry_col(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    gdf = gdf.rename(columns={"geometrie": "geometry"}).set_geometry("geometry")
-    return gdf
-
-
-# TODO: abstract a GeoDataframeConnector that wokr on a geopandas, and inherit from it for SuyntheticConnector and LiPaCConnector
+# TODO: abstract a GeoDataframeConnector that works on a geopandas, and inherit from it for SyntheticConnector and LiPaCConnector
 class LiPaCConnector(Connector):
     lambert_93_crs = 2154
 
@@ -64,16 +58,12 @@ class LiPaCConnector(Connector):
         """
         self.log.info(f"Requesting the LiPaC database via the following SQL command: \n {extraction_sql_query}")
         chunks: Generator = gpd.read_postgis(
-            text(extraction_sql_query), self.engine.connect(), geom_col="geometrie", chunksize=max_chunksize_for_postgis_extraction
+            text(extraction_sql_query), self.engine.connect(), geom_col=GEOMETRY_COLNAME, chunksize=max_chunksize_for_postgis_extraction
         )
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
         gdf = gdf.set_crs(self.lambert_93_crs)
-        gdf = geometrie_to_geometry_col(gdf)
-        gdf = gdf.sort_values(by="id")
+        gdf = gdf.sort_values(by=PATCH_ID_COLNAME)
         return gdf
-
-    def request_patches_by_boolean_indicator(self, bool_descriptor_name) -> gpd.GeoDataFrame:
-        return self.db.query(bool_descriptor_name)[TILE_INFO]
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract using ids. If selection is None, select everything."""
@@ -81,7 +71,7 @@ class LiPaCConnector(Connector):
         extract = self.db.merge(
             selection,
             how="inner",
-            on="id",
+            on=PATCH_ID_COLNAME,
         )
         return extract
 

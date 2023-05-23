@@ -1,7 +1,6 @@
 import shutil
 import sys
 from pathlib import Path
-import numpy as np
 import geopandas as gpd
 import yaml
 
@@ -12,9 +11,6 @@ from pacasam.analysis.graphs import make_all_graphs_and_a_report
 from pacasam.analysis.stats import Comparer
 
 log = setup_custom_logger()
-# Make sure that random operations in numpy (and pandas!) are deterministic.
-# TODO: this seems not to be used in pandas sampling operations...
-np.random.seed(0)
 
 # PARAMETERS
 import argparse
@@ -29,7 +25,7 @@ parser.add_argument("--output_path", default=None)
 parser.add_argument("--make_html_report", default="N", choices=[True, False], type=lambda choice: choice == "Y")
 
 
-def main(args):
+def run_sampling(args):
     # config_file = Path("configs/Lipac.yml")
     task_name = f"{args.connector_class}-{args.sampler_class}"
     args.output_path = args.output_path if args.output_path is not None else f"outputs/samplings/{task_name}/"
@@ -74,4 +70,4 @@ def main(args):
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    main(args)
+    run_sampling(args)

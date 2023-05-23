@@ -1,13 +1,10 @@
-from typing import Dict, List, Optional
-import numpy as np
-from math import ceil, floor
+from typing import List
+from math import ceil
 import pandas as pd
-from pandas import DataFrame
-from sklearn.preprocessing import QuantileTransformer
-from pacasam.connectors.connector import TILE_INFO
 
-from pacasam.samplers.algos import fps
-from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
+from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_ID_COLNAME, TILE_INFO
+from pacasam.samplers.algos import fps, normalize_df, yield_chunks
+from pacasam.samplers.sampler import Sampler
 
 
 class DiversitySampler(Sampler):
@@ -61,8 +58,7 @@ class DiversitySampler(Sampler):
         db = self.connector.db
         # We sort by id with the assumption that the chunks are consecutive patches, from consecutive slabs.
         # This enables FPS to have a notion of "diversity" that is spatially specific.
-        # TODO: we could add bloc_id to make sure to work on consecutive slabs.
-        db = db.sort_values(by=["dalle_id", "id"])
+        db = db.sort_values(by=[FILE_ID_COLNAME, PATCH_ID_COLNAME])
         db = db[TILE_INFO + cols_for_fps]
         db = normalize_df(
             df=db,
@@ -86,55 +82,15 @@ class DiversitySampler(Sampler):
                 num_to_sample_in_chunk = ceil(len(chunk) * target_proportion)
                 yield from self._get_patches_via_fps(chunk, num_to_sample=num_to_sample_in_chunk, cols_for_fps=cols_for_fps)
         else:
+            # We can't sample more that there is in df, but we still use fps to order the points nicely
+            if num_to_sample > len(df):
+                num_to_sample = len(df)
             diverse_idx = fps(arr=df[cols_for_fps].values, num_to_sample=num_to_sample)
             # Reset index to be sure our np indices can index the dataframe.
             diverse = df.reset_index(drop=True).loc[diverse_idx, TILE_INFO]
             diverse["sampler"] = self.name
             diverse["split"] = "test"
             if self.cf["frac_validation_set"] is not None:
-                diverse = self._set_validation_patches_on_FPS_sampling(diverse)
-            diverse = diverse[SELECTION_SCHEMA]
+                diverse = self._set_validation_patches_with_stratification(patches=diverse, keys=FILE_ID_COLNAME)
+            diverse = diverse[self.sampling_schema]
             yield diverse
-
-    def _set_validation_patches_on_FPS_sampling(self, diverse):
-        """Set a binary flag for the validation patches, selected by FPS.
-
-        Note: cice property of FPS: using it on its own output starting from the same
-        point would yield the same order. So we take the first n points as test_set
-        so that they are well distributed.
-
-        """
-        diverse["split"] = "train"
-        num_samples_val_set = floor(self.cf["frac_validation_set"] * len(diverse))
-        # Reset index to be sure our np indices can index the dataframe.
-        diverse = diverse.reset_index(drop=True)
-        # TODO: debug and check if this reset is necessary
-        diverse.loc[-num_samples_val_set:, ("split",)] = "val"
-        return diverse
-
-
-def yield_chunks(df, max_chunk_size):
-    """Generator for splitting the dataframe."""
-    for pos in range(0, len(df), max_chunk_size):
-        yield df.iloc[pos : pos + max_chunk_size]
-
-
-def normalize_df(df: DataFrame, columns: List[str], normalization="standardization", n_quantiles: Optional[int] = None):
-    """Normalize columns defining the classes histogram, ignoring zeros values
-
-    Ref: https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.QuantileTransformer.html
-    """
-    # 1/3 Set zeros as NaN to ignore them.
-    df = df.replace(to_replace=0, value=np.nan)
-
-    # 2/3 Normalize columns to define a meaningful distance between histogram patches.
-
-    if normalization == "standardization":
-        df.loc[:, columns] = (df.loc[:, columns] - df.loc[:, columns].mean()) / df.loc[:, columns].std()
-    else:
-        qt = QuantileTransformer(n_quantiles=n_quantiles, random_state=0, subsample=100_000)
-        df.loc[:, columns] = qt.fit_transform(df[columns].values)
-
-    # 3/3 Set back zeros to the lowest present value (which comes from a value really close to zero).
-    df = df.fillna(df.min())
-    return df

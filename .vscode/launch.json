@@ -13,17 +13,17 @@
             "args": [
                 "-s",
                 "-k",
-                "test_make_html_report_option_after_random_sampler",
+                "test_check_files_accessibility",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"
             }
         },
         {
-            "name": "Run main (Outliers+Lipac)",
+            "name": "Run Sampling (Outliers+Lipac)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -31,10 +31,10 @@
             ]
         },
         {
-            "name": "Run main (Outliers+Synthetic)",
+            "name": "Run Sampling (Outliers+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -44,18 +44,18 @@
             ]
         },
         {
-            "name": "Run main (Triple+LiPaC)",
+            "name": "Run Sampling (Triple+LiPaC)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
         },
         {
-            "name": "Run main (Triple+Synthetic)",
+            "name": "Run Sampling (Triple+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -65,10 +65,10 @@
             ]
         },
         {
-            "name": "Run main (Diversity+Lipac)",
+            "name": "Run Sampling (Diversity+Lipac)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -76,10 +76,10 @@
             ]
         },
         {
-            "name": "Run main (Diversity+Synthetic)",
+            "name": "Run Sampling (Diversity+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -89,10 +89,10 @@
             ]
         },
         {
-            "name": "Run main (Spatial+Lipac)",
+            "name": "Run Sampling (Spatial+Lipac)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -100,22 +100,23 @@
             ]
         },
         {
-            "name": "Run main (Spatial+Synthetic)",
+            "name": "Run Sampling (Spatial+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
+                "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
                 "--sampler_class=SpatialSampler",
             ]
         },
         {
-            "name": "Run main (Random+Synthetic)",
+            "name": "Run Sampling (Random+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
@@ -125,10 +126,10 @@
             ]
         },
         {
-            "name": "Run main (Targetted+Synthetic)",
+            "name": "Run Sampling (Targetted+Synthetic)",
             "type": "python",
             "request": "launch",
-            "program": "/home/CGaydon/repositories/pacasam/src/pacasam/main.py",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [

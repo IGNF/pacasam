@@ -1,13 +1,9 @@
-from typing import Dict, Optional
+from typing import Optional
 import numpy as np
-from math import ceil, floor
-import pandas as pd
-from sklearn.preprocessing import QuantileTransformer
-from pacasam.connectors.connector import TILE_INFO
+from pacasam.connectors.connector import FILE_ID_COLNAME, TILE_INFO
 
-from pacasam.samplers.algos import fps, sample_with_stratification
 from pacasam.samplers.diversity import normalize_df
-from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
+from pacasam.samplers.sampler import Sampler
 
 import hdbscan
 
@@ -42,6 +38,7 @@ class OutliersSampler(Sampler):
         # Always use the default normalization method : standardization,
         # because it is the only one that gives good outliers.
         df = normalize_df(df=df, columns=self.cf["OutliersSampler"]["columns"])
+
         df["cluster_id"], df["outlier_scores"] = cluster(
             array=df[cols_for_clustering].values, hdbscan_kwargs=self.cf["OutliersSampler"]["hdbscan_kwargs"]
         )
@@ -49,19 +46,16 @@ class OutliersSampler(Sampler):
         df = df.sort_values(by="outlier_scores", ascending=False).head(num_to_sample)
 
         patches = df[TILE_INFO + ["cluster_id", "outlier_scores"]]
-        self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id", "dalle_id"])
+        self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id", FILE_ID_COLNAME])
         patches["sampler"] = self.name
         self.log.info(f"{self.name}: N={num_to_sample} patches.")
 
-        # cluster_id et "outlier_scores" can be returned for visual exploration.
-        # return patches[SELECTION_SCHEMA + ["cluster_id", "outlier_scores"]]
-        return patches[SELECTION_SCHEMA]
+        # UNCOMMENT FOR DEBUG: cluster_id et "outlier_scores" can be returned for visual exploration.
+        # return patches[self.sampling_schema + ["cluster_id", "outlier_scores"]]
+        return patches[self.sampling_schema]
 
 
 def cluster(array: np.ndarray, hdbscan_kwargs: dict):
-    # TODO: have own config for lcustering that is not OutliersSampler.
-    clusterer = hdbscan.HDBSCAN(
-        **hdbscan_kwargs
-    )
+    clusterer = hdbscan.HDBSCAN(**hdbscan_kwargs)
     clusterer = clusterer.fit(array)
     return clusterer.labels_, clusterer.outlier_scores_

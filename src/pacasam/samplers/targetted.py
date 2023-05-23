@@ -1,8 +1,9 @@
 import geopandas as gpd
 import pandas as pd
 from typing import Dict
+from pacasam.connectors.connector import FILE_ID_COLNAME
 from pacasam.samplers.algos import sample_with_stratification
-from pacasam.samplers.sampler import SELECTION_SCHEMA, Sampler
+from pacasam.samplers.sampler import Sampler
 
 
 class TargettedSampler(Sampler):
@@ -16,9 +17,7 @@ class TargettedSampler(Sampler):
             patches = self._get_matching_patches(descriptor_name, descriptor_objectives)
             selection += [patches]
         selection = pd.concat(selection)
-        self.log.info(
-            f"{self.name}: N={len(selection)} patches."
-        )
+        self.log.info(f"{self.name}: N={len(selection)} patches.")
         if len(selection) > self.cf["target_total_num_patches"]:
             self.log.warning(
                 f"Selected more than the desired total of N={self.cf['target_total_num_patches']}."
@@ -33,7 +32,7 @@ class TargettedSampler(Sampler):
         num_samples_target = int(descriptor_objectives["target_min_samples_proportion"] * self.cf["target_total_num_patches"])
         num_samples_to_sample = min(num_samples_target, len(patches))  # cannot take more that there is.
 
-        patches = sample_with_stratification(patches, num_samples_to_sample, keys=["dalle_id"])
+        patches = sample_with_stratification(patches, num_samples_to_sample, keys=[FILE_ID_COLNAME])
 
         self.log.info(
             f"TargettedSampler: {descriptor_name} "
@@ -46,9 +45,9 @@ class TargettedSampler(Sampler):
                 f"| Found: {(num_samples_to_sample/self.cf['target_total_num_patches']):.03f} (n={num_samples_to_sample})."
             )
 
-        self._set_validation_patches_with_stratification(patches=patches, keys=["dalle_id"])
+        self._set_validation_patches_with_stratification(patches=patches, keys=[FILE_ID_COLNAME])
         patches["sampler"] = self.name
-        return patches[SELECTION_SCHEMA]
+        return patches[self.sampling_schema]
 
     def sorted_targets(self, criteria: Dict):
         """Sort criteria target_min_samples_proportion.

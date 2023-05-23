@@ -64,7 +64,7 @@ make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml REPORTS=N
 ### Lancer un échantillonnage "triple" sur des données synthétiques :
 ```python
 conda activate pacasam
-python ./src/pacasam/main.py --config_file=configs/Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
+python ./src/pacasam/run_sampling.py --config_file=configs/Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
 ```
 
 ### Lancer un échantillonnage sur des données réelles - base PostGIS LiPaC:
@@ -76,14 +76,14 @@ python ./src/pacasam/main.py --config_file=configs/Synthetic.yml --connector_cla
 3. (Optionnel) Afficher les options de sampling. 
 
 ```bash
-python ./src/pacasam/main.py --help
+python ./src/pacasam/run_sampling.py --help
 ```
 Par défaut la base LiPaC est interrogée.
 
 4. Lancer le sampling.
 ```bash
 conda activate pacasam
-python ./src/pacasam/main.py --config_file=lipac/Synthetic.yml
+python ./src/pacasam/run_sampling.py --config_file=lipac/Synthetic.yml
 ```
 
 5. Visualisation de l'échantillonnage
@@ -106,10 +106,9 @@ Pour un apprentissage automatique, créer deux configuration, p.ex. `Lipac_train
 
 Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires p.ex. par 20k vignettes successives. 
 
-### Questions ouvertes et pistes
-- FPS:
-    - Meilleure façon de faire le split train/val sur sélection FPS. Actuel : les num_val premier points. Possible : un autre sampling séparé sur le reste des points shufflés pour avoir autre sélection.
-    - Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par dalle_id et id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.
+### Pistes pour les samplers
+
+- Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par file_id et patch_id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.
 - Remplacement purement et simplement DiversitySampler via FPS, par OutliersSampler. Cf. pull request de [OutlierSampler](https://github.com/IGNF/pacasam/pull/1). Simple, élégant, et à combiner avec le reste donnera des résultats intéressants. Essayer ça sur une branche et comparer les performances.
 
 </details>
@@ -120,10 +119,10 @@ Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur mac
 - Pytest 
     - [X] main pour les méthodes sur jeu de données synthétique.
     - [ ] Test impliquant LiPaC connector
-    - [ ] Tests impliquant les graphes et la création d'un rapport
-- [ ] Module extractor
-    - [ ] API unique : objet extractor abstrait dès le début, pour l'instant dans le même module, pour définir l'interface. En entrée un objet gpd compatible, avec à minima : geometry, split, LAZ file. On préciser : la classe de l'objet : LAZExtractor.
-    - [ ] Est-ce que main se fait remplacer par un autre objet ? Ou bien deux scripts séparés, appelés dans un troisième ? Quelles sont les bonnes pratiques là dessus (un seul point d'entrée ?). L'extraction est une opération longue donc on peut préférer un entrypoint différent, on ne souhaite pas enchaîner les deux...
+    - [X] Tests impliquant les graphes et la création d'un rapport
+- [X] Module extractor
+    - [X] API unique : objet extractor abstrait dès le début, pour l'instant dans le même module, pour définir l'interface. En entrée un objet gpd compatible, avec à minima : geometry, split, LAZ file, (id). On préciser : la classe de l'objet : LAZExtractor.
+    - [X] Est-ce que main se fait remplacer par un autre objet ? Ou bien deux scripts séparés, appelés dans un troisième ? Quelles sont les bonnes pratiques là dessus (un seul point d'entrée ?). L'extraction est une opération longue donc on peut préférer un entrypoint différent, on ne souhaite pas enchaîner les deux...
         -  Need : 2 carrés de 100m*100m, qu'on décrira avec un nouveau connector ? Occasion de créer le connector qui effectue une description ? "geopandas" ? NON, trop lourd pour l'instant. Privilégier.
         - Fonctionnalités:
             - Lire GDF d'échantillonnage
@@ -134,7 +133,10 @@ Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur mac
             - opération 2 LAZ + 2 subsets du gpd correspondant -> extraction val et test.
             - Colorisation (dans un second temps, difficile à tester également à part présence des canaux)
 
-
+Design question :
+- For now, patches should always be rectangular bounding boxes. This simplify extraction. And there is no know use case for arbitrary shaped patches - and we do not use circular ones for now.
+    - [X] Make sure that this is explicit during the extraction - that we extract along x and y axes only. Instantiate elements with (?) shapely.bbox instead of Polygon.
+- Make explicit the ins and outs of samplers, extractors, connectors. Do that in their abstract classes - using pandas_dataclasses seems overkill.
 
 - Tasks:
     - [X] Redéfinir frac_validation_set et associés vers notion de jeu de validation.

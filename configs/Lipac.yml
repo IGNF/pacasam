@@ -11,9 +11,16 @@ connector_kwargs:
   db_lipac_name: "lidar_patch_catalogue"
   # extraction_sql_query -> croisement unique des tables de Lipac. Accès aux informations nécessaires.
   # Création a la volée des indicateurs booléens nécessaires à TargettedSampler.
+  # Quatre variables sont requises pour procéder à l'échantillonnage, qui sont des variables
+  # du module pacasam.connector.connector.
+  # TODO: Update the query with the new database schema.
   extraction_sql_query: >
     SELECT 
-      id, geometrie, dalle_id, nb_points_total,
+      id AS patch_id, 
+      dalle_id AS file_id, 
+      dalle_id as file_path,
+      geometrie as geometry,
+      nb_points_total,
       nb_points_sol, nb_points_bati,
       nb_points_vegetation_basse,
       nb_points_vegetation_moyenne,
@@ -41,18 +48,18 @@ connector_kwargs:
       vignette
     WHERE
       nb_points_total > 50
+    LIMIT 500
 
   max_chunksize_for_postgis_extraction: 100000
 
 DiversitySampler:
   # Gestion par parties (chunk) des vignettes via FPS.
-  # Les vignettes sont ordonnées par leur identifiant "id", et l'id est supposé avoir été choisi incrémentalement
+  # Les vignettes sont ordonnées par leur identifiant unique "patch_id", et l'id est supposé avoir été choisi incrémentalement
   # à mesure que la base LiPaC est peuplée. D'où un notion de diversité qui va être également spatialisée.
-  # TODO: On pourrait rendre cela plus robuste. Comment ?
   max_chunk_size_for_fps: 20000
-  # standardization or quantilization
-  normalization: quantilization
+  # "standardization" or "quantilization"
   # n_quantiles is only used if normalization=quantilization
+  normalization: standardization
   n_quantiles: 5
   columns:
     - nb_points_non_classes

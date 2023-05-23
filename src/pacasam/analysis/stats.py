@@ -1,6 +1,7 @@
 from pathlib import Path
 import pandas as pd
 from pandas import DataFrame
+
 SURFACE_OF_A_KM2 = 1000 * 1000
 
 
@@ -84,7 +85,5 @@ class Comparer:
             comparison_df_sampler.insert(0, key, key_value)
             dfs += [comparison_df_sampler]
         comparison_df_by_sampler = pd.concat(dfs, ignore_index=False)
-        comparison_df_by_sampler = comparison_df_by_sampler.set_index(
-            [comparison_df_by_sampler.index.rename("descriptor"), key]
-        ).sort_index()
+        comparison_df_by_sampler = comparison_df_by_sampler.set_index([comparison_df_by_sampler.index.rename("descriptor"), key]).sort_index()
         return comparison_df_by_sampler

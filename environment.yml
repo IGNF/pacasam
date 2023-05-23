@@ -14,12 +14,12 @@ dependencies:
   - psycopg2
   - shapely
   - geoalchemy2
-  - s3fs
+  # - s3fs  # Delete if not useful
   - geopandas
+  # - jupyter-dash # Delete if not useful
   - plotly
-  - jupyter-dash 
   - ipywidgets>=7.6
-  - python-kaleido
+  - python-kaleido  # to export plotly figures
   # --------- linters --------- #
   - pre-commit # hooks for applying linters on commit
   - black # code formatting
@@ -28,6 +28,16 @@ dependencies:
   # --------- tests ----------- #
   - pytest
   - pytest-cov
+  - pytest-timeout  
+  - pytest-xdist  # tests parallelization using `pytest -n NUM_CPUs`
+  # Dependencies to ign-pdal-tools that currently need manual install
+  - conda-forge:pdal==2.5.*
+  - conda-forge:python-pdal==3.2.*
+  - requests
+  - gdal
   - pip:
     - black[jupyter]
     - hdbscan
+    # --------- laspy with LAZ backend support --------- #
+    - laspy[lazrs,laszip]==2.1.*
+    - ign-pdal-tools  # for colorization

@@ -102,9 +102,11 @@ Pour un apprentissage automatique, créer deux configuration, p.ex. `Lipac_train
     - `target_total_num_patches`: taille du jeu de données souhaité, en vignettes.
     - `frac_validation_set`: Proportion souhaitée de vignettes de validation dans le jeu `trainval`. Les vignettes de validation sont choisies de façon optimale pour chaque méthode d'échantillonnage (répartition spatiale et diversité). Pour le jeu de test, cette valeur n'a pas d'importance et peut être mise à `null` pour que la colonne `split` dans l'échantillonnage final prenne la valeur `test`.
 
-### Mémoire et performances
+### Performances & Limites
 
-Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires p.ex. par 20k vignettes successives. 
+Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires p.ex. par 20k vignettes successives.
+
+Pacasam ne permet actuellement d'extraire que des vignettes carrées, et alignées avec les axes X et Y du système de coordonnées de référence (SCR).
 
 ### Pistes pour les samplers
 

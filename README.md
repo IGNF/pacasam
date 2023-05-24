@@ -80,13 +80,17 @@ python ./src/pacasam/run_sampling.py --help
 ```
 Par défaut la base LiPaC est interrogée.
 
-4. Lancer le sampling.
+4. Lancer le sampling par défaut
 ```bash
 conda activate pacasam
-python ./src/pacasam/run_sampling.py --config_file=lipac/Synthetic.yml
+python ./src/pacasam/run_sampling.py
 ```
 
+L'échantillonnage prend la forme d'un Geopackage, par défaut sous `"outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-extract.gpkg"`
+
 5. Visualisation de l'échantillonnage
+
+L'échantillonnage est visualisable dans un SIG, p.ex. QGIS.
 
 Pour produire un rapport html interactif de statistiques descriptives, ainsi que les graphiques au format SVG correspondant, deux options:
 - Préciser `make_html_report=Y` au moment de l'échantillonnage.
@@ -95,6 +99,19 @@ Pour produire un rapport html interactif de statistiques descriptives, ainsi que
     ```bash
     python ./src/pacasam/analysis/graphs.py --help
     ```
+
+6. Lancer l'extraction du jeu de données : extraction des patches et colorisation IRC
+
+Exemple à partir du sampling "Triple" à l'emplacement par défaut:
+
+```bash
+conda activate pacasam
+python ./src/pacasam/run_extraction.py \
+    --sampling_path="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-extract.gpkg" \
+    --dataset_root_path="outputs/extractions/LiPaCConnector-TripleSampler"
+```
+
+
 ### Guidelines
 
 Pour un apprentissage automatique, créer deux configuration, p.ex. `Lipac_trainval.yml` et `Lipac_test.yml`, qui vont différer par:

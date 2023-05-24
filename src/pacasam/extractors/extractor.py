@@ -119,7 +119,6 @@ def raise_explicit_FileNotFoundError(files_not_found):
 
 
 def check_all_files_exist_in_samba_filesystem(paths: Iterable[Path]):
-    # TODO: check existence of all these files using smbclient.
     # files_not_found = [str(p) for p in paths if not smbclient.path.exists(p)]
     files_not_found = []
     for p in tqdm(paths, unit="Samba file", desc="Checking Samba file existence."):

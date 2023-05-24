@@ -126,6 +126,17 @@
             ]
         },
         {
+            "name": "Run Sampling (Targetted+Lipac)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampler_class=TargettedSampler",
+            ]
+        },
+        {
             "name": "Run Sampling (Targetted+Synthetic)",
             "type": "python",
             "request": "launch",

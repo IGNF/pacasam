@@ -29,27 +29,27 @@ DiversitySampler:
   normalization: standardization
   n_quantiles: 5
   columns:
-    - nb_points_non_classes
-    - nb_points_sol
-    - nb_points_vegetation_basse
-    - nb_points_vegetation_moyenne
-    - nb_points_vegetation_haute
-    - nb_points_bati
-    - nb_points_pont
-    - nb_points_eau
-    - nb_points_sursol_perenne
+    - nb_non_classes
+    - nb_sol
+    - nb_vegetation_basse
+    - nb_vegetation_moyenne
+    - nb_vegetation_haute
+    - nb_bati
+    - nb_pont
+    - nb_eau
+    - nb_sursol_perenne
 
 OutliersSampler:
   columns:
-    - nb_points_non_classes
-    - nb_points_sol
-    - nb_points_vegetation_basse
-    - nb_points_vegetation_moyenne
-    - nb_points_vegetation_haute
-    - nb_points_bati
-    - nb_points_pont
-    - nb_points_eau
-    - nb_points_sursol_perenne
+    - nb_non_classes
+    - nb_sol
+    - nb_vegetation_basse
+    - nb_vegetation_moyenne
+    - nb_vegetation_haute
+    - nb_bati
+    - nb_pont
+    - nb_eau
+    - nb_sursol_perenne
   hdbscan_kwargs:
     min_cluster_size: 50
     min_samples: 50
@@ -58,15 +58,20 @@ OutliersSampler:
 TargettedSampler:
   # nom_du_critère_pour_les_logs:
   #   target_min_samples_proportion: float. Proportion minimale cible dans le jeu de données final.
+  # Nota: minuscules attendues pour les noms de colonnes.
   targets:
-    presence_de_pylones:
-      target_min_samples_proportion: 0.02
 
-    presence_de_surfaces_d_eau:
-      target_min_samples_proportion: 0.02
+    # Cibles obtenues par croisement avec des BD externes (BD Uni)
+    # NB: commentées actuellement car la base Lipac utilisée est vide. 
 
-    presence_d_autoroutes:
-      target_min_samples_proportion: 0.02
+    # presence_de_pylones:
+    #   target_min_samples_proportion: 0.02
+
+    # presence_de_surfaces_d_eau:
+    #   target_min_samples_proportion: 0.02
+
+    # presence_d_autoroutes:
+    #   target_min_samples_proportion: 0.02
 
     # Custom - Based on points
 
@@ -82,7 +87,7 @@ TargettedSampler:
     nb_points_bati_heq_500:
       target_min_samples_proportion: 0.15
 
-    nb_points_bati_heq_half_of_all_points:
+    nb_points_bati_heq_quarter_of_all_points:
       target_min_samples_proportion: 0.05
 
     # Custom - others

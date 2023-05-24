@@ -22,15 +22,29 @@ class LiPaCConnector(Connector):
         password: str,
         db_lipac_host: str,
         db_lipac_name: str,
-        extraction_sql_query: str,
+        extraction_sql_query_path: str,
         max_chunksize_for_postgis_extraction: int = 100000,
     ):
+        """Connector to interface with the Lidar-Patch-Catalogue database and perform queries.
+
+        Args:
+            log (logging.Logger): _description_
+            username (str): username to connect to the database (must have read credentials)
+            password (str): password to connect to the database
+            db_lipac_host (str): name of the database host machine
+            db_lipac_name (str): name of the database
+            extraction_sql_query_path (str): path to a .SQL file
+            max_chunksize_for_postgis_extraction (int, optional): For chunk-reading the (large) database. Defaults to 100000.
+
+        """
         super().__init__()
         self.log = log
         self.username = username
         self.host = db_lipac_host
         self.db_name = db_lipac_name
         self.create_session(password)
+        with open(extraction_sql_query_path, "r") as file:
+            extraction_sql_query = file.read()
         self.db = self.extract_all_samples_as_a_df(extraction_sql_query, max_chunksize_for_postgis_extraction)
         self.db_size = len(self.db)
 
@@ -67,7 +81,6 @@ class LiPaCConnector(Connector):
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract using ids. If selection is None, select everything."""
-
         extract = self.db.merge(
             selection,
             how="inner",

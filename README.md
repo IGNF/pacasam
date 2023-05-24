@@ -98,7 +98,7 @@ Pour produire un rapport html interactif de statistiques descriptives, ainsi que
 ### Guidelines
 
 Pour un apprentissage automatique, créer deux configuration, p.ex. `Lipac_trainval.yml` et `Lipac_test.yml`, qui vont différer par:
-    - `connector_kwargs.extraction_sql_query` : requête SQL de sélection des vignettes. On souhaite que les jeux de `trainval` et de `test` soient échantillonnées sur des zones bien distinctes (voir [karasiak 2022](https://link.springer.com/article/10.1007/s10994-021-05972-1) sur cette nécessité). La sélection des zones concernées se fait via la requête SQL directement.
+    - `connector_kwargs.extraction_sql_query_path` : chemin vers fichier de requête SQL de sélection des vignettes. On souhaite que les jeux de `trainval` et de `test` soient échantillonnées sur des zones bien distinctes (voir [karasiak 2022](https://link.springer.com/article/10.1007/s10994-021-05972-1) sur cette nécessité). La sélection des zones concernées se fait dans la requête SQL directement via la variable `test` (TODO).
     - `target_total_num_patches`: taille du jeu de données souhaité, en vignettes.
     - `frac_validation_set`: Proportion souhaitée de vignettes de validation dans le jeu `trainval`. Les vignettes de validation sont choisies de façon optimale pour chaque méthode d'échantillonnage (répartition spatiale et diversité). Pour le jeu de test, cette valeur n'a pas d'importance et peut être mise à `null` pour que la colonne `split` dans l'échantillonnage final prenne la valeur `test`.
 

@@ -8,47 +8,14 @@ frac_validation_set:  0.1 # float or "null" for test set.
 connector_kwargs:
   credentials_file_path: "credentials.yml"
   db_lipac_host: "lidar-ia-vm3"
-  db_lipac_name: "lidar_patch_catalogue"
-  # extraction_sql_query -> croisement unique des tables de Lipac. Accès aux informations nécessaires.
+  db_lipac_name: "lidar_patch_catalogue_dev"
+  # extraction_sql_query_path -> croisement unique des tables de Lipac. Accès aux informations nécessaires.
   # Création a la volée des indicateurs booléens nécessaires à TargettedSampler.
   # Quatre variables sont requises pour procéder à l'échantillonnage, qui sont des variables
   # du module pacasam.connector.connector.
-  # TODO: Update the query with the new database schema.
-  extraction_sql_query: >
-    SELECT 
-      id AS patch_id, 
-      dalle_id AS file_id, 
-      dalle_id as file_path,
-      geometrie as geometry,
-      nb_points_total,
-      nb_points_sol, nb_points_bati,
-      nb_points_vegetation_basse,
-      nb_points_vegetation_moyenne,
-      nb_points_vegetation_haute, 
-      nb_points_pont, 
-      nb_points_eau,
-      nb_points_sursol_perenne, 
-      nb_points_non_classes,
-      nb_points_artefacts,
-      denivele, 
-      altitude,
-      (nb_points_bati >= 500) AS nb_points_bati_heq_500,
-      ((nb_points_bati / nb_points_total) >= 0.5) AS nb_points_bati_heq_half_of_all_points,
-      nb_points_eau >= 50 AS nb_points_eau_heq_50,
-      nb_points_pont >= 50 AS nb_points_pont_heq_50,
-      nb_points_sursol_perenne >= 50 AS nb_points_sursol_perenne_heq_500,
-      (30 <= denivele) AND (denivele < 45) AS fort_devers_denivele_entre_30_45,
-      45 <= denivele AS fort_devers_denivele_heq_45,
-      (1000 <= altitude) AND (altitude < 2000) AS points_haute_altitude_entre_1000m_2000m,
-      2000 <= altitude AS points_haute_altitude_heq_2000m,
-      presence_de_surfaces_d_eau, 
-      presence_de_pylones,
-      presence_d_autoroutes
-    FROM 
-      vignette
-    WHERE
-      nb_points_total > 50
-    LIMIT 500
+
+  # Nota: chemin vers requête SQL.
+  extraction_sql_query_path: "configs/Lipac_query.sql"
 
   max_chunksize_for_postgis_extraction: 100000
 

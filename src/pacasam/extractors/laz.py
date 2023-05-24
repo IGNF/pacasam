@@ -47,6 +47,7 @@ import laspy
 from laspy import LasData, LasHeader
 from pdaltools.color import decomp_and_color
 from geopandas import GeoDataFrame
+import smbclient
 from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.extractors.extractor import Extractor, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
@@ -70,7 +71,12 @@ class LAZExtractor(Extractor):
 
     def _extract_from_single_file(self, single_file_path: Path, single_file_sampling: GeoDataFrame):
         """Extract all patches from a single file based on its sampling."""
-        cloud = laspy.read(single_file_path)
+        # TODO: here use smbclient instead when needed
+        if self.use_samba:
+            with smbclient.open_file(single_file_path, mode="rb") as open_single_file:
+                cloud = laspy.read(open_single_file)
+        else:
+            cloud = laspy.read(single_file_path)
         header = cloud.header
         for patch_info in single_file_sampling.itertuples():
             patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds

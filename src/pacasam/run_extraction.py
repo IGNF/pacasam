@@ -1,18 +1,19 @@
 import sys
 from pathlib import Path
+import argparse
 
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
+
 from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.samplers.sampler import SPLIT_COLNAME
-from pacasam.extractors.extractor import Extractor
+from pacasam.extractors.extractor import Extractor, set_smb_client_singleton
 from pacasam.extractors.laz import LAZExtractor
 from pacasam.utils import set_log_text_handler, setup_custom_logger
 
 log = setup_custom_logger()
 
 # PARAMETERS
-import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -21,12 +22,18 @@ parser.add_argument(
     default=None,
     type=lambda p: Path(p).absolute(),
     help=(
-        "Path to a valid patches sampling i.e. geopackage with columns:"
+        "Path to a valid sampling i.e. a geopackage with columns: "
         f"{FILE_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
     ),
 )
 parser.add_argument(
     "-d", "--dataset_root_path", default=None, type=lambda p: Path(p).absolute(), help="Path to extract data to. Created if needed."
+)
+parser.add_argument(
+    "--samba_credentials_path",
+    default="credentials.yml",
+    type=lambda p: Path(p).absolute() if p else None,
+    help="Path to credentials to connect to a Samba store. Set to empty string to use default file system instead.",
 )
 
 
@@ -38,7 +45,14 @@ def run_extraction(args):
     log.info(f"SAMPLING GEOPACKAGE: {args.sampling_path}")
     log.info(f"OUTPUT DATASET DIR: {args.dataset_root_path}")
 
-    extractor: Extractor = LAZExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
+    use_samba = False
+    if args.samba_credentials_path:
+        use_samba = True
+        set_smb_client_singleton(args.samba_credentials_path)
+
+    extractor: Extractor = LAZExtractor(
+        log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=use_samba
+    )
     extractor.extract()
     log.info(f"Extracted data in {args.dataset_root_path}")
 

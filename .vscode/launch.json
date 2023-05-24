@@ -20,6 +20,18 @@
             }
         },
         {
+            "name": "Run Extraction (Lipac+Triple sampling)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_extraction.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampling_path=outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-extract.gpkg",
+                "--dataset_root_path=outputs/extractions/LiPaCConnector-TripleSampler"
+            ]
+        },
+        {
             "name": "Run Sampling (Outliers+Lipac)",
             "type": "python",
             "request": "launch",

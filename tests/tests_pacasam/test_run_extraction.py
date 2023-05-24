@@ -6,6 +6,8 @@ import glob
 
 
 @pytest.mark.timeout(60)
+@pytest.mark.slow  # This tests requests the geoportail
+@pytest.mark.geoportail  # This tests requests the geoportail
 def test_run_extraction_laz(toy_sampling_file):
     """Run them
 

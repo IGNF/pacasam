@@ -71,6 +71,7 @@ def test_load_sampling_with_checks(toy_sampling_file):
         (RIGHTY, RIGHTY_DOWN_GEOMETRY.bounds),
     ],
 )
+@pytest.mark.slow  # This tests is somewhat slow
 def test_extract_single_patch_from_LasData(cloud_path_and_bounds):
     cloud_path, patch_bounds = cloud_path_and_bounds
     """Test the extraction of a single patch to the tmp file, based on bounds."""
@@ -96,6 +97,7 @@ def test_lefty_and_righty_color_are_white_and_equal(cloud_path):
     assert np.array_equal(lefty.red, lefty.blue)
 
 
+@pytest.mark.geoportail  # This tests requests the geoportail
 @pytest.mark.timeout(60)
 @pytest.mark.parametrize("cloud_path", [Path(LEFTY), RIGHTY])
 def test_colorize_single_patch(cloud_path):

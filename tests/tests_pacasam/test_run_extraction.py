@@ -6,7 +6,7 @@ import glob
 
 
 @pytest.mark.timeout(60)
-@pytest.mark.slow  # This tests requests the geoportail
+@pytest.mark.slow
 @pytest.mark.geoportail  # This tests requests the geoportail
 def test_run_extraction_laz(toy_sampling_file):
     """Run them
@@ -15,7 +15,9 @@ def test_run_extraction_laz(toy_sampling_file):
 
     """
     with tempfile.TemporaryDirectory() as tmp_output_path:
-        args = parser.parse_args(args=["--sampling_path", toy_sampling_file.name, "--dataset_root_path", tmp_output_path])
+        args = parser.parse_args(
+            args=["--sampling_path", toy_sampling_file.name, "--dataset_root_path", tmp_output_path, "--samba_credentials_path", None]
+        )
         run_extraction(args)
         created_files = glob.glob(str(args.dataset_root_path / "**/*"))
         # Only test num of files to avoid changing this test everytime we change the

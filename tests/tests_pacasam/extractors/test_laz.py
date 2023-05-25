@@ -29,7 +29,7 @@ def test_check_files_accessibility():
     check_all_files_exist_in_default_filesystem(file_paths)
 
     # Test when some files do not exist
-    file_paths = [LEFTY, Path("fake_non_existing_file.txt"), Path(RIGHTY)]
+    file_paths = [Path(LEFTY), Path("fake_non_existing_file.txt"), Path(RIGHTY)]
     with pytest.raises(FileNotFoundError):
         check_all_files_exist_in_default_filesystem(file_paths)
 

@@ -28,7 +28,7 @@
             "justMyCode": false,
             "args": [
                 "--sampling_path=outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-extract.gpkg",
-                "--dataset_root_path=outputs/extractions/LiPaCConnector-TripleSampler"
+                "--dataset_root_path=/var/data/CGaydon/pacasam_extractions/LiPaCConnector-TripleSampler"
             ]
         },
         {

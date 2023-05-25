@@ -88,6 +88,8 @@ python ./src/pacasam/run_sampling.py
 
 L'échantillonnage prend la forme d'un Geopackage, par défaut sous `"outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-extract.gpkg"`
 
+# TODO: ajout d'une option pour filtrer sur une colonne "test" durant le sampling. Cela peut aussi se faire sous la forme d'une opération sql arbitraire donnée à gdf.query(), comme ça pas d'obligation et par défaut toutes les lignes sont prises. Permet aussi de faire des sous-sélection facilement à partir de la même requête, sans toucher la requête SQL. Pas mal.
+
 5. Visualisation de l'échantillonnage
 
 L'échantillonnage est visualisable dans un SIG, p.ex. QGIS.

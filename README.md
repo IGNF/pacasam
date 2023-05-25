@@ -102,6 +102,8 @@ Pour produire un rapport html interactif de statistiques descriptives, ainsi que
 
 6. Lancer l'extraction du jeu de données : extraction des patches et colorisation IRC
 
+Si les chemins vers les fichiers correspondent à data store Samba, il faut préciser les informatiosn de connexion via le fichier `credentials.yml` : préciser `SMB_USERNAME` (au format username@domain) et `SMB_PASSWORD`. 
+
 Exemple à partir du sampling "Triple" à l'emplacement par défaut:
 
 ```bash
@@ -110,6 +112,9 @@ python ./src/pacasam/run_extraction.py \
     --sampling_path="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-extract.gpkg" \
     --dataset_root_path="outputs/extractions/LiPaCConnector-TripleSampler"
 ```
+
+Si les fichiers sont en local, il faut désactiver l'usage de samba en passant `--samba_credentials_path=""`.
+TODO: inverser ce fonctionnement : fichiers locaux devrait être utilisés par défaut.
 
 
 ### Guidelines

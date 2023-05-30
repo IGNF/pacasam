@@ -22,8 +22,7 @@ parser.add_argument(
     default=None,
     type=lambda p: Path(p).absolute(),
     help=(
-        "Path to a valid sampling i.e. a geopackage with columns: "
-        f"{FILE_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
+        "Path to a valid sampling i.e. a geopackage with columns: " f"{FILE_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
     ),
 )
 parser.add_argument(

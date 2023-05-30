@@ -5,8 +5,6 @@ from pacasam.run_sampling import run_sampling
 from pacasam.run_sampling import parser
 from pacasam.utils import SAMPLERS_LIBRARY
 
-# ref : https://stackoverflow.com/questions/73178047/how-to-pytest-monkeypatch-multiple-argv-arguments
-
 
 @pytest.mark.parametrize("sampler_class", SAMPLERS_LIBRARY.keys())
 @pytest.mark.parametrize("make_html_report", ["N"])

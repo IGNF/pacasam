@@ -39,6 +39,7 @@ class LiPaCConnector(Connector):
             db_lipac_host (str): name of the database host machine
             db_lipac_name (str): name of the database
             extraction_sql_query_path (str): path to a .SQL file
+            split (str): desired split, among `train`,`test`, or `any`. Will filter based on the `test` variable in Lipac.
             max_chunksize_for_postgis_extraction (int, optional): For chunk-reading the (large) database. Defaults to 100000.
 
         """
@@ -51,7 +52,7 @@ class LiPaCConnector(Connector):
         with open(extraction_sql_query_path, "r") as file:
             extraction_sql_query = file.read()
         self.db = self.extract_all_samples_as_a_df(extraction_sql_query, max_chunksize_for_postgis_extraction)
-        self.db = filter_lipac_patches_on_split(self.db, split)
+        self.db = filter_lipac_patches_on_split(db=self.db, split_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
         self.db_size = len(self.db)
 
     def create_session(self, password):
@@ -95,19 +96,42 @@ class LiPaCConnector(Connector):
         return extract
 
 
-# TODO: make a unit test for this function.
-def filter_lipac_patches_on_split(db: GeoDataFrame, split: SPLIT_TYPE):
-    """Filter patches based on desired split.
+def filter_lipac_patches_on_split(db: GeoDataFrame, split_colname: str, desired_split: SPLIT_TYPE):
+    """Filter patches based on the desired split.
 
-    Following Lipac design this assumes that NaN value in the split col are for non-test (and therefore train) samples.
+    Parameters
+    ----------
+    db : GeoDataFrame
+        The input GeoDataFrame containing the patches to filter.
+    split_colname : str
+        The name of the column containing the split information.
+    desired_split : SPLIT_TYPE
+        The desired split type to filter patches. Valid options are 'train', 'test', or 'any'.
+
+    Returns
+    -------
+    GeoDataFrame
+        The filtered GeoDataFrame containing the patches matching the desired split.
+
+    Raises
+    ------
+    ValueError
+        If an invalid desired split is provided.
+
+    Notes
+    -----
+    Following the Lipac design, this function assumes that NaN values in the split column correspond
+    to non-test (and therefore train) samples.
 
     """
-    if split == "any":
+    if desired_split == "any":
         return db
-    if split == "test":
-        return db[db[TEST_COLNAME_IN_LIPAC] == "test"]
-    if split == "train":
-        return db[db[TEST_COLNAME_IN_LIPAC].isna() | (db[TEST_COLNAME_IN_LIPAC] == "train")]
+    if desired_split == "test":
+        return db[db[split_colname] == "test"]
+    if desired_split == "train":
+        return db[db[split_colname].isna() | (db[split_colname] == "train")]
+    else:
+        raise ValueError(f"Invalid desired split: `{desired_split}`. Choose among `train`, `test`, or `any`.")
 
 
 def load_LiPaCConnector(**lipac_kwargs) -> LiPaCConnector:

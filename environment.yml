@@ -14,15 +14,17 @@ dependencies:
   - psycopg2
   - shapely
   - geoalchemy2
-  # - s3fs  # Delete if not useful
   - geopandas
-  # - jupyter-dash # Delete if not useful
   - plotly
   - ipywidgets>=7.6
   - python-kaleido  # to export plotly figures
+  # - black[jupyter] # formatting
+  # - black # code formatting
+  - black-jupyter  # code formatting
+  - tqdm # pretty progress bars
+  - smbprotocol=1.10.*  # to read file in a Samba store - see. https://pypi.org/project/smbprotocol/
   # --------- linters --------- #
   - pre-commit # hooks for applying linters on commit
-  - black # code formatting
   - isort # import sorting
   - flake8 # code analysis
   # --------- tests ----------- #
@@ -30,14 +32,14 @@ dependencies:
   - pytest-cov
   - pytest-timeout  
   - pytest-xdist  # tests parallelization using `pytest -n NUM_CPUs`
-  # Dependencies to ign-pdal-tools that currently need manual install
+  # --------- dependencies for ign-pdal-tools - they currently need explicit installation  ----------- #
   - conda-forge:pdal==2.5.*
   - conda-forge:python-pdal==3.2.*
   - requests
   - gdal
   - pip:
-    - black[jupyter]
-    - hdbscan
-    # --------- laspy with LAZ backend support --------- #
-    - laspy[lazrs,laszip]==2.1.*
-    - ign-pdal-tools  # for colorization
+    # -   
+    - hdbscan  # For OutliersSampler
+    - laspy[lazrs,laszip]==2.1.*  # laspy with LAZ backend support
+    - ign-pdal-tools  # for colorization of LAZ files
+    # - tqdm  

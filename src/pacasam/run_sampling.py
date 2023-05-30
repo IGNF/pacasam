@@ -53,7 +53,8 @@ def run_sampling(args):
     # Perform sampling
     selection: gpd.GeoDataFrame = sampler.get_patches()
     gdf = connector.extract(selection)
-    gpkg_path = args.output_path / f"{task_name}-extract.gpkg"
+    split_name = conf["connector_kwargs"]["split"]
+    gpkg_path = args.output_path / f"{task_name}-{split_name}.gpkg"
     log.info(f"Saving N={len(gdf)} patches into {gpkg_path}")
     gdf.to_file(gpkg_path)
 

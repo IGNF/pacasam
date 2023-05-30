@@ -5,8 +5,6 @@ from pacasam.run_sampling import run_sampling
 from pacasam.run_sampling import parser
 from pacasam.utils import SAMPLERS_LIBRARY
 
-# ref : https://stackoverflow.com/questions/73178047/how-to-pytest-monkeypatch-multiple-argv-arguments
-
 
 @pytest.mark.parametrize("sampler_class", SAMPLERS_LIBRARY.keys())
 @pytest.mark.parametrize("make_html_report", ["N"])
@@ -32,6 +30,7 @@ def test_all_samplers_on_synthetic_data(sampler_class, make_html_report):
         run_sampling(args)
 
 
+@pytest.mark.slow  # Creating an html report is slow.
 def test_make_html_report_option_after_random_sampler():
     """Integration test of sampling followed by html reporting."""
     test_all_samplers_on_synthetic_data(sampler_class="RandomSampler", make_html_report="Y")

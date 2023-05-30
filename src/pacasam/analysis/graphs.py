@@ -81,7 +81,8 @@ def make_class_histogram(df):
 
 def make_boolean_descriptor_histogram(df: DataFrame):
     bool_descriptors_cols = df.select_dtypes(include=bool).columns.tolist()
-    df_bool = df[["split"] + bool_descriptors_cols].copy()
+    # NaN are interpreted as absence here.
+    df_bool = df[["split"] + bool_descriptors_cols].copy().fillna(False)
     df_bool["all"] = 1
     df_bool = df_bool.groupby("split")[["all"] + bool_descriptors_cols].sum().transpose()
     fig = px.bar(

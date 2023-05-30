@@ -23,7 +23,7 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
     - `SpatialSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
     - **`TripleSampler`**: (1) `TargettedSampled`, puis complétion à part égale avec (2) `DiversitySampler`, et (3) `SpatialSampler`. C'est un compromis entre les trois méthodes. On pourrait envisager d'utiliser `OutliersSampler` en (2) pour encore mieux cibler les éléments atypiques.
 
-Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-extract.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`. Un rapport html plus visuel est également accessible: `outputs/samplings/{ConnectorName}-{SamplingName}-dataviz/pacasam-sampling-dataviz.html`.
+Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-train.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val/test pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`. Un rapport html plus visuel est également accessible: `outputs/samplings/{ConnectorName}-{SamplingName}-dataviz/pacasam-sampling-dataviz.html`.
 
 
 <details>
@@ -80,13 +80,19 @@ python ./src/pacasam/run_sampling.py --help
 ```
 Par défaut la base LiPaC est interrogée.
 
-4. Lancer le sampling.
+4. Lancer le sampling par défaut (Lipac, TripleSampler, split "train" ou "val")
 ```bash
 conda activate pacasam
-python ./src/pacasam/run_sampling.py --config_file=lipac/Synthetic.yml
+python ./src/pacasam/run_sampling.py
 ```
 
+L'échantillonnage prend la forme d'un Geopackage sous `"outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg"`. Le nom du fichier précise que cet échantillonnage a exclu les dalles de Lipac pour lesquelles `test=true` i.e. les dalles réservées pour le jeu de test.
+
+Afin de créer ce jeu de données de test, modifier la configuration de la façon suivante : `connector_kwargs.split=test` et `frac_validation_set=null` et lancer à nouveau la commande précédente. Cette opération n'incluera dans le sampling que les dalles de Lidar réservées au test. Le fichier obtenu est `"outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-test.gpkg"`.
+
 5. Visualisation de l'échantillonnage
+
+L'échantillonnage est visualisable dans un SIG, p.ex. QGIS.
 
 Pour produire un rapport html interactif de statistiques descriptives, ainsi que les graphiques au format SVG correspondant, deux options:
 - Préciser `make_html_report=Y` au moment de l'échantillonnage.
@@ -95,28 +101,64 @@ Pour produire un rapport html interactif de statistiques descriptives, ainsi que
     ```bash
     python ./src/pacasam/analysis/graphs.py --help
     ```
+
+6. Lancer l'extraction du jeu de données : extraction des patches et colorisation IRC
+
+Si les chemins vers les fichiers correspondent à data store Samba, il faut préciser les informatiosn de connexion via le fichier `credentials.yml` : préciser `SMB_USERNAME` (au format username@domain) et `SMB_PASSWORD`. 
+
+Exemple à partir du sampling "Triple" à l'emplacement par défaut:
+
+```bash
+conda activate pacasam
+python ./src/pacasam/run_extraction.py \
+    --sampling_path="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg" \
+    --dataset_root_path="outputs/extractions/LiPaCConnector-TripleSampler"
+```
+
+Si les fichiers sont en local, il faut désactiver l'usage de samba en passant `--samba_credentials_path=""`.
+TODO: inverser ce fonctionnement : fichiers locaux devrait être utilisés par défaut.
+
+
 ### Guidelines
 
-Pour un apprentissage automatique, créer deux configuration, p.ex. `Lipac_trainval.yml` et `Lipac_test.yml`, qui vont différer par:
-    - `connector_kwargs.extraction_sql_query` : requête SQL de sélection des vignettes. On souhaite que les jeux de `trainval` et de `test` soient échantillonnées sur des zones bien distinctes (voir [karasiak 2022](https://link.springer.com/article/10.1007/s10994-021-05972-1) sur cette nécessité). La sélection des zones concernées se fait via la requête SQL directement.
+Pour un apprentissage automatique, on peut créer deux configuration distinctes, p.ex. `Lipac_train.yml` et `Lipac_test.yml`, qui vont différer par:
     - `target_total_num_patches`: taille du jeu de données souhaité, en vignettes.
     - `frac_validation_set`: Proportion souhaitée de vignettes de validation dans le jeu `trainval`. Les vignettes de validation sont choisies de façon optimale pour chaque méthode d'échantillonnage (répartition spatiale et diversité). Pour le jeu de test, cette valeur n'a pas d'importance et peut être mise à `null` pour que la colonne `split` dans l'échantillonnage final prenne la valeur `test`.
+    - `connector_kwargs.split` : `train` ou `test`. On souhaite que les jeux `train` et de `test` soient échantillonnées sur des zones bien distinctes (voir [karasiak 2022](https://link.springer.com/article/10.1007/s10994-021-05972-1) sur cette nécessité). Préciser le split conduit à un filtre sur l'attribut `JEU_DE_DALLES.TEST` dans Lipac. Si `split=train`, les dalles pour lesquelles `JEU_DE_DALLES.TEST==True` seront exclues de l'échantillonnage. Et inversement, elles seront les seules considérées si `split=test`
+Tailles des jeux de données:
+    - On sait que sur des données non-échantillonnées (dalles complètes) les volumes 140km² (train dataset, dont 10km² de validation dataset) et 10km² (test dataset) donnent des résultats satisfaisants.
+    - Sur des données échantillonnées (et donc concentrées en information), on peut envisager de diviser par deux ces volumes pour commencer.
 
-### Performances & Limites
+### Développement
+
+#### Performances & Limites
 
 Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires p.ex. par 20k vignettes successives.
 
 Pacasam ne permet actuellement d'extraire que des vignettes carrées, et alignées avec les axes X et Y du système de coordonnées de référence (SCR).
 
-### Pistes pour les samplers
+#### Pistes pour les samplers
 
 - Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par file_id et patch_id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.
 - Remplacement purement et simplement DiversitySampler via FPS, par OutliersSampler. Cf. pull request de [OutlierSampler](https://github.com/IGNF/pacasam/pull/1). Simple, élégant, et à combiner avec le reste donnera des résultats intéressants. Essayer ça sur une branche et comparer les performances.
 
+#### Tests
+
+Pour lancer les tests de façon parallélisée, en excluant les tests lents et ceux nécessitant les flux (instables) du géoportail :
+```bash
+make tests_no_geoportail_no_slow
+```
+
+Pour lancer tous les tests de façon parallélisée:
+```bash
+make tests
+```
+NB: un timeout d'une minute est appliqué aux tests impliquant le géoportail.
+
 </details>
 
 <details>
-<summary><h2>Development Roadmap</h2></summary>
+<summary><h4>Development Roadmap</h4></summary>
 
 - Pytest 
     - [X] main pour les méthodes sur jeu de données synthétique.

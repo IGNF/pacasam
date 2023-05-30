@@ -20,6 +20,18 @@
             }
         },
         {
+            "name": "Run Extraction (Lipac+Triple sampling)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_extraction.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampling_path=outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg",
+                "--dataset_root_path=/var/data/CGaydon/pacasam_extractions/LiPaCConnector-TripleSampler"
+            ]
+        },
+        {
             "name": "Run Sampling (Outliers+Lipac)",
             "type": "python",
             "request": "launch",
@@ -126,6 +138,17 @@
             ]
         },
         {
+            "name": "Run Sampling (Targetted+Lipac)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampler_class=TargettedSampler",
+            ]
+        },
+        {
             "name": "Run Sampling (Targetted+Synthetic)",
             "type": "python",
             "request": "launch",
@@ -136,6 +159,20 @@
                 "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
                 "--sampler_class=TargettedSampler",
+            ]
+        },
+        {
+            "name": "Run Sampling WITH REPORT (Targetted+Synthetic)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_file=configs/Synthetic.yml",
+                "--connector_class=SyntheticConnector",
+                "--sampler_class=TargettedSampler",
+                "--make_html_report=Y"
             ]
         },
     ]

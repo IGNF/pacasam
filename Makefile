@@ -53,6 +53,10 @@ tests:
 	# See https://pytest-xdist.readthedocs.io/en/stable/known-limitations.html#output-stdout-and-stderr-from-workers
 	pytest -s -n auto --dist worksteal --maxprocesses=6
 
+tests_no_geoportail_no_slow:
+	# Same, but without test marked with the geoportail marker.
+	pytest -s -n auto --dist worksteal --maxprocesses=6 -m "not geoportail and not slow"
+
 open_coverage_report:
 	firefox htmlcov/index.html
 

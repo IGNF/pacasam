@@ -23,7 +23,7 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
     - `SpatialSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
     - **`TripleSampler`**: (1) `TargettedSampled`, puis complétion à part égale avec (2) `DiversitySampler`, et (3) `SpatialSampler`. C'est un compromis entre les trois méthodes. On pourrait envisager d'utiliser `OutliersSampler` en (2) pour encore mieux cibler les éléments atypiques.
 
-Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-extract.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`. Un rapport html plus visuel est également accessible: `outputs/samplings/{ConnectorName}-{SamplingName}-dataviz/pacasam-sampling-dataviz.html`.
+Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-train.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val/test pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`. Un rapport html plus visuel est également accessible: `outputs/samplings/{ConnectorName}-{SamplingName}-dataviz/pacasam-sampling-dataviz.html`.
 
 
 <details>
@@ -80,15 +80,15 @@ python ./src/pacasam/run_sampling.py --help
 ```
 Par défaut la base LiPaC est interrogée.
 
-4. Lancer le sampling par défaut
+4. Lancer le sampling par défaut (Lipac, TripleSampler, split "train" ou "val")
 ```bash
 conda activate pacasam
 python ./src/pacasam/run_sampling.py
 ```
 
-L'échantillonnage prend la forme d'un Geopackage, par défaut sous `"outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-extract.gpkg"`
+L'échantillonnage prend la forme d'un Geopackage sous `"outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg"`. Le nom du fichier précise que cet échantillonnage a exclu les dalles de Lipac pour lesquelles `test=true` i.e. les dalles réservées pour le jeu de test.
 
-# TODO: ajout d'une option pour filtrer sur une colonne "test" durant le sampling. Cela peut aussi se faire sous la forme d'une opération sql arbitraire donnée à gdf.query(), comme ça pas d'obligation et par défaut toutes les lignes sont prises. Permet aussi de faire des sous-sélection facilement à partir de la même requête, sans toucher la requête SQL. Pas mal.
+Afin de créer ce jeu de données de test, modifier la configuration de la façon suivante : `connector_kwargs.split=test` et `frac_validation_set=null` et lancer à nouveau la commande précédente. Cette opération n'incluera dans le sampling que les dalles de Lidar réservées au test. Le fichier obtenu est `"outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-test.gpkg"`.
 
 5. Visualisation de l'échantillonnage
 
@@ -111,7 +111,7 @@ Exemple à partir du sampling "Triple" à l'emplacement par défaut:
 ```bash
 conda activate pacasam
 python ./src/pacasam/run_extraction.py \
-    --sampling_path="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-extract.gpkg" \
+    --sampling_path="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg" \
     --dataset_root_path="outputs/extractions/LiPaCConnector-TripleSampler"
 ```
 

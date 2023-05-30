@@ -7,6 +7,7 @@ import geopandas as gpd
 from shapely.geometry import box
 
 from pacasam.connectors.connector import FILE_ID_COLNAME, Connector
+from pacasam.connectors.lipac import SPLIT_TYPE, TEST_COLNAME_IN_LIPAC, filter_lipac_patches_on_split
 from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
 # Should match what is in the database. Also used for histograms.
@@ -29,10 +30,11 @@ SLAB_SIZE = 1000
 TILE_SIZE = 50
 
 NUM_PATCHES_BY_SLAB = int((SLAB_SIZE / TILE_SIZE) ** 2)
+FRAC_OF_TEST_PATCHES_IN_DATABASE = 0.2
 
 
 class SyntheticConnector(Connector):
-    def __init__(self, log: Optional[logging.Logger], binary_descriptors_prevalence: List[float], db_size: int = 10000):
+    def __init__(self, log: Optional[logging.Logger], binary_descriptors_prevalence: List[float], split: SPLIT_TYPE, db_size: int = 10000):
         super().__init__()
         self.log = log
         self.db_size = db_size
@@ -43,7 +45,6 @@ class SyntheticConnector(Connector):
             geometry=df_geom,
             crs="EPSG:2154",
         )
-
         for idx, t in enumerate(binary_descriptors_prevalence):
             n_target = ceil(t * db_size)
             d = np.concatenate([np.ones(shape=(n_target,)).astype(bool), np.zeros(shape=(db_size - n_target,)).astype(bool)])
@@ -56,6 +57,14 @@ class SyntheticConnector(Connector):
 
         self.db[PATCH_ID_COLNAME] = range(len(self.db))
         self.db[FILE_ID_COLNAME] = df_file_ids
+
+        # create a test columns that flags "reserved" patches (i.e. reserved for test set)
+        n_target = int(db_size * FRAC_OF_TEST_PATCHES_IN_DATABASE)
+        d = np.concatenate([np.ones(shape=(n_target,)).astype(bool), np.full(shape=(db_size - n_target,), fill_value=np.nan)])
+        np.random.shuffle(d)
+        self.db[TEST_COLNAME_IN_LIPAC] = d
+        self.db = filter_lipac_patches_on_split(self.db, split)
+        self.db_size = len(self.db)
 
     def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
         """Extract everything using ids."""

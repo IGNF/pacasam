@@ -3,8 +3,7 @@ from typing import Iterable
 from pandas import Series
 from geopandas import GeoDataFrame
 
-
-# Those are the necessary columns that define are needed for a sampling.
+# Those are the necessary columns that are needed in the database to perform a sampling.
 
 FILE_COLNAME = "file_path"  # path for later extraction e.g. "/path/to/file.LAZ"
 GEOMETRY_COLNAME = "geometry"  # Shapely geometry (note: only rectangular shapes aligend with x/y are supported)

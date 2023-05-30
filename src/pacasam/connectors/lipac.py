@@ -1,7 +1,9 @@
 import logging
-from typing import Generator, Optional
+from typing import Generator, Literal, Optional, Union
+
 import pandas as pd
 import geopandas as gpd
+from geopandas import GeoDataFrame
 
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -10,8 +12,10 @@ import yaml
 from pacasam.connectors.connector import GEOMETRY_COLNAME, Connector
 from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
+TEST_COLNAME_IN_LIPAC = "test"
+SPLIT_TYPE = Union[Literal["train"], Literal["test"], Literal["any"]]
 
-# TODO: abstract a GeoDataframeConnector that works on a geopandas, and inherit from it for SyntheticConnector and LiPaCConnector
+
 class LiPaCConnector(Connector):
     lambert_93_crs = 2154
 
@@ -23,6 +27,7 @@ class LiPaCConnector(Connector):
         db_lipac_host: str,
         db_lipac_name: str,
         extraction_sql_query_path: str,
+        split: SPLIT_TYPE,
         max_chunksize_for_postgis_extraction: int = 100000,
     ):
         """Connector to interface with the Lidar-Patch-Catalogue database and perform queries.
@@ -46,6 +51,7 @@ class LiPaCConnector(Connector):
         with open(extraction_sql_query_path, "r") as file:
             extraction_sql_query = file.read()
         self.db = self.extract_all_samples_as_a_df(extraction_sql_query, max_chunksize_for_postgis_extraction)
+        self.db = filter_lipac_patches_on_split(self.db, split)
         self.db_size = len(self.db)
 
     def create_session(self, password):
@@ -87,6 +93,21 @@ class LiPaCConnector(Connector):
             on=PATCH_ID_COLNAME,
         )
         return extract
+
+
+# TODO: make a unit test for this function.
+def filter_lipac_patches_on_split(db: GeoDataFrame, split: SPLIT_TYPE):
+    """Filter patches based on desired split.
+
+    Following Lipac design this assumes that NaN value in the split col are for non-test (and therefore train) samples.
+
+    """
+    if split == "any":
+        return db
+    if split == "test":
+        return db[db[TEST_COLNAME_IN_LIPAC] == "test"]
+    if split == "train":
+        return db[db[TEST_COLNAME_IN_LIPAC].isna() | (db[TEST_COLNAME_IN_LIPAC] == "train")]
 
 
 def load_LiPaCConnector(**lipac_kwargs) -> LiPaCConnector:

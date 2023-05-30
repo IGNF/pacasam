@@ -2,7 +2,7 @@
 
 # Objectif de taille du dataset final.
 target_total_num_patches: 5000  # 250km² = 100000 samples, 5000 samples -> 20x reduction  | Alternatively 75km² = 30000 samples.
-frac_validation_set:  0.1 # float,ou "null" pour que la colonne "split" prenne la valeur "test" partout.
+frac_validation_set:  null # float,ou "null" pour que la colonne "split" prenne la valeur "test" partout.
 
 # kwargs for lipac database
 connector_kwargs:
@@ -17,7 +17,7 @@ connector_kwargs:
   # Nota: chemin vers requête SQL.
   extraction_sql_query_path: "configs/Lipac_query.sql"
   # Filtre sur la colonne "test" de Lipac. Choix: train, test, ou any (pour tout garder). 
-  split: "train"
+  split: "test"
   # Lecture par parties de la base PostGIS.
   max_chunksize_for_postgis_extraction: 100000
 

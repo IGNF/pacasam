@@ -27,7 +27,7 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--sampling_path=outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-extract.gpkg",
+                "--sampling_path=outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg",
                 "--dataset_root_path=/var/data/CGaydon/pacasam_extractions/LiPaCConnector-TripleSampler"
             ]
         },

@@ -129,21 +129,36 @@ Tailles des jeux de données:
     - On sait que sur des données non-échantillonnées (dalles complètes) les volumes 140km² (train dataset, dont 10km² de validation dataset) et 10km² (test dataset) donnent des résultats satisfaisants.
     - Sur des données échantillonnées (et donc concentrées en information), on peut envisager de diviser par deux ces volumes pour commencer.
 
-### Performances & Limites
+### Développement
+
+#### Performances & Limites
 
 Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires p.ex. par 20k vignettes successives.
 
 Pacasam ne permet actuellement d'extraire que des vignettes carrées, et alignées avec les axes X et Y du système de coordonnées de référence (SCR).
 
-### Pistes pour les samplers
+#### Pistes pour les samplers
 
 - Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par file_id et patch_id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.
 - Remplacement purement et simplement DiversitySampler via FPS, par OutliersSampler. Cf. pull request de [OutlierSampler](https://github.com/IGNF/pacasam/pull/1). Simple, élégant, et à combiner avec le reste donnera des résultats intéressants. Essayer ça sur une branche et comparer les performances.
 
+#### Tests
+
+Pour lancer les tests de façon parallélisée, en excluant les tests lents et ceux nécessitant les flux (instables) du géoportail :
+```bash
+make tests_no_geoportail_no_slow
+```
+
+Pour lancer tous les tests de façon parallélisée:
+```bash
+make tests
+```
+NB: un timeout d'une minute est appliqué aux tests impliquant le géoportail.
+
 </details>
 
 <details>
-<summary><h2>Development Roadmap</h2></summary>
+<summary><h4>Development Roadmap</h4></summary>
 
 - Pytest 
     - [X] main pour les méthodes sur jeu de données synthétique.

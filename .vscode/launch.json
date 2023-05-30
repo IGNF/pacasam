@@ -161,5 +161,19 @@
                 "--sampler_class=TargettedSampler",
             ]
         },
+        {
+            "name": "Run Sampling WITH REPORT (Targetted+Synthetic)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_file=configs/Synthetic.yml",
+                "--connector_class=SyntheticConnector",
+                "--sampler_class=TargettedSampler",
+                "--make_html_report=Y"
+            ]
+        },
     ]
 }

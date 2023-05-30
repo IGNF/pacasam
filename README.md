@@ -121,10 +121,13 @@ TODO: inverser ce fonctionnement : fichiers locaux devrait être utilisés par d
 
 ### Guidelines
 
-Pour un apprentissage automatique, créer deux configuration, p.ex. `Lipac_trainval.yml` et `Lipac_test.yml`, qui vont différer par:
-    - `connector_kwargs.extraction_sql_query_path` : chemin vers fichier de requête SQL de sélection des vignettes. On souhaite que les jeux de `trainval` et de `test` soient échantillonnées sur des zones bien distinctes (voir [karasiak 2022](https://link.springer.com/article/10.1007/s10994-021-05972-1) sur cette nécessité). La sélection des zones concernées se fait dans la requête SQL directement via la variable `test` (TODO).
+Pour un apprentissage automatique, on peut créer deux configuration distinctes, p.ex. `Lipac_train.yml` et `Lipac_test.yml`, qui vont différer par:
     - `target_total_num_patches`: taille du jeu de données souhaité, en vignettes.
     - `frac_validation_set`: Proportion souhaitée de vignettes de validation dans le jeu `trainval`. Les vignettes de validation sont choisies de façon optimale pour chaque méthode d'échantillonnage (répartition spatiale et diversité). Pour le jeu de test, cette valeur n'a pas d'importance et peut être mise à `null` pour que la colonne `split` dans l'échantillonnage final prenne la valeur `test`.
+    - `connector_kwargs.split` : `train` ou `test`. On souhaite que les jeux `train` et de `test` soient échantillonnées sur des zones bien distinctes (voir [karasiak 2022](https://link.springer.com/article/10.1007/s10994-021-05972-1) sur cette nécessité). Préciser le split conduit à un filtre sur l'attribut `JEU_DE_DALLES.TEST` dans Lipac. Si `split=train`, les dalles pour lesquelles `JEU_DE_DALLES.TEST==True` seront exclues de l'échantillonnage. Et inversement, elles seront les seules considérées si `split=test`
+Tailles des jeux de données:
+    - On sait que sur des données non-échantillonnées (dalles complètes) les volumes 140km² (train dataset, dont 10km² de validation dataset) et 10km² (test dataset) donnent des résultats satisfaisants.
+    - Sur des données échantillonnées (et donc concentrées en information), on peut envisager de diviser par deux ces volumes pour commencer.
 
 ### Performances & Limites
 

@@ -65,4 +65,4 @@ def get_stem_from_any_file_format(file_path: str):
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    split_sampling_by_file(args)
+    split_sampling_by_file(args.sampling_path, args.sampling_parts_dir)

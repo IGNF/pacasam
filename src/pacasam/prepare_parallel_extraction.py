@@ -35,7 +35,13 @@ parser.add_argument(
 
 
 def split_sampling_by_file(args: Namespace):
-    """# TODO: add some doc on why we do this.
+    """Split a sampling (typically a geopackage) by its related data file, into n parts, one for each file.
+
+    We do this in order to paralellize the data extraction based on a sampling at the file level. By getting n
+    smaller, file-level geopackages with a format identical to the original sampling, we can use the extraction methods
+    without any change, and parallelize easely with `parallel`.
+
+    See https://www.gnu.org/software/parallel/parallel.html) for more on `parallel`.
 
     Note: there should be not other print since we want to pipe directly from this function.
     """

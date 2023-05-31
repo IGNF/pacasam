@@ -71,7 +71,6 @@ class LAZExtractor(Extractor):
 
     def _extract_from_single_file(self, single_file_path: Path, single_file_sampling: GeoDataFrame):
         """Extract all patches from a single file based on its sampling."""
-        # TODO: here use smbclient instead when needed
         if self.use_samba:
             with smbclient.open_file(single_file_path, mode="rb") as open_single_file:
                 cloud = laspy.read(open_single_file)

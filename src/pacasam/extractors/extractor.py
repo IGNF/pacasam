@@ -79,8 +79,7 @@ def load_sampling_with_checks(sampling_path: Path, use_samba: bool = False) -> G
 
 def load_sampling(sampling_path: Path) -> GeoDataFrame:
     """Load a sampling"""
-    sampling: GeoDataFrame = gpd.read_file(sampling_path, converters={FILE_PATH_COLNAME: Path})
-    # TODO: this seocnd line seems redundant. Check if actually needed, remove elsewise.
+    sampling: GeoDataFrame = gpd.read_file(sampling_path)
     sampling[FILE_PATH_COLNAME] = sampling[FILE_PATH_COLNAME].apply(Path)
     return sampling
 

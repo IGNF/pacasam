@@ -128,6 +128,8 @@ make run_extraction_in_parallel \
     SAMBA_CREDENTIALS_PATH="credentials.yml"
 ```
 
+Note: sous le capot, le sampling initial est divisé en autant de parties qu'il y a de fichiers LAZ initiaux concernés. Cette étape préliminaire permet une parallélisation au niveau du fichier sans changement du code d'extraction. La parallélisation est effectuée avec (`GNU parallel`)[https://www.gnu.org/software/parallel/parallel.html].
+
 ### Guidelines
 
 Pour un apprentissage automatique, on peut créer deux configuration distinctes, p.ex. `Lipac_train.yml` et `Lipac_test.yml`, qui vont différer par:

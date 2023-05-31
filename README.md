@@ -118,6 +118,7 @@ python ./src/pacasam/run_extraction.py \
 Si les fichiers sont en local, il faut désactiver l'usage de samba en passant `--samba_credentials_path=""`.
 TODO: inverser ce fonctionnement : fichiers locaux devrait être utilisés par défaut.
 
+TODO: documenter l'exctraction parallelisée.
 
 ### Guidelines
 

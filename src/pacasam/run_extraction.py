@@ -5,7 +5,7 @@ import argparse
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
 
-from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.connectors.connector import FILE_PATH_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.samplers.sampler import SPLIT_COLNAME
 from pacasam.extractors.extractor import Extractor, set_smb_client_singleton
 from pacasam.extractors.laz import LAZExtractor
@@ -22,7 +22,8 @@ parser.add_argument(
     default=None,
     type=lambda p: Path(p).absolute(),
     help=(
-        "Path to a valid sampling i.e. a geopackage with columns: " f"{FILE_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
+        "Path to a valid sampling i.e. a geopackage with columns: "
+        f"{FILE_PATH_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
     ),
 )
 parser.add_argument(

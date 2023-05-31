@@ -38,7 +38,7 @@ sys.path.append(str(root_dir / "tests"))
 
 from pacasam.utils import CONNECTORS_LIBRARY
 from pacasam.samplers.sampler import SPLIT_COLNAME
-from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.connectors.connector import FILE_ID_COLNAME, FILE_PATH_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.connectors.synthetic import SyntheticConnector
 
 
@@ -62,10 +62,16 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
     """
     df = gpd.GeoDataFrame(
         data={
-            GEOMETRY_COLNAME: [LEFTY_UP_GEOMETRY, LEFTY_DOWN_GEOMETRY, RIGHTY_UP_GEOMETRY, RIGHTY_DOWN_GEOMETRY],
-            FILE_COLNAME: [LEFTY, LEFTY, RIGHTY, RIGHTY],
-            SPLIT_COLNAME: ["train", "val", "train", "val"],
             PATCH_ID_COLNAME: [0, 1, 2, 3],
+            GEOMETRY_COLNAME: [LEFTY_UP_GEOMETRY, LEFTY_DOWN_GEOMETRY, RIGHTY_UP_GEOMETRY, RIGHTY_DOWN_GEOMETRY],
+            FILE_PATH_COLNAME: [LEFTY, LEFTY, RIGHTY, RIGHTY],
+            FILE_ID_COLNAME: [
+                "792000_6272000-50mx100m-left",
+                "792000_6272000-50mx100m-left",
+                "792000_6272000-50mx100m-right",
+                "792000_6272000-50mx100m-right",
+            ],
+            SPLIT_COLNAME: ["train", "val", "train", "val"],
         },
         crs="EPSG:2154",
     )
@@ -92,5 +98,5 @@ def tiny_synthetic_sampling(synthetic_connector: SyntheticConnector) -> GeoDataF
     """Very tiny synthetic database with the columns that make it a sampling."""
     # Add the necessary elements to turn the db into a sampling
     synthetic_connector.db[SPLIT_COLNAME] = "train"
-    synthetic_connector.db[FILE_COLNAME] = str(Path(LEFTY).resolve())
+    synthetic_connector.db[FILE_PATH_COLNAME] = str(Path(LEFTY).resolve())
     return synthetic_connector.db

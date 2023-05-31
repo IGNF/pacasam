@@ -58,6 +58,7 @@ mamba env create -f environment.yml
 
 ### Tester toutes les méthodes sur des données synthétiques
 ```bash
+conda activate pacasam
 make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml REPORTS=N
 ```
 
@@ -76,11 +77,12 @@ python ./src/pacasam/run_sampling.py --config_file=configs/Synthetic.yml --conne
 3. (Optionnel) Afficher les options de sampling. 
 
 ```bash
+conda activate pacasam
 python ./src/pacasam/run_sampling.py --help
 ```
 Par défaut la base LiPaC est interrogée.
 
-4. Lancer le sampling par défaut (Lipac, TripleSampler, split "train" ou "val")
+4. Lancer le sampling par défaut (LipacConnector, TripleSampler, split "train"+"val")
 ```bash
 conda activate pacasam
 python ./src/pacasam/run_sampling.py
@@ -99,26 +101,32 @@ Pour produire un rapport html interactif de statistiques descriptives, ainsi que
 - Décrire un échantillonnage existant.
     Afficher les options avec:
     ```bash
+    conda activate pacasam
     python ./src/pacasam/analysis/graphs.py --help
     ```
 
 6. Lancer l'extraction du jeu de données : extraction des patches et colorisation IRC
 
-Si les chemins vers les fichiers correspondent à data store Samba, il faut préciser les informatiosn de connexion via le fichier `credentials.yml` : préciser `SMB_USERNAME` (au format username@domain) et `SMB_PASSWORD`. 
+Pour tester l'extraction sur le jeu de données de test, lancer
+```bash
+conda activate pacasam
+make run_extraction_of_toy_laz_data  # single process
+make run_extraction_of_toy_laz_data_in_parallel  # multiprocesses
+```
 
-Exemple à partir du sampling "Triple" à l'emplacement par défaut:
+Passons maintenant à une extraction depuis un sampling Lipac. Si les chemins vers les fichiers LAZ correspondent à un data store Samba, il faut préciser les informatiosn de connexion via le fichier `credentials.yml` : préciser `SMB_USERNAME` (au format username@domain) et `SMB_PASSWORD`. 
+
+Pour lancer l'extraction de façon parallélisée à partir du sampling "Triple" à l'emplacement par défaut:
 
 ```bash
 conda activate pacasam
-python ./src/pacasam/run_extraction.py \
-    --sampling_path="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg" \
-    --dataset_root_path="outputs/extractions/LiPaCConnector-TripleSampler"
+# Note: Ici nous reprécisons les certains paramètres par défaut du Makefile à des fins d'illustration
+make run_extraction_in_parallel \
+    SAMPLING_PATH="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg" \
+    DATASET_ROOT_PATH="/var/data/${USER}/pacasam_extractions/laz_dataset/" \
+    PARALLEL_EXTRACTION_JOBS="75%" \
+    SAMBA_CREDENTIALS_PATH="credentials.yml"
 ```
-
-Si les fichiers sont en local, il faut désactiver l'usage de samba en passant `--samba_credentials_path=""`.
-TODO: inverser ce fonctionnement : fichiers locaux devrait être utilisés par défaut.
-
-TODO: documenter l'exctraction parallelisée.
 
 ### Guidelines
 

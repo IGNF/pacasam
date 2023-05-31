@@ -20,8 +20,8 @@ SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler Triple
 SAMPLING_PATH ?= outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg  # Chemin vers le sampling à extraire.
 SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/  # Où diviser le sampling en n parties, une par fichier de données.
 DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/  # Où extraire le jeu de données.
-PARALLEL_EXTRACTION_JOBS ?= 75%  # Niveua de parallélisation. Un entier ou un pourcentage des cpu.
-SAMBA_CREDENTIALS_PATH ?= "credentials.yml"  # Requis pour données dans un store Samba
+PARALLEL_EXTRACTION_JOBS ?= "75%"  # Niveau de parallélisation. Un entier ou un pourcentage des cpu.
+SAMBA_CREDENTIALS_PATH ?= '""'  # ATTENTION: Requis pour données dans un store Samba. P.ex. credentials.py
 
 help:
 	@echo "Makefile"
@@ -35,9 +35,9 @@ help:
 	@echo "Cibles pour l'extraction:"
 	@echo "  run_extraction_of_toy_laz_data - Vérifie que tout est OK en extrayant depuis les données LAZ de test."
 	@echo "  run_extraction_of_toy_laz_data_in_parallel - Vérifie que tout est OK en extrayant depuis les données LAZ de test de façon parallélisée."
-	@echo "  prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans `SAMPLING_PARTS_DIR`."
-	@echo "  run_extraction_in_parallel - Extrait le jeu de donnée à partir des n sampling. Spécifier `SAMPLING_PARTS_DIR` et `DATASET_ROOT_PATH`"
-	@echo Note: la cible `run_extraction_in_parallel` est séparée de `prepare_parallel_extraction`, pour pouvoir poursuivre l'extraction en l'appelant."
+	@echo "  prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans SAMPLING_PARTS_DIR."
+	@echo "  run_extraction_in_parallel - Extrait le jeu de donnée à partir des n sampling. Spécifier SAMPLING_PARTS_DIR et DATASET_ROOT_PATH"
+	@echo "Note: la cible run_extraction_in_parallel est séparée de prepare_parallel_extraction, pour pouvoir poursuivre l'extraction en l'appelant."
 	@echo "------------------------------------"
 	@echo "Cleaning:"
 	@echo "  clean_extractions - Supprime ./outputs/extractions/"
@@ -96,7 +96,6 @@ run_extraction_of_toy_laz_data_in_parallel:
 		SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/" \
 		DATASET_ROOT_PATH=./outputs/extractions/toy_laz_dataset/ \
 		PARALLEL_EXTRACTION_JOBS=2 \
-		SAMBA_CREDENTIALS_PATH='""'
 
 prepare_parallel_extraction:
 	# Split sampling into n parts, one for each distinct LAZ file.

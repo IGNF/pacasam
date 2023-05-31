@@ -63,7 +63,8 @@ tests_no_geoportail_no_slow:
 	pytest -s -n auto --dist worksteal --maxprocesses=6 -m "not geoportail and not slow"
 
 open_coverage_report:
-	firefox htmlcov/index.html
+	# firefox htmlcov/index.html
+	xdg-open htmlcov/index.html
 
 # SAMPLING
 

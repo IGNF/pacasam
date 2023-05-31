@@ -2,8 +2,6 @@ import os
 import sys
 from pathlib import Path
 import argparse
-from argparse import Namespace
-from tempfile import TemporaryDirectory
 
 
 root_dir = Path(__file__).resolve().parent.parent
@@ -34,7 +32,7 @@ parser.add_argument(
 )
 
 
-def split_sampling_by_file(args: Namespace):
+def split_sampling_by_file(sampling_path: Path, sampling_parts_dir: Path):
     """Split a sampling (typically a geopackage) by its related data file, into n parts, one for each file.
 
     We do this in order to paralellize the data extraction based on a sampling at the file level. By getting n
@@ -43,25 +41,24 @@ def split_sampling_by_file(args: Namespace):
 
     See https://www.gnu.org/software/parallel/parallel.html) for more on `parallel`.
 
-    Note: there should be not other print since we want to pipe directly from this function.
+    WARNING: there should be not other print since we want to pipe directly from this function.
     """
-    sp_dir = args.sampling_parts_dir
-    os.makedirs(sp_dir, exist_ok=True)
-    sampling = load_sampling(args.sampling_path)
-    sampling_suffix: str = args.sampling_path.suffix
+
+    os.makedirs(sampling_parts_dir, exist_ok=True)
+
+    sampling = load_sampling(sampling_path)
+    sampling_suffix = sampling_path.suffix
+
     for single_file_path, single_file_sampling in sampling.groupby(FILE_PATH_COLNAME):
-        sampling_part_filename = sp_dir / Path(get_stem_from_any_file_format(single_file_path)).with_suffix(sampling_suffix)
-        single_file_sampling[FILE_PATH_COLNAME] = single_file_sampling[FILE_PATH_COLNAME].apply(
-            str
-        )  # Path object cannot be savec by geopandas/fiona
+        sampling_part_filename = sampling_parts_dir / Path(get_stem_from_any_file_format(single_file_path)).with_suffix(sampling_suffix)
+        # Reformat since Path object cannot be savec by geopandas/fiona
+        single_file_sampling[FILE_PATH_COLNAME] = single_file_sampling[FILE_PATH_COLNAME].apply(str)
         single_file_sampling.to_file(sampling_part_filename)
-        # Printing for piping the list of gpkg_parts with `python ... > gpkg_parts.lst`
-        print(sampling_part_filename)
+        print(sampling_part_filename)  # ONLY ALLOWED PRINT STATEMENT HERE.
 
 
-# TODO: make unit tests to support both unix like and samba like paths
-# Example '\\\\store.ign.fr\\store-lidarhd\\production\\reception\\QO\\donnees_classees\\livraison10p\\Livraison_20230116\\02_SemisClasse\\Semis_2021_0936_6346_LA93_IGN69.laz'
 def get_stem_from_any_file_format(file_path: str):
+    """Get the stem from both normal unix-like paths and Samba-like paths (where separator is a backslash)."""
     file_path_unix_format = str(file_path).replace("\\", "/")
     return Path(file_path_unix_format.split("/")[-1]).stem
 

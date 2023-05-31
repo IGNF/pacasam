@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_run_extraction_laz",
+                "test_get_stem_from_any_file_form",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

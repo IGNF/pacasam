@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_get_stem_from_any_file_form",
+                "test_split_sampling_by_file",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

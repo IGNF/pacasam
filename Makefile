@@ -22,21 +22,19 @@ SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/
 DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/
 PARALLEL_EXTRACTION_JOBS ?= 75%  # Un entier ou un pourcentage des cpu.
 
-# TODO: describe the new extraction commands.
 help:
 	@echo "Makefile"
 	@echo "------------------------------------"
 	@echo "Cibles pour l'échantillonnage:"
 	@echo "  $(SAMPLERS) - Exécute chaque échantillonneur individuellement."
 	@echo "  all - Exécute tous les samplers pour un connecteur donné (par défaut: connecteur Lipac)"
-	@echo "  all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml - pour passer le connectuer Synthetic"
-	@echo "  all_for_all_connectors - 'Make all' pour les deux connecteurs (Lipac et Synthetic)."
+	@echo "  all_synthetic - Exécute tous les samplers pour le connecteur synthtéique"
 	@echo "Note: L'option 'REPORTS=Y' permet la création d'un rapport HTML à partir du sampling."
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
-	@echo "  extraction_of_toy_laz_data - Lance une extraction d'un jeu de données laz depuis les données laz de test."
+	@echo "  run_extraction_of_toy_laz_data - Vérifie que tout est OK en extrayant depuis les données LAZ de test."
 	@echo "  prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans `SAMPLING_PARTS_DIR`."
-	@echo "  parallel_extraction_of_laz_dataset - Extrait le jeu de donnée à partir des n sampling. Spécifier `SAMPLING_PARTS_DIR` et `DATASET_ROOT_PATH`"
+	@echo "  run_extraction_parallel - Extrait le jeu de donnée à partir des n sampling. Spécifier `SAMPLING_PARTS_DIR` et `DATASET_ROOT_PATH`"
 	@echo "------------------------------------"
 	@echo "Cleaning:"
 	@echo "  clean_extractions - Supprime ./outputs/extractions/"
@@ -44,8 +42,8 @@ help:
 
 
 
-.PHONY: help all all_for_all_connectors $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
-.PHONY: extraction_of_toy_laz_data prepare_parallel_extraction parallel_extraction_of_laz_dataset
+.PHONY: help all all_for_all_connectors_with_reports $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
+.PHONY: run_extraction_of_toy_laz_data prepare_parallel_extraction run_extraction_parallel
 .PHONY: clean_samplings clean_extractions
 
 
@@ -72,15 +70,16 @@ $(SAMPLERS):
 		--sampler_class=$@ \
 		--make_html_report=$(REPORTS)
 
+# By default: run all sampling from Lipac database.
 all: $(SAMPLERS)
 
-all_for_all_connectors:
-	make all REPORTS=Y
-	make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
+all_synthetic:
+	make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 
 
 # EXTRACTION
-extraction_of_toy_laz_data:
+
+run_extraction_of_toy_laz_data:
 	python ./src/pacasam/run_extraction.py \
 		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
 		--dataset_root_path ./outputs/extractions/toy_laz_dataset/
@@ -91,7 +90,7 @@ prepare_parallel_extraction:
 		--sampling_path="${SAMPLING_PATH}" \
 		--sampling_parts_dir="${SAMPLING_PARTS_DIR}"
 
-parallel_extraction_of_laz_dataset:
+run_extraction_parallel:
 	# Run extraction in a parallel fashion based on the listing.
 	# Single part sampling are removed upon completion of extraction.
 	# We can resume extraction without changing the command.

@@ -19,8 +19,8 @@ SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler Triple
 # Paramètres pour l'extraction
 SAMPLING_PATH ?= outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg
 SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/
-DATASET_ROOT_PATH ?= ./outputs/extractions/dataset/
-PARALLEL_EXTRACTION_JOBS ?= 5  # Un entier ou un ourcentage des cpu p.ex. "50%"
+DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/
+PARALLEL_EXTRACTION_JOBS ?= 75%  # Un entier ou un pourcentage des cpu.
 
 # TODO: describe the new extraction commands.
 help:
@@ -31,13 +31,16 @@ help:
 	@echo "  all - Exécute tous les samplers pour un connecteur donné (par défaut: connecteur Lipac)"
 	@echo "  all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml - pour passer le connectuer Synthetic"
 	@echo "  all_for_all_connectors - 'Make all' pour les deux connecteurs (Lipac et Synthetic)."
-	@echo "  clean_extractions - Supprime ./outputs/samplings/"
 	@echo "Note: L'option 'REPORTS=Y' permet la création d'un rapport HTML à partir du sampling."
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
 	@echo "  extraction_of_toy_laz_data - Lance une extraction d'un jeu de données laz depuis les données laz de test."
-	@echo "  clean_extractions - Supprime ./outputs/extractions/"
+	@echo "  prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans `SAMPLING_PARTS_DIR`."
+	@echo "  parallel_extraction_of_laz_dataset - Extrait le jeu de donnée à partir des n sampling. Spécifier `SAMPLING_PARTS_DIR` et `DATASET_ROOT_PATH`"
 	@echo "------------------------------------"
+	@echo "Cleaning:"
+	@echo "  clean_extractions - Supprime ./outputs/extractions/"
+	@echo "  clean_samplings - Supprime ./outputs/samplings/"
 
 
 
@@ -92,6 +95,7 @@ parallel_extraction_of_laz_dataset:
 	# Run extraction in a parallel fashion based on the listing.
 	# Single part sampling are removed upon completion of extraction.
 	# We can resume extraction without changing the command.
+	# Note: another way could be to use option --resume, and we would need to use --joblog beforehand.
 	ls -1 -d ${SAMPLING_PARTS_DIR}/* | \
 		parallel --jobs ${PARALLEL_EXTRACTION_JOBS} --keep-order --progress --verbose --eta \
 			python ./src/pacasam/run_extraction.py \

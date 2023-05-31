@@ -31,9 +31,9 @@ parser.add_argument(
 )
 parser.add_argument(
     "--samba_credentials_path",
-    default="credentials.yml",
+    default="",
     type=lambda p: Path(p).absolute() if p else None,
-    help="Path to credentials to connect to a Samba store. Set to empty string to use default file system instead.",
+    help="Set to a file with samba credentials (e.g. credentials.ymlà to use samba file system instead of local filesystem.",
 )
 
 

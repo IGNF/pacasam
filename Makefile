@@ -17,10 +17,11 @@ REPORTS ?= N # N(o) ou Y(es). No pour des résultats plus rapides.
 SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler TripleSampler OutliersSampler
 
 # Paramètres pour l'extraction
-SAMPLING_PATH ?= outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg
-SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/
-DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/
-PARALLEL_EXTRACTION_JOBS ?= 75%  # Un entier ou un pourcentage des cpu.
+SAMPLING_PATH ?= outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg  # Chemin vers le sampling à extraire.
+SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/  # Où diviser le sampling en n parties, une par fichier de données.
+DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/  # Où extraire le jeu de données.
+PARALLEL_EXTRACTION_JOBS ?= 75%  # Niveua de parallélisation. Un entier ou un pourcentage des cpu.
+SAMBA_CREDENTIALS_PATH ?= "credentials.yml"  # Requis pour données dans un store Samba
 
 help:
 	@echo "Makefile"
@@ -33,8 +34,10 @@ help:
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
 	@echo "  run_extraction_of_toy_laz_data - Vérifie que tout est OK en extrayant depuis les données LAZ de test."
+	@echo "  run_extraction_of_toy_laz_data_in_parallel - Vérifie que tout est OK en extrayant depuis les données LAZ de test de façon parallélisée."
 	@echo "  prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans `SAMPLING_PARTS_DIR`."
-	@echo "  run_extraction_parallel - Extrait le jeu de donnée à partir des n sampling. Spécifier `SAMPLING_PARTS_DIR` et `DATASET_ROOT_PATH`"
+	@echo "  run_extraction_in_parallel - Extrait le jeu de donnée à partir des n sampling. Spécifier `SAMPLING_PARTS_DIR` et `DATASET_ROOT_PATH`"
+	@echo Note: la cible `run_extraction_in_parallel` est séparée de `prepare_parallel_extraction`, pour pouvoir poursuivre l'extraction en l'appelant."
 	@echo "------------------------------------"
 	@echo "Cleaning:"
 	@echo "  clean_extractions - Supprime ./outputs/extractions/"
@@ -43,7 +46,7 @@ help:
 
 
 .PHONY: help all all_for_all_connectors_with_reports $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
-.PHONY: run_extraction_of_toy_laz_data prepare_parallel_extraction run_extraction_parallel
+.PHONY: run_extraction_of_toy_laz_data run_extraction_of_toy_laz_data_in_parallel prepare_parallel_extraction run_extraction_in_parallel
 .PHONY: clean_samplings clean_extractions
 
 
@@ -84,23 +87,37 @@ run_extraction_of_toy_laz_data:
 		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
 		--dataset_root_path ./outputs/extractions/toy_laz_dataset/
 
+run_extraction_of_toy_laz_data_in_parallel:
+	make prepare_parallel_extraction \
+		SAMPLING_PATH=./tests/data/lefty_righty_sampling.gpkg \
+		SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/"
+	
+	make run_extraction_in_parallel \
+		SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/" \
+		DATASET_ROOT_PATH=./outputs/extractions/toy_laz_dataset/ \
+		PARALLEL_EXTRACTION_JOBS=2 \
+		SAMBA_CREDENTIALS_PATH='""'
+
 prepare_parallel_extraction:
 	# Split sampling into n parts, one for each distinct LAZ file.
 	python ./src/pacasam/prepare_parallel_extraction.py \
 		--sampling_path="${SAMPLING_PATH}" \
 		--sampling_parts_dir="${SAMPLING_PARTS_DIR}"
 
-run_extraction_parallel:
+run_extraction_in_parallel:
 	# Run extraction in a parallel fashion based on the listing.
 	# Single part sampling are removed upon completion of extraction.
 	# We can resume extraction without changing the command.
 	# Note: another way could be to use option --resume, and we would need to use --joblog beforehand.
+	# Note: Need to simple quote the SAMBA_CREDENTIALS_PATH variable to explicitly give an empty string when etxracting toy_dataset.
+	# Note: we need to double quote the whole command, including deletion, so that they happen together.
 	ls -1 -d ${SAMPLING_PARTS_DIR}/* | \
 		parallel --jobs ${PARALLEL_EXTRACTION_JOBS} --keep-order --progress --verbose --eta \
-			python ./src/pacasam/run_extraction.py \
+			"python ./src/pacasam/run_extraction.py \
 			--sampling_path {} \
 			--dataset_root_path ${DATASET_ROOT_PATH} \
-			&& rm {}
+			--samba_credentials_path '${SAMBA_CREDENTIALS_PATH}' \
+			&& rm {}"
 
 
 # CLEANING

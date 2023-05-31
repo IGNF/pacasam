@@ -30,9 +30,9 @@ def test_split_sampling_by_file():
         created_files = glob.glob(str(sampling_parts_dir / "*"))
         assert len(created_files) == NUM_TEST_FILES
         # Check that no patch is lost
-        sampling=gpd.read_file(sampling_path)
+        sampling = gpd.read_file(sampling_path)
         sampling_parts = [gpd.read_file(f) for f in created_files]
         assert sum(len(part) for part in sampling_parts) == len(sampling)
-        # check that the num of columns are the same
+        # check that the columns are the same
         for part in sampling_parts:
             assert all(sampling.columns == part.columns)

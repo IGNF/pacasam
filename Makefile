@@ -42,7 +42,7 @@ help:
 
 
 .PHONY: help all all_for_all_connectors $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
-.PHONY: extraction_of_toy_laz_data prepare_extraction_parallelization parallel_extraction_of_laz_dataset
+.PHONY: extraction_of_toy_laz_data prepare_parallel_extraction parallel_extraction_of_laz_dataset
 .PHONY: clean_samplings clean_extractions
 
 
@@ -82,9 +82,9 @@ extraction_of_toy_laz_data:
 		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
 		--dataset_root_path ./outputs/extractions/toy_laz_dataset/
 
-prepare_extraction_parallelization:
+prepare_parallel_extraction:
 	# Split sampling into n parts, one for each distinct LAZ file.
-	python ./src/pacasam/prepare_extraction_parallelization.py \
+	python ./src/pacasam/prepare_parallel_extraction.py \
 		--sampling_path="${SAMPLING_PATH}" \
 		--sampling_parts_dir="${SAMPLING_PARTS_DIR}"
 

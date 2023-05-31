@@ -13,11 +13,23 @@
             "args": [
                 "-s",
                 "-k",
-                "test_check_files_accessibility",
+                "test_split_sampling_by_file",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"
             }
+        },
+        {
+            "name": "prepare Extraction Parallelization (Lipac+Triple sampling)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/prepare_parallel_extraction.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampling_path=outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg",
+                // "--dataset_root_path=/var/data/CGaydon/pacasam_extractions/LiPaCConnector-TripleSampler"
+            ]
         },
         {
             "name": "Run Extraction (Lipac+Triple sampling)",

@@ -48,7 +48,7 @@ from laspy import LasData, LasHeader
 from pdaltools.color import decomp_and_color
 from geopandas import GeoDataFrame
 import smbclient
-from pacasam.connectors.connector import FILE_COLNAME, FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.connectors.connector import FILE_PATH_COLNAME, FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.extractors.extractor import Extractor, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
 
@@ -64,14 +64,13 @@ class LAZExtractor(Extractor):
         Uses pandas groupby to handle both single-file and multiple-file samplings.
 
         """
-        for single_file_path, single_file_sampling in self.sampling.groupby(FILE_COLNAME):
+        for single_file_path, single_file_sampling in self.sampling.groupby(FILE_PATH_COLNAME):
             self.log.info(f"{self.name}: Extraction + Colorization from {single_file_path} (k={len(single_file_sampling)} patches)")
             self._extract_from_single_file(single_file_path, single_file_sampling)
             self.log.info(f"{self.name}: SUCCESS for {single_file_path}")
 
     def _extract_from_single_file(self, single_file_path: Path, single_file_sampling: GeoDataFrame):
         """Extract all patches from a single file based on its sampling."""
-        # TODO: here use smbclient instead when needed
         if self.use_samba:
             with smbclient.open_file(single_file_path, mode="rb") as open_single_file:
                 cloud = laspy.read(open_single_file)

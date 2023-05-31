@@ -8,7 +8,7 @@ from dataclasses import dataclass
 import smbclient
 import yaml
 from tqdm import tqdm
-from pacasam.connectors.connector import FILE_COLNAME
+from pacasam.connectors.connector import FILE_ID_COLNAME, FILE_PATH_COLNAME
 
 ZFILL_MAX_PATCH_NUMBER = 7  # patch id consistent below 10M patches (i.e. up to 9_999_999 patches)
 
@@ -62,19 +62,25 @@ def set_smb_client_singleton(smb_client_config: Optional[Path]) -> None:
 
 
 def load_sampling_with_checks(sampling_path: Path, use_samba: bool = False) -> GeoDataFrame:
-    """General function to load a sampling, with useful checks.
+    """Load a sampling, with useful checks on format and file existence.
 
     If use_smbclient=True, checks will know that the files are in a samba store.
 
     """
-    sampling: GeoDataFrame = gpd.read_file(sampling_path, converters={FILE_COLNAME: Path})
-    sampling[FILE_COLNAME] = sampling[FILE_COLNAME].apply(Path)
+    sampling = load_sampling(sampling_path)
     check_sampling_format(sampling)
-    unique_file_paths = sampling[FILE_COLNAME].unique()
+    unique_file_paths = sampling[FILE_PATH_COLNAME].unique()
     if use_samba:
         check_all_files_exist_in_samba_filesystem(unique_file_paths)
     else:
         check_all_files_exist_in_default_filesystem(unique_file_paths)
+    return sampling
+
+
+def load_sampling(sampling_path: Path) -> GeoDataFrame:
+    """Load a sampling"""
+    sampling: GeoDataFrame = gpd.read_file(sampling_path)
+    sampling[FILE_PATH_COLNAME] = sampling[FILE_PATH_COLNAME].apply(Path)
     return sampling
 
 
@@ -83,7 +89,7 @@ def check_sampling_format(sampling: GeoDataFrame) -> None:
     Check if the geopackage file follows the expected format.
 
     Args:
-    - sampling (GeoDataFrame): A geopandas dataframe containing columns "split", "geometry" and LAZ_FILE_COLNAME.
+    - sampling (GeoDataFrame): A geopandas dataframe containing columns "split", "geometry" and FILE_PATH_COLNAME.
 
     Returns:
     - None
@@ -92,7 +98,7 @@ def check_sampling_format(sampling: GeoDataFrame) -> None:
     - ValueError: If any of the required columns is missing or has an incorrect format.
 
     """
-    required_columns = ["split", "geometry", FILE_COLNAME]
+    required_columns = ["split", "geometry", FILE_PATH_COLNAME, FILE_ID_COLNAME]
     for col in required_columns:
         if col not in sampling.columns:
             raise ValueError(f"Column '{col}' missing from the sampling dataframe")

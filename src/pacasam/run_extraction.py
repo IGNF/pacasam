@@ -5,7 +5,7 @@ import argparse
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
 
-from pacasam.connectors.connector import FILE_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.connectors.connector import FILE_PATH_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.samplers.sampler import SPLIT_COLNAME
 from pacasam.extractors.extractor import Extractor, set_smb_client_singleton
 from pacasam.extractors.laz import LAZExtractor
@@ -22,7 +22,8 @@ parser.add_argument(
     default=None,
     type=lambda p: Path(p).absolute(),
     help=(
-        "Path to a valid sampling i.e. a geopackage with columns: " f"{FILE_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
+        "Path to a valid sampling i.e. a geopackage with columns: "
+        f"{FILE_PATH_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
     ),
 )
 parser.add_argument(
@@ -30,9 +31,9 @@ parser.add_argument(
 )
 parser.add_argument(
     "--samba_credentials_path",
-    default="credentials.yml",
+    default="",
     type=lambda p: Path(p).absolute() if p else None,
-    help="Path to credentials to connect to a Samba store. Set to empty string to use default file system instead.",
+    help="Set to a file with samba credentials (e.g. credentials.yml) to use samba file system instead of local filesystem.",
 )
 
 

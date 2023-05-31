@@ -62,19 +62,26 @@ def set_smb_client_singleton(smb_client_config: Optional[Path]) -> None:
 
 
 def load_sampling_with_checks(sampling_path: Path, use_samba: bool = False) -> GeoDataFrame:
-    """General function to load a sampling, with useful checks.
+    """Load a sampling, with useful checks on format and file existence.
 
     If use_smbclient=True, checks will know that the files are in a samba store.
 
     """
-    sampling: GeoDataFrame = gpd.read_file(sampling_path, converters={FILE_COLNAME: Path})
-    sampling[FILE_COLNAME] = sampling[FILE_COLNAME].apply(Path)
+    sampling = load_sampling(sampling_path)
     check_sampling_format(sampling)
     unique_file_paths = sampling[FILE_COLNAME].unique()
     if use_samba:
         check_all_files_exist_in_samba_filesystem(unique_file_paths)
     else:
         check_all_files_exist_in_default_filesystem(unique_file_paths)
+    return sampling
+
+
+def load_sampling(sampling_path: Path) -> GeoDataFrame:
+    """Load a sampling"""
+    sampling: GeoDataFrame = gpd.read_file(sampling_path, converters={FILE_COLNAME: Path})
+    # TODO: this seocnd line seems redundant. Check if actually needed, remove elsewise.
+    sampling[FILE_COLNAME] = sampling[FILE_COLNAME].apply(Path)
     return sampling
 
 

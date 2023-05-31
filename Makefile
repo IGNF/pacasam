@@ -10,11 +10,19 @@
 # Exécutez sur le jeu de données synthtéiques avec 
 #	make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 
+# Paramètres pour l'échantillonnage
 CONNECTOR ?= LiPaCConnector  # LiPaCConnector ou SyntheticConnector
 CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml - Devrait correspondre au connecteur!
 REPORTS ?= N # N(o) ou Y(es). No pour des résultats plus rapides.
 SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler TripleSampler OutliersSampler
 
+# Paramètres pour l'extraction
+SAMPLING_PATH ?= outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg
+SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/
+DATASET_ROOT_PATH ?= ./outputs/extractions/dataset/
+PARALLEL_EXTRACTION_JOBS ?= 5  # Un entier ou un ourcentage des cpu p.ex. "50%"
+
+# TODO: describe the new extraction commands.
 help:
 	@echo "Makefile"
 	@echo "------------------------------------"
@@ -27,25 +35,18 @@ help:
 	@echo "Note: L'option 'REPORTS=Y' permet la création d'un rapport HTML à partir du sampling."
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
-	@echo "  extraction_of_laz_test_data - Lance une extraction d'un jeu de données laz depuis les données laz de test."
+	@echo "  extraction_of_toy_laz_data - Lance une extraction d'un jeu de données laz depuis les données laz de test."
 	@echo "  clean_extractions - Supprime ./outputs/extractions/"
 	@echo "------------------------------------"
 
 
-.PHONY: all help $(SAMPLERS) tests open_coverage_report
 
-all: $(SAMPLERS)
+.PHONY: help all all_for_all_connectors $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
+.PHONY: extraction_of_toy_laz_data prepare_extraction_parallelization parallel_extraction_of_laz_dataset
+.PHONY: clean_samplings clean_extractions
 
-$(SAMPLERS):
-	python ./src/pacasam/run_sampling.py --config_file=$(CONFIG) \
-		--connector_class=$(CONNECTOR) \
-		--sampler_class=$@ \
-		--make_html_report=$(REPORTS)
 
-all_for_all_connectors:
-	make all REPORTS=Y
-	make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
-
+# TESTS
 tests:
 	# Run pytest parallelization with at most 6 processes.
 	# See https://pytest-xdist.readthedocs.io/en/stable/distribution.html#running-tests-across-multiple-cpus
@@ -60,11 +61,46 @@ tests_no_geoportail_no_slow:
 open_coverage_report:
 	firefox htmlcov/index.html
 
-extraction_of_laz_test_data:
+# SAMPLING
+
+$(SAMPLERS):
+	python ./src/pacasam/run_sampling.py --config_file=$(CONFIG) \
+		--connector_class=$(CONNECTOR) \
+		--sampler_class=$@ \
+		--make_html_report=$(REPORTS)
+
+all: $(SAMPLERS)
+
+all_for_all_connectors:
+	make all REPORTS=Y
+	make all REPORTS=Y CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
+
+
+# EXTRACTION
+extraction_of_toy_laz_data:
 	python ./src/pacasam/run_extraction.py \
 		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
 		--dataset_root_path ./outputs/extractions/toy_laz_dataset/
 
+prepare_extraction_parallelization:
+	# Split sampling into n parts, one for each distinct LAZ file.
+	python ./src/pacasam/prepare_extraction_parallelization.py \
+		--sampling_path="${SAMPLING_PATH}" \
+		--sampling_parts_dir="${SAMPLING_PARTS_DIR}"
+
+parallel_extraction_of_laz_dataset:
+	# Run extraction in a parallel fashion based on the listing.
+	# Single part sampling are removed upon completion of extraction.
+	# We can resume extraction without changing the command.
+	ls -1 -d ${SAMPLING_PARTS_DIR}/* | \
+		parallel --jobs ${PARALLEL_EXTRACTION_JOBS} --keep-order --progress --verbose --eta \
+			python ./src/pacasam/run_extraction.py \
+			--sampling_path {} \
+			--dataset_root_path ${DATASET_ROOT_PATH} \
+			&& rm {}
+
+
+# CLEANING
 clean_samplings:
 	rm -r ./outputs/samplings/
 

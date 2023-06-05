@@ -1,7 +1,12 @@
 # PACASAM: Patch Catalogue Sampling
-`pacasam` permet le sous-échantillonnage et l'extraction de patches de données géographiques pour la constitution d'un jeu de données d'apprentissages profond.
+Le module `pacasam` permet le sous-échantillonnage et l'extraction de patches de données géographiques, pour la création d'un jeu de données d'apprentissages profond.
+
+<details>
+<summary><h4>Schéma : cas des données Lidar HD</h4></summary>
 
 ![](img/Global_Process.excalidraw.png)
+
+</details>
 
 Les données auront été décrites au préalable dans un "Catalogue" incluant leur emprise géographique, les histogrammes des classes de chaque patch, et des indicateurs de présences de certains objets d'intérêt (p.ex. éoliennes, autoroutes, etc.). Ces métadonnées servent à à échantillonner les données suivant plusieurs heuristiques, avec les cadres conceptuels suivant :
 
@@ -11,6 +16,8 @@ Les données auront été décrites au préalable dans un "Catalogue" incluant l
     - (1) Autocorrélation spatiale des scènes : des scènes proches ont tendance à se ressembler plus que des scènes lointaines ; 
     - (2) Les histogrammes des classes de chaque patch sont un proxy (imparfait) de la nature des scènes : sous condition d'une bonne normalisation, on doit pouvoir définir une mesure de distance des scènes à partir des histogrammes de classes, et de là favoriser la diversité des scènes.
 
+<details>
+<summary><h4>Le sampling dans `pacasam`</h4></summary>
 
 Un sampling se lance au moyen d'un fichier de configuration, et via les objets suivants:
 
@@ -26,8 +33,11 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-train.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val/test pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`. Un rapport html plus visuel est également accessible: `outputs/samplings/{ConnectorName}-{SamplingName}-dataviz/pacasam-sampling-dataviz.html`.
 
+</details>
+
+
 <details>
-<summary><h3>Illustration QGIS - Echantillonnage par TripleSampler</h3></summary>
+<summary><h2>Illustration QGIS - Echantillonnage par TripleSampler</h2></summary>
 
 - A partir de 40 dalles voisines, c'est-à-dire 16000 patches en tout, 893 patches sont échantillonnées, soit environ 6% de la zone.
 - Chaque sampler apporte sa contribution (`TargettedSampler`: jaune, `DiversitySampler`: violet, `SpatialSampler`: marron)
@@ -47,8 +57,8 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{Conne
 
 </details>
 
-<details>
-<summary><h2>Usage & lignes de commandes</h2></summary>
+
+## Usage & lignes de commandes
 
 ### Mettre en place l'environnement virtual avec Anaconda:
 ```bash
@@ -142,20 +152,20 @@ Pour les volumes de données Lidar HD (base LiPaC) :
     - On sait que sur des données non-échantillonnées (dalles complètes) les volumes 140km² (train dataset, dont 10km² de validation dataset) et 10km² (test dataset) donnent des modèles satisfaisants.
     - Sur des données échantillonnées (et donc concentrées en information), on peut envisager de diviser par deux ces volumes pour commencer.
 
-### Développement
+## Développement
 
-#### Performances & Limites
+### Performances & Limites
 
 Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires p.ex. par 20k vignettes successives.
 
 Pacasam ne permet actuellement d'extraire que des vignettes carrées, et alignées avec les axes X et Y du système de coordonnées de référence (SCR).
 
-#### Pistes pour les samplers
+### Pistes pour les samplers
 
 - Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par file_id et patch_id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.
 - Remplacement purement et simplement DiversitySampler via FPS, par OutliersSampler. Cf. pull request de [OutlierSampler](https://github.com/IGNF/pacasam/pull/1). Simple, élégant, et à combiner avec le reste donnera des résultats intéressants. Essayer ça sur une branche et comparer les performances.
 
-#### Tests
+### Tests
 
 Pour lancer les tests de façon parallélisée, en excluant les tests lents et ceux nécessitant les flux (instables) du géoportail :
 ```bash
@@ -168,10 +178,9 @@ make tests
 ```
 NB: un timeout d'une minute est appliqué aux tests impliquant le géoportail.
 
-</details>
 
 <details>
-<summary><h4>Development Roadmap</h4></summary>
+<summary><h3>Development Roadmap</h3></summary>
 
 - Pytest 
     - [X] main pour les méthodes sur jeu de données synthétique.

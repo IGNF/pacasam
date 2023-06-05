@@ -17,7 +17,7 @@ Les données auront été décrites au préalable dans un "Catalogue" incluant l
     - (2) Les histogrammes des classes de chaque patch sont un proxy (imparfait) de la nature des scènes : sous condition d'une bonne normalisation, on doit pouvoir définir une mesure de distance des scènes à partir des histogrammes de classes, et de là favoriser la diversité des scènes.
 
 <details>
-<summary><h4>Le sampling dans `pacasam`</h4></summary>
+<summary><h4>Objets principaux dans pacasam</h4></summary>
 
 Un sampling se lance au moyen d'un fichier de configuration, et via les objets suivants:
 
@@ -32,6 +32,8 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
     - **`TripleSampler`**: (1) `TargettedSampled`, puis complétion à part égale avec (2) `DiversitySampler`, et (3) `SpatialSampler`. C'est un compromis entre les trois méthodes. On pourrait envisager d'utiliser `OutliersSampler` en (2) pour encore mieux cibler les éléments atypiques.
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-train.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val/test pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`. Un rapport html plus visuel est également accessible: `outputs/samplings/{ConnectorName}-{SamplingName}-dataviz/pacasam-sampling-dataviz.html`.
+
+L'extraction des jeux de données passe quant à elle par l'usage d'**Extractors**, et en particulier de l'objet suivant : `LAZExtractor`, qui à partir d'un échantillonnage, extrait des patches de Lidar (format LAZ) et les colorise (orthoimages IRC).
 
 </details>
 <details>

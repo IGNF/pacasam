@@ -9,11 +9,11 @@ The extracted patches are saved to a directory structure under the specified `da
 with subdirectories for train, validation, and test data.
 dataset_root_path/
 ├── train/
-│   ├── {input_laz_stem---patch_id}.laz
+│   ├── TRAIN-file-{file_id}-patch-{patch_id}.laz
 ├── val/
-│   ├── {input_laz_stem---patch_id}.laz
+│   ├── VAL-file-{file_id}-patch-{patch_id}.laz
 ├── test/
-│   ├── {input_laz_stem---patch_id}.laz
+│   ├── TEST-file-{file_id}-patch-{patch_id}.laz
 
 Functions:
     - `extract_laz_dataset(sampling_path: Path, dataset_root_path: Path) -> None`:

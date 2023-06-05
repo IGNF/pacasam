@@ -37,7 +37,7 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{Conne
 
 
 <details>
-<summary><h2>Illustration QGIS - Echantillonnage par TripleSampler</h2></summary>
+<summary><h4>Illustration QGIS - Echantillonnage par TripleSampler</h4></summary>
 
 - A partir de 40 dalles voisines, c'est-à-dire 16000 patches en tout, 893 patches sont échantillonnées, soit environ 6% de la zone.
 - Chaque sampler apporte sa contribution (`TargettedSampler`: jaune, `DiversitySampler`: violet, `SpatialSampler`: marron)

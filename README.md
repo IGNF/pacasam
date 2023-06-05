@@ -27,8 +27,8 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{Conne
 
 <details>
 <summary><h3>Schéma global</h3></summary>
-![](img/Global_Process.excalidraw.png)
 
+![](img/Global_Process.excalidraw.png)
 
 </details>
 <details>

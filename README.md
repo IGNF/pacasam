@@ -25,7 +25,12 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-train.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val/test pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`. Un rapport html plus visuel est également accessible: `outputs/samplings/{ConnectorName}-{SamplingName}-dataviz/pacasam-sampling-dataviz.html`.
 
+<details>
+<summary><h3>Schéma global</h3></summary>
+![](img/Global_Process.excalidraw.png)
 
+
+</details>
 <details>
 <summary><h3>Illustration QGIS - Echantillonnage par TripleSampler</h3></summary>
 

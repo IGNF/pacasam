@@ -1,6 +1,9 @@
 credentials.yml
 
+nohup.out
 pacasam.code-workspace
+
+
 # Byte-compiled / optimized / DLL files
 outputs/
 __pycache__/

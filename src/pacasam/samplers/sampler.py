@@ -1,6 +1,10 @@
 import logging
 from math import floor
+import os
+from pathlib import Path
+import shutil
 from typing import Dict, List, Union
+import fiona
 from geopandas import GeoDataFrame
 from pacasam.samplers.algos import sample_with_stratification
 from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_ID_COLNAME, Connector
@@ -47,3 +51,19 @@ class Sampler:
             val_patches_ids = sample_with_stratification(patches, num_samples_val_set, keys=keys)[PATCH_ID_COLNAME]
             patches.loc[patches[PATCH_ID_COLNAME].isin(val_patches_ids), SPLIT_COLNAME] = "val"
         return patches
+
+
+def save_gpd_to_any_filesystem(gdf: GeoDataFrame, gpkg_path: Path):
+    """We need because Fiona does not support saving directly to a mounted Samba store.
+    We therefore need to save to the local filesystem and then copy the gpkg to its destination.
+
+    Note: Any only means local filesystem or mounted store here.
+
+    """
+    try:
+        gdf.to_file(gpkg_path)
+    except fiona.errors.TransactionError:
+        tmp_copy = f"outputs/samplings/TEMPORARY-{gpkg_path.name}"
+        gdf.to_file(tmp_copy)
+        shutil.copy(tmp_copy, gpkg_path)
+        os.remove(tmp_copy)

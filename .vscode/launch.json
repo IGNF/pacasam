@@ -44,6 +44,18 @@
             ]
         },
         {
+            "name": "Sampling to a store",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_file=/home/CGaydon/repositories/pacasam/configs/Lipac.yml",
+                "--output_path=/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/${USER}/samplings/test_save_to_store/"
+            ]
+        },
+        {
             "name": "Sampling 20230606_PACASAM_TRIPLE_30000_From_PO_Block-TRAIN",
             "type": "python",
             "request": "launch",

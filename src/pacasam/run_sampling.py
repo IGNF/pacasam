@@ -9,6 +9,7 @@ sys.path.append(str(root_dir))
 from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_sampling_config, setup_custom_logger
 from pacasam.analysis.graphs import make_all_graphs_and_a_report
 from pacasam.analysis.stats import Comparer
+from pacasam.samplers.sampler import save_gpd_to_any_filesystem
 
 log = setup_custom_logger()
 
@@ -54,9 +55,10 @@ def run_sampling(args):
     selection: gpd.GeoDataFrame = sampler.get_patches()
     gdf = connector.extract(selection)
     split_name = conf["connector_kwargs"]["split"]
-    gpkg_path = args.output_path / f"{task_name}-{split_name}.gpkg"
+    gpkg_name = f"{task_name}-{split_name}.gpkg"
+    gpkg_path = args.output_path / gpkg_name
     log.info(f"Saving N={len(gdf)} patches into {gpkg_path}")
-    gdf.to_file(gpkg_path)
+    save_gpd_to_any_filesystem(gdf, gpkg_path)
 
     # Get descriptive statistics by comparing the database and the sampling
     comparer = Comparer(output_path=args.output_path / "stats")

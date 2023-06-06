@@ -1,8 +1,14 @@
-# Configuration pour l'optimisation de l'échantillonnage de patches.
+# Nom: 20230606_PACASAM_TRIPLE_30000_From_PO_Block-TEST
+
+# MOTIVATION
+# Premier passage à l'échelle sur un bloc unique : PO. 
+# On vise 75km² de données bien choisies (/2 pr rapport à avant devrait être bien assez !).
+# Et 5km² pour le jeu de val et celui de test.
+# C'est la configuration par défaut de pacasam a date qui est utilisée.
 
 # Objectif de taille du dataset final.
 target_total_num_patches: 2000  # 2000 patches = 5km², to match validation set size
-frac_validation_set:  0.0 # = 3.5km² of validation data.
+frac_validation_set:  0.0
 
 # kwargs for lipac database
 connector_kwargs:

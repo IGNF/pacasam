@@ -51,7 +51,7 @@ def sample_with_stratification(patches: DataFrame, num_to_sample: int, keys: Uni
         if len(add_these_ids) + len(sampled_patches) > num_to_sample:
             add_these_ids = add_these_ids.sample(n=num_to_sample - len(sampled_patches), random_state=GLOBAL_RANDOM_STATE)
 
-        sampled_patches: DataFrame = pd.concat([sampled_patches, add_these_ids], verify_integrity=True)
+        sampled_patches: DataFrame = pd.concat([sampled_patches, add_these_ids])
 
     return sampled_patches
 

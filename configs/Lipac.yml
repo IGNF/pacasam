@@ -66,14 +66,14 @@ TargettedSampler:
     # Cibles obtenues par croisement avec des BD externes (BD Uni)
     # NB: commentées actuellement car la base Lipac utilisée est vide. 
 
-    # presence_de_pylones:
-    #   target_min_samples_proportion: 0.02
+    presence_de_pylones:
+      target_min_samples_proportion: 0.02
 
-    # presence_de_surfaces_d_eau:
-    #   target_min_samples_proportion: 0.02
+    presence_de_surfaces_d_eau:
+      target_min_samples_proportion: 0.02
 
-    # presence_d_autoroutes:
-    #   target_min_samples_proportion: 0.02
+    presence_d_autoroutes:
+      target_min_samples_proportion: 0.02
 
     # Custom - Based on points
 

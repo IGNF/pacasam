@@ -132,11 +132,11 @@ Pour lancer l'extraction de façon parallélisée à partir du sampling "Triple"
 
 ```bash
 conda activate pacasam
-# Note: Ici nous reprécisons les certains paramètres par défaut du Makefile à des fins d'illustration
-make run_extraction_in_parallel_from_parts \
+make extract_laz_dataset_parallel \
     SAMPLING_PATH="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg" \
+    SAMPLING_PARTS_DIR="/tmp/my_laz_dataset_parts/" \
     DATASET_ROOT_PATH="/var/data/${USER}/pacasam_extractions/laz_dataset/" \
-    PARALLEL_EXTRACTION_JOBS="75%" \
+    PARALLEL_EXTRACTION_JOBS="50%" \
     SAMBA_CREDENTIALS_PATH="credentials.yml"
 ```
 

@@ -32,7 +32,7 @@ parser.add_argument(
 parser.add_argument(
     "--samba_credentials_path",
     default="",
-    type=lambda p: Path(p).absolute() if p else None,
+    type=lambda p: Path(p).absolute() if p.strip() else None,
     help="Set to a file with samba credentials (e.g. credentials.yml) to use samba file system instead of local filesystem.",
 )
 

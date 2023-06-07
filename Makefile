@@ -21,7 +21,7 @@ SAMPLING_PATH ?= outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-T
 SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/  # Où diviser le sampling en n parties, une par fichier de données.
 DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/  # Où extraire le jeu de données.
 PARALLEL_EXTRACTION_JOBS ?= "75%"  # Niveau de parallélisation. Un entier ou un pourcentage des cpu.
-SAMBA_CREDENTIALS_PATH ?= '""'  # ATTENTION: Requis pour données dans un store Samba. P.ex. credentials.py
+SAMBA_CREDENTIALS_PATH ?= '""'  # ATTENTION: requis si données dans un store Samba. P.ex. credentials.py
 
 help:
 	@echo "Makefile"
@@ -33,20 +33,22 @@ help:
 	@echo "Note: L'option 'REPORTS=Y' permet la création d'un rapport HTML à partir du sampling."
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
-	@echo "  run_extraction_of_toy_laz_data - Vérifie que tout est OK en extrayant depuis les données LAZ de test."
-	@echo "  run_extraction_of_toy_laz_data_in_parallel - Vérifie que tout est OK en extrayant depuis les données LAZ de test de façon parallélisée."
-	@echo "  prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans SAMPLING_PARTS_DIR."
-	@echo "  run_extraction_in_parallel - Extrait le jeu de donnée à partir des n sampling. Spécifier SAMPLING_PARTS_DIR et DATASET_ROOT_PATH"
-	@echo "Note: la cible run_extraction_in_parallel est séparée de prepare_parallel_extraction, pour pouvoir poursuivre l'extraction en l'appelant."
+	@echo "  extract_toy_laz_data - Vérifie que tout est OK en extrayant depuis les données LAZ de test."
+	@echo "  extract_toy_laz_data_in_parallel - Vérifie que tout est OK en extrayant depuis les données LAZ de test de façon parallélisée."
+	@echo "  _prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans SAMPLING_PARTS_DIR."
+	@echo "  _run_extraction_in_parallel_from_parts - Extrait le jeu de donnée à partir des n sampling. Spécifier SAMPLING_PARTS_DIR et DATASET_ROOT_PATH"
+	@echo "Note: la cible _run_extraction_in_parallel_from_parts permet aussi de poursuivre une extraction interrompue."
 	@echo "------------------------------------"
 	@echo "Cleaning:"
 	@echo "  clean_extractions - Supprime ./outputs/extractions/"
 	@echo "  clean_samplings - Supprime ./outputs/samplings/"
 
 
+# Une seule session bash est utilisé par cible, ce qui permet de partager des variables d'environnement en les exportant.
+.ONESHELL:
 
 .PHONY: help all all_for_all_connectors_with_reports $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
-.PHONY: run_extraction_of_toy_laz_data run_extraction_of_toy_laz_data_in_parallel prepare_parallel_extraction run_extraction_in_parallel
+.PHONY: extract_toy_laz_data extract_toy_laz_data_in_parallel _prepare_parallel_extraction _run_extraction_in_parallel_from_parts
 .PHONY: clean_samplings clean_extractions
 
 
@@ -83,28 +85,18 @@ all_synthetic:
 
 # EXTRACTION
 
-run_extraction_of_toy_laz_data:
-	python ./src/pacasam/run_extraction.py \
-		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
-		--dataset_root_path ./outputs/extractions/toy_laz_dataset/
+extract_laz_dataset_parallel:
+	# Extraction parallélisée du jeu de données.
+	make _prepare_parallel_extraction
+	make _run_extraction_in_parallel_from_parts
 
-run_extraction_of_toy_laz_data_in_parallel:
-	make prepare_parallel_extraction \
-		SAMPLING_PATH=./tests/data/lefty_righty_sampling.gpkg \
-		SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/"
-	
-	make run_extraction_in_parallel \
-		SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/" \
-		DATASET_ROOT_PATH=./outputs/extractions/toy_laz_dataset/ \
-		PARALLEL_EXTRACTION_JOBS=2 \
-
-prepare_parallel_extraction:
+_prepare_parallel_extraction:
 	# Split sampling into n parts, one for each distinct LAZ file.
 	python ./src/pacasam/prepare_parallel_extraction.py \
 		--sampling_path="${SAMPLING_PATH}" \
 		--sampling_parts_dir="${SAMPLING_PARTS_DIR}"
 
-run_extraction_in_parallel:
+_run_extraction_in_parallel_from_parts:
 	# Run extraction in a parallel fashion based on the listing.
 	# Single part sampling are removed upon completion of extraction.
 	# We can resume extraction without changing the command.
@@ -119,6 +111,21 @@ run_extraction_in_parallel:
 			--samba_credentials_path '${SAMBA_CREDENTIALS_PATH}' \
 			&& rm {}"
 
+# EXTRACTION ON TOY DATA
+
+extract_toy_laz_data:
+	python ./src/pacasam/run_extraction.py \
+		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
+		--dataset_root_path ./outputs/extractions/toy_laz_dataset/
+
+extract_toy_laz_data_in_parallel:
+	# Extraction parallélisée depuis les données de test.
+	# On utilise .ONESHELL:, donc pas besoin d'exporter les variables. 
+	SAMPLING_PATH=./tests/data/lefty_righty_sampling.gpkg
+	SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/"
+	DATASET_ROOT_PATH=./outputs/extractions/toy_laz_dataset/
+	PARALLEL_EXTRACTION_JOBS=2
+	make extract_laz_dataset_parallel
 
 # CLEANING
 clean_samplings:

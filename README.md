@@ -122,18 +122,18 @@ Pour produire un rapport html interactif de statistiques descriptives, ainsi que
 Pour tester l'extraction sur le jeu de données de test, lancer
 ```bash
 conda activate pacasam
-make run_extraction_of_toy_laz_data  # single process
-make run_extraction_of_toy_laz_data_in_parallel  # multiprocesses
+make extract_toy_laz_data  # single process
+make extract_toy_laz_data_in_parallel  # multiprocesses
 ```
 
-Passons maintenant à une extraction depuis un sampling Lipac. Si les chemins vers les fichiers LAZ correspondent à un data store Samba, il faut préciser les informatiosn de connexion via le fichier `credentials.yml` : préciser `SMB_USERNAME` (au format username@domain) et `SMB_PASSWORD`. 
+Passons maintenant à une extraction depuis un sampling Lipac. Si les chemins vers les fichiers LAZ correspondent à un data store Samba, il faut préciser les informatiosn de connexion via le fichier `credentials.yml` : préciser `SMB_USERNAME` (au format username@domain) et `SMB_PASSWORD`.
 
 Pour lancer l'extraction de façon parallélisée à partir du sampling "Triple" à l'emplacement par défaut:
 
 ```bash
 conda activate pacasam
 # Note: Ici nous reprécisons les certains paramètres par défaut du Makefile à des fins d'illustration
-make run_extraction_in_parallel \
+make run_extraction_in_parallel_from_parts \
     SAMPLING_PATH="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg" \
     DATASET_ROOT_PATH="/var/data/${USER}/pacasam_extractions/laz_dataset/" \
     PARALLEL_EXTRACTION_JOBS="75%" \

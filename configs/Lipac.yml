@@ -79,7 +79,7 @@ TargettedSampler:
     nb_points_eau_heq_50:
       target_min_samples_proportion: 0.05
 
-    nb_points_sursol_perenne_heq_500:
+    nb_points_sursol_perenne_heq_50:
       target_min_samples_proportion: 0.05
 
     nb_points_pont_heq_50:

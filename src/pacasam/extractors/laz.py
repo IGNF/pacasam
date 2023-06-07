@@ -52,6 +52,12 @@ from pacasam.connectors.connector import FILE_PATH_COLNAME, FILE_ID_COLNAME, GEO
 from pacasam.extractors.extractor import Extractor, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
 
+# Optionally used: if the variable is given in the sampling it overrides the projection from the LAZ file.
+# Necessary to handle situations where proj=None in the LAZ, which defaults to EPSG:9001 ("World") when
+# pdaltools tries to infer the projection from the LAZ file.
+SRID_LAZ_COLNAME = "srid"
+EMPTY_STRING_SO_THAT_PDALTOOLS_INFER_PROJ_FROM_LAZ_FILE_IF_SRID_IS_NOT_GIVEN = ""
+
 
 class LAZExtractor(Extractor):
     """Extract a dataset of LAZ data patches."""
@@ -88,7 +94,9 @@ class LAZExtractor(Extractor):
                 split=getattr(patch_info, SPLIT_COLNAME),
                 patch_suffix=self.patch_suffix,
             )
-            colorize_single_patch(nocolor_patch=Path(tmp_nocolor_patch.name), colorized_patch=colorized_patch)
+            # Use given srid if possible, else pdaltools will infer it from the LAZ file.
+            epsg = getattr(patch_info, SRID_LAZ_COLNAME, EMPTY_STRING_SO_THAT_PDALTOOLS_INFER_PROJ_FROM_LAZ_FILE_IF_SRID_IS_NOT_GIVEN)
+            colorize_single_patch(nocolor_patch=Path(tmp_nocolor_patch.name), colorized_patch=colorized_patch, srid_str=str(epsg))
 
 
 def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_bounds) -> tempfile._TemporaryFileWrapper:
@@ -112,8 +120,10 @@ def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_b
     return patch_tmp_file
 
 
-def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Union[str, Path]) -> None:
+def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Union[str, Path], srid_str: str = "") -> None:
     """Colorizes (RGBNIR) laz in a secure way to avoid corrupted files due to interruptions.
+
+    By default, srid_str="" means that pdaltools infer the srid form the LAZ file directly.
 
     Wrapper to support Path objects since decomp_and_color does not accept Path objects, only strings as file paths.
 
@@ -123,4 +133,4 @@ def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Unio
     if isinstance(colorized_patch, str):
         colorized_patch = Path(colorized_patch)
 
-    decomp_and_color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()))
+    decomp_and_color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()), proj=srid_str)

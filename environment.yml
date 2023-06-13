@@ -16,6 +16,7 @@ dependencies:
   - geoalchemy2
   - geopandas
   - plotly
+  - python-kaleido  # to export images via plotly
   - ipywidgets>=7.6
   - python-kaleido  # to export plotly figures
   - black-jupyter  # code formatting

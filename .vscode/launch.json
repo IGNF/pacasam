@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_all_samplers_on_synthetic_data",
+                "test_graphs",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

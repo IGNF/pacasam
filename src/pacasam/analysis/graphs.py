@@ -74,7 +74,7 @@ def make_all_graphs_and_a_report(gpkg_path: Path, output_path: Path):
 
 def make_class_histogram(df):
     df_bool = df.copy()
-    nb_point_col_bool = [nb_point_col.replace("nb_points_", "") for nb_point_col in NB_POINTS_COLNAMES]
+    nb_point_col_bool = [nb_point_col.replace("nb_", "") for nb_point_col in NB_POINTS_COLNAMES]
     df_bool[nb_point_col_bool] = df_bool[NB_POINTS_COLNAMES] > 0
     df_bool = df_bool.groupby(SPLIT_COLNAME)[nb_point_col_bool].sum().transpose()
     fig = px.bar(df_bool, color=SPLIT_COLNAME, barmode="stack", text_auto=True, title="Nombres de patches avec classe présente.")

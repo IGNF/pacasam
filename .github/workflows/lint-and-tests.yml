@@ -51,7 +51,7 @@ jobs:
         make tests_no_geoportail_no_slow
 
     - name: Test with pytests - slow tests or test requesting geoportal.
-      run |
+      run: |
         make tests_geoportail_or_slow
 
     - name: Finish the workflow anyway.

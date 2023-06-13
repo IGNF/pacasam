@@ -25,6 +25,7 @@ import tempfile
 import sys
 from geopandas import GeoDataFrame
 import geopandas as gpd
+import numpy as np
 import shapely
 import pytest
 
@@ -98,6 +99,6 @@ def synthetic_connector() -> SyntheticConnector:
 def tiny_synthetic_sampling(synthetic_connector: SyntheticConnector) -> GeoDataFrame:
     """Very tiny synthetic database with the columns that make it a sampling."""
     # Add the necessary elements to turn the db into a sampling
-    synthetic_connector.db[SPLIT_COLNAME] = "train"
+    synthetic_connector.db[SPLIT_COLNAME] = np.random.choice(["train", "val", "test"], size=len(synthetic_connector.db), p=[0.8, 0.1, 0.1])
     synthetic_connector.db[FILE_PATH_COLNAME] = str(Path(LEFTY).resolve())
     return synthetic_connector.db

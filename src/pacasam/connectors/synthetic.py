@@ -57,7 +57,6 @@ class SyntheticConnector(Connector):
 
         self.db[PATCH_ID_COLNAME] = range(len(self.db))
         self.db[FILE_ID_COLNAME] = df_file_ids
-        self.db[SPLIT_COLNAME] = np.random.choice(["train", "val", "test"], size=len(self.db), p=[0.8, 0.1, 0.1])
 
         # create a test columns that flags "reserved" patches (i.e. reserved for test set)
         n_target = int(db_size * FRAC_OF_TEST_PATCHES_IN_DATABASE)

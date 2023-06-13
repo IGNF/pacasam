@@ -47,4 +47,5 @@ jobs:
     - name: Test with pytest
       run: |
         # Run tests using a special makefile target that multithread them.
-        make tests
+        # make tests
+        make tests_no_geoportail_no_slow

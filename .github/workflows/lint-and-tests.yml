@@ -10,17 +10,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.10
+    - name: Set up Python 3.9
       uses: actions/setup-python@v3
       with:
-        python-version: '3.10'
-    - name: Add conda to system path # TODO: check if this is necessary!
+        python-version: '3.9'
+
+    - name: Add conda to system path
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA
         echo $CONDA/bin >> $GITHUB_PATH
 
-    - name: Cache Conda environment # TODO: check if need to cache $CONDA/bin also. 
+    - name: Cache Conda environment
       uses: actions/cache@v2
       with:
         path: |

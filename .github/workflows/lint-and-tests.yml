@@ -29,14 +29,17 @@ jobs:
           $CONDA/envs
           $CONDA/bin
         key: conda-${{ hashFiles('environment.yml') }}
+      id: conda_cache
 
-    - name: Add mamba to speed up later installs
+    - name: Add mamba to speed up later installs (if no cached conda envs were found)
       run: |
         conda install mamba -n base -c conda-forge --yes
+      if: steps.cache.conda_cache.cache-hit != 'true'
 
-    - name: Install dependencies
+    - name: Install dependencies (if no cached conda envs were found)
       run: |
         mamba env update --file environment.yml --name base
+      if: steps.cache.conda_cache.cache-hit != 'true'
 
     - name: Lint with flake8
       run: |

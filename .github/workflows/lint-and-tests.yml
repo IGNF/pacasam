@@ -19,17 +19,14 @@ jobs:
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA
         echo $CONDA/bin >> $GITHUB_PATH
-        which conda
-        dir $CONDA
-        dir ~/.conda/
 
     - name: Cache Conda environment # TODO: check if need to cache $CONDA/bin also. 
       uses: actions/cache@v2
       with:
         path: |
-          ~/.conda/
-          ~/.conda/envs
-          ~/.conda/bin
+          $CONDA
+          $CONDA/envs
+          $CONDA/bin
         key: conda-${{ hashFiles('environment.yml') }}
 
     - name: Add mamba to speed up later installs

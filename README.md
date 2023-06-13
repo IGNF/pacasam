@@ -1,6 +1,7 @@
 # (Work In Progress) PACASAM: Patch Catalogue Sampling
 Le module `pacasam` permet le sous-échantillonnage et l'extraction de patches de données géographiques, pour la création d'un jeu de données d'apprentissages profond.
 
+## Contenu
 
 Les données auront été décrites au préalable dans un "Catalogue" incluant leur emprise géographique, les histogrammes des classes de chaque patch, et des indicateurs de présences de certains objets d'intérêt (p.ex. éoliennes, autoroutes, etc.). Ces métadonnées servent à à échantillonner les données suivant plusieurs heuristiques, avec les cadres conceptuels suivant :
 

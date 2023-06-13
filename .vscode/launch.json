@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_prepare_parallel_extraction",
+                "test_graphs",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

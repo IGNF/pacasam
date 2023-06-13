@@ -20,11 +20,18 @@ jobs:
         echo $CONDA
         echo $CONDA/bin >> $GITHUB_PATH
         which conda
+        dir $CONDA
+        dir ~./.conda/
 
     - name: Cache Conda environment # TODO: check if need to cache $CONDA/bin also. 
       uses: actions/cache@v2
       with:
         path: ~/.conda/envs  # Path to the Conda environment directory
+        key: conda-${{ hashFiles('environment.yml') }}
+
+      uses: actions/cache@v2
+      with:
+        path: ~/.conda/envs  # Path to the Conda base directory
         key: conda-${{ hashFiles('environment.yml') }}
 
     - name: Add mamba to speed up later installs

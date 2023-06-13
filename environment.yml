@@ -18,8 +18,6 @@ dependencies:
   - plotly
   - ipywidgets>=7.6
   - python-kaleido  # to export plotly figures
-  # - black[jupyter] # formatting
-  # - black # code formatting
   - black-jupyter  # code formatting
   - tqdm # pretty progress bars
   - smbprotocol=1.10.*  # to read file in a Samba store - see. https://pypi.org/project/smbprotocol/
@@ -38,8 +36,6 @@ dependencies:
   - requests
   - gdal
   - pip:
-    # -   
     - hdbscan  # For OutliersSampler
     - laspy[lazrs,laszip]==2.1.*  # laspy with LAZ backend support
     - ign-pdal-tools  # for colorization of LAZ files
-    # - tqdm  

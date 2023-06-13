@@ -30,7 +30,7 @@ jobs:
         key: conda-${{ hashFiles('environment.yml') }}
       id: conda_cache
 
-    - name: Install dependencies (if no cached conda envs were found)
+    - name: Install dependencies (if no cached conda envs were found) 
       if: steps.conda_cache.outputs.cache-hit != 'true'
       run: |
         conda install mamba -n base -c conda-forge --yes

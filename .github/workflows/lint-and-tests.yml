@@ -20,6 +20,7 @@ jobs:
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA
         echo $CONDA/bin >> $GITHUB_PATH
+      shell: bash
 
     - name: Cache Conda environment
       uses: actions/cache@v3
@@ -34,12 +35,12 @@ jobs:
     - name: Add mamba to speed up later installs (if no cached conda envs were found)
       run: |
         conda install mamba -n base -c conda-forge --yes
-      if: steps.cache.conda_cache.cache-hit != 'true'
+      if: steps.cache.conda_cache.outputs.cache-hit != 'true'
 
     - name: Install dependencies (if no cached conda envs were found)
       run: |
         mamba env update --file environment.yml --name base
-      if: steps.cache.conda_cache.cache-hit != 'true'
+      if: steps.cache.conda_cache.outputs.cache-hit != 'true'
 
     - name: Lint with flake8
       run: |

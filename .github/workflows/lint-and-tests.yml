@@ -44,8 +44,16 @@ jobs:
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=144 --statistics
 
-    - name: Test with pytest
+    - name: Test with pytest - quick tests only
       run: |
         # Run tests using a special makefile target that multithread them.
         # make tests
         make tests_no_geoportail_no_slow
+
+    - name: Test with pytests - slow tests or test requesting geoportal.
+      run |
+        make tests_geoportail_or_slow
+
+    - name: Finish the workflow anyway.
+      run: echo "Workflow is still validated even if the previous step is not successful."
+      if: always()

@@ -7,10 +7,12 @@ import plotly.express as px
 from pathlib import Path
 import sys
 
+
 directory = Path(__file__).resolve().parent.parent.parent
 print(directory)
 sys.path.append(str(directory))
 
+from pacasam.samplers.sampler import SPLIT_COLNAME
 from pacasam.samplers.diversity import normalize_df
 from pacasam.connectors.synthetic import NB_POINTS_COLNAMES
 
@@ -74,20 +76,20 @@ def make_class_histogram(df):
     df_bool = df.copy()
     nb_point_col_bool = [nb_point_col.replace("nb_points_", "") for nb_point_col in NB_POINTS_COLNAMES]
     df_bool[nb_point_col_bool] = df_bool[NB_POINTS_COLNAMES] > 0
-    df_bool = df_bool.groupby("split")[nb_point_col_bool].sum().transpose()
-    fig = px.bar(df_bool, color="split", barmode="stack", text_auto=True, title="Nombres de patches avec classe présente.")
+    df_bool = df_bool.groupby(SPLIT_COLNAME)[nb_point_col_bool].sum().transpose()
+    fig = px.bar(df_bool, color=SPLIT_COLNAME, barmode="stack", text_auto=True, title="Nombres de patches avec classe présente.")
     return fig
 
 
 def make_boolean_descriptor_histogram(df: DataFrame):
     bool_descriptors_cols = df.select_dtypes(include=bool).columns.tolist()
     # NaN are interpreted as absence here.
-    df_bool = df[["split"] + bool_descriptors_cols].copy().fillna(False)
+    df_bool = df[[SPLIT_COLNAME] + bool_descriptors_cols].copy().fillna(False)
     df_bool["all"] = 1
-    df_bool = df_bool.groupby("split")[["all"] + bool_descriptors_cols].sum().transpose()
+    df_bool = df_bool.groupby(SPLIT_COLNAME)[["all"] + bool_descriptors_cols].sum().transpose()
     fig = px.bar(
         df_bool,
-        color="split",
+        color=SPLIT_COLNAME,
         barmode="relative",
         text_auto=True,
         title=f"Nombres de vignettes - TOTAL={len(df)}",
@@ -99,12 +101,12 @@ def make_boolean_descriptor_histogram(df: DataFrame):
 def make_class_distribution(df, colname):
     """Class distriburtion with a stratification on the split."""
     # Passer à zéro, concernera les classes rares, permet distribution interprétable.
-    df_no_zero = df[["split"] + NB_POINTS_COLNAMES].copy()
+    df_no_zero = df[[SPLIT_COLNAME] + NB_POINTS_COLNAMES].copy()
     df_no_zero[NB_POINTS_COLNAMES] = df_no_zero[NB_POINTS_COLNAMES].replace({0: np.nan})
     return px.histogram(
         df_no_zero,
         x=colname,
-        color="split",
+        color=SPLIT_COLNAME,
         marginal="box",
         hover_data=df_no_zero.columns,
         opacity=0.5,
@@ -119,10 +121,10 @@ def make_scatter_matrix_classes(df, norm=None):
     fig = px.scatter_matrix(
         df_norm,
         dimensions=NB_POINTS_COLNAMES,
-        color="split",
-        symbol="split",
+        color=SPLIT_COLNAME,
+        symbol=SPLIT_COLNAME,
         opacity=0.9,
-        labels={col: col.replace("nb_points_", "").replace("vegetation", "veg") for col in df.columns},
+        labels={col: col.replace("nb_", "").replace("vegetation", "veg") for col in df.columns},
         width=1500,
         height=1500,
         title="Nombres de points par classe" + (f"Normalisation: ({norm})" if norm else ""),

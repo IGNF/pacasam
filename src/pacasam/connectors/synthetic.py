@@ -8,20 +8,20 @@ from shapely.geometry import box
 
 from pacasam.connectors.connector import FILE_ID_COLNAME, Connector
 from pacasam.connectors.lipac import SPLIT_TYPE, TEST_COLNAME_IN_LIPAC, filter_lipac_patches_on_split
-from pacasam.samplers.sampler import PATCH_ID_COLNAME
+from pacasam.samplers.sampler import PATCH_ID_COLNAME, SPLIT_COLNAME
 
-# Should match what is in the database. Also used for histograms.
+# Should match what is in the Lipac database. Also used for histograms.
 NB_POINTS_COLNAMES = [
-    "nb_points_total",
-    "nb_points_sol",
-    "nb_points_bati",
-    "nb_points_vegetation_basse",
-    "nb_points_vegetation_moyenne",
-    "nb_points_vegetation_haute",
-    "nb_points_pont",
-    "nb_points_eau",
-    "nb_points_sursol_perenne",
-    "nb_points_non_classes",
+    "nb_total",
+    "nb_sol",
+    "nb_bati",
+    "nb_vegetation_basse",
+    "nb_vegetation_moyenne",
+    "nb_vegetation_haute",
+    "nb_pont",
+    "nb_eau",
+    "nb_sursol_perenne",
+    "nb_non_classes",
 ]
 
 log = logging.getLogger(__name__)
@@ -57,6 +57,7 @@ class SyntheticConnector(Connector):
 
         self.db[PATCH_ID_COLNAME] = range(len(self.db))
         self.db[FILE_ID_COLNAME] = df_file_ids
+        self.db[SPLIT_COLNAME] = np.random.choice(["train", "val", "test"], size=len(self.db), p=[0.8, 0.1, 0.1])
 
         # create a test columns that flags "reserved" patches (i.e. reserved for test set)
         n_target = int(db_size * FRAC_OF_TEST_PATCHES_IN_DATABASE)

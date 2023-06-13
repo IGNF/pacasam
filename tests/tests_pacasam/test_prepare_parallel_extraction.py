@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 import geopandas as gpd
 from pacasam.prepare_parallel_extraction import get_stem_from_any_file_format, split_sampling_by_file
-from tests.conftest import NUM_TEST_FILES
+from conftest import NUM_TEST_FILES
 
 
 def test_get_stem_from_any_file_format_unix():

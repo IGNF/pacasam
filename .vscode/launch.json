@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_colorize_single_patch",
+                "test_graphs",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

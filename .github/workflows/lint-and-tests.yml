@@ -1,0 +1,50 @@
+name: Python Package using Conda
+
+on: [push]
+
+jobs:
+  lint-and-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+    # Use bash instead of sh for conda activation
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+    - name: "Checkout"
+      uses: actions/checkout@v3
+
+    - name: Setup a conda-incubator with an empty conda env
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+          python-version: 3.9.16
+          miniforge-variant: Mambaforge
+          miniforge-version: latest
+          use-mamba: true
+          # Environment to create and activate for next steps
+          activate-environment: pacasam
+
+    - name: Cache Conda environment based on dependencies.
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.CONDA }}/envs
+        key: conda-${{ hashFiles('environment.yml') }}
+      id: cache
+
+    - name: Create virtual env (if no cached conda envs were found) 
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: mamba env update -n pacasam --file environment.yml
+
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=144 --statistics
+
+    - name: Test with pytest
+      run: |
+        # Run tests using a special makefile target that multithread them.
+        make tests

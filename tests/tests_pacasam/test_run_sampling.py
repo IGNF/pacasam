@@ -38,7 +38,7 @@ def test_make_html_report_option_after_random_sampler():
 
 def test_copy_and_then_random_sampling():
     # Get a copy via CopySampler, avoid deletion by keeping reference in scope
-    tmp_gpkg_path: Path = _run_sampling_by_args(sampler_class="CopySampler")
+    tmp_gpkg_path: Path = _run_sampling_by_args(sampler_class="CopySampler")  # noqa: F841
     # Run the sampling using the default config that currently only reads Synthetic Geopackage.
     _run_sampling_by_args(
         connector_class="GeopandasConnector", sampler_class="RandomSampler", config_file="configs/Synthetic_as_Geopackage.yml"

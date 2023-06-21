@@ -1,6 +1,5 @@
 import logging
 from typing import Iterable, Optional
-from pandas import Series
 from geopandas import GeoDataFrame
 
 # Those are the necessary columns that are needed in the database to perform a sampling.

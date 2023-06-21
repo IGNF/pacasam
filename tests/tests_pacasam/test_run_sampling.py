@@ -7,7 +7,7 @@ from pacasam.run_sampling import run_sampling
 from pacasam.run_sampling import parser
 from pacasam.samplers.random import RandomSampler
 from pacasam.utils import SAMPLERS_LIBRARY
-from tests.conftest import LEFTY_RIGHTY_SAMPLING
+from conftest import LEFTY_RIGHTY_SAMPLING
 
 log = logging.getLogger(__name__)
 

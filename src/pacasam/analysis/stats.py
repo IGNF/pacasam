@@ -33,7 +33,7 @@ class Comparer:
 
         # With some stratification
         for key in ["sampler", "split"]:
-            if df_sampling[key].nunique() == 1:
+            if df_sampling[key].nunique() <= 1:
                 continue
             # Compare prevalence of all boolean descriptors.
             comparison_df_by_key = self.compare_by_key(df_database, df_sampling, key, self.compare_bools)
@@ -85,5 +85,7 @@ class Comparer:
             comparison_df_sampler.insert(0, key, key_value)
             dfs += [comparison_df_sampler]
         comparison_df_by_sampler = pd.concat(dfs, ignore_index=False)
-        comparison_df_by_sampler = comparison_df_by_sampler.set_index([comparison_df_by_sampler.index.rename("descriptor"), key]).sort_index()
+        comparison_df_by_sampler = comparison_df_by_sampler.set_index(
+            [comparison_df_by_sampler.index.rename("descriptor"), key]
+        ).sort_index()
         return comparison_df_by_sampler

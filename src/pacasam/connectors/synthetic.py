@@ -8,7 +8,7 @@ from shapely.geometry import box
 
 from pacasam.connectors.connector import FILE_ID_COLNAME, Connector
 from pacasam.connectors.lipac import SPLIT_TYPE, TEST_COLNAME_IN_LIPAC, filter_lipac_patches_on_split
-from pacasam.samplers.sampler import PATCH_ID_COLNAME, SPLIT_COLNAME
+from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
 # Should match what is in the Lipac database. Also used for histograms.
 NB_POINTS_COLNAMES = [

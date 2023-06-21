@@ -4,19 +4,20 @@ from typing import Optional
 import geopandas as gpd
 
 from pacasam.connectors.connector import Connector
+from pacasam.samplers.sampler import SPLIT_POSSIBLE_VALUES
 
 
-# TODO: add some simple tests.
+# TODO: add some tests.
 class GeopandasConnector(Connector):
-    def __init__(self, log: Optional[logging.Logger], gpd_database_path: Path):
+    def __init__(self, log: Optional[logging.Logger], gpd_database_path: Path, split: SPLIT_POSSIBLE_VALUES):
         super().__init__(log=log)
         self.log = log
-        self.gpd_database_path = gpd_database_path
+        self.gpd_database_path = Path(gpd_database_path).resolve()
         self._db = None
 
     @property
     def db(self):
         if self._db is None:
             self._db = gpd.read_file(self.gpd_database_path)
-            # TODO: check does it work if the data is in a store?
+            # TODO: check if it works if the data is in a store
         return self._db

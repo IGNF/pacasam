@@ -3,17 +3,15 @@ from math import floor
 import os
 from pathlib import Path
 import shutil
-from typing import Dict, List, Union
+from typing import Dict, List, Literal, Union
 import fiona
 from geopandas import GeoDataFrame
 from pacasam.samplers.algos import sample_with_stratification
 from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_ID_COLNAME, Connector
 
-# Schema of all DataFrame outputs of sampler.get_patches(...) calls.
-
-
 # Created by samplers
 SPLIT_COLNAME = "split"
+SPLIT_POSSIBLE_VALUES = Union[Literal["train"], Literal["test"], Literal["any"]]
 SAMPLER_COLNAME = "sampler"
 
 

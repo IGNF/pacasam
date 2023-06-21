@@ -7,7 +7,7 @@ import geopandas as gpd
 from shapely.geometry import box
 
 from pacasam.connectors.connector import FILE_ID_COLNAME, Connector
-from pacasam.connectors.lipac import SPLIT_TYPE, TEST_COLNAME_IN_LIPAC, filter_lipac_patches_on_split
+from pacasam.connectors.lipac import SPLIT_POSSIBLE_VALUES, TEST_COLNAME_IN_LIPAC, filter_lipac_patches_on_split
 from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
 # Should match what is in the Lipac database. Also used for histograms.
@@ -34,7 +34,13 @@ FRAC_OF_TEST_PATCHES_IN_DATABASE = 0.2
 
 
 class SyntheticConnector(Connector):
-    def __init__(self, log: Optional[logging.Logger], binary_descriptors_prevalence: List[float], split: SPLIT_TYPE, db_size: int = 10000):
+    def __init__(
+        self,
+        log: Optional[logging.Logger],
+        binary_descriptors_prevalence: List[float],
+        split: SPLIT_POSSIBLE_VALUES,
+        db_size: int = 10000,
+    ):
         super().__init__(log=log)
         self.db_size = db_size
         # TODO: make db an attribute so that it is created when accessed instead of at initialization of the object.

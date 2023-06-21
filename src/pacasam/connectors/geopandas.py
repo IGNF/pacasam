@@ -7,7 +7,6 @@ from pacasam.connectors.connector import Connector
 from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME, SPLIT_POSSIBLE_VALUES
 
 
-# TODO: add some tests.
 class GeopandasConnector(Connector):
     def __init__(self, log: Optional[logging.Logger], gpd_database_path: Path, split: SPLIT_POSSIBLE_VALUES):
         super().__init__(log=log)
@@ -22,9 +21,6 @@ class GeopandasConnector(Connector):
             self._db = gpd.read_file(self.gpd_database_path)
             # Those two columns are present if we read from a sampling (in particular: from the output of CopySampler).
             # We need to drop them to avoid conflicts when sampling again.
-            self._db = self._db.drop(
-                columns=[SPLIT_COLNAME, SAMPLER_COLNAME],
-                errors="ignore"
-            )
+            self._db = self._db.drop(columns=[SPLIT_COLNAME, SAMPLER_COLNAME], errors="ignore")
             # TODO: check if it works if the data is in a store
         return self._db

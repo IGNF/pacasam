@@ -66,15 +66,6 @@ class SyntheticConnector(Connector):
         self.db = filter_lipac_patches_on_split(db=self.db, split_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
         self.db_size = len(self.db)
 
-    def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
-        """Extract everything using ids."""
-        extract = self.db.merge(
-            selection,
-            how="inner",
-            on=PATCH_ID_COLNAME,
-        )
-        return extract
-
     def _make_synthetic_geometries_and_slabs(self):
         fake_grid_size = ceil(np.sqrt(self.db_size))
         # Cartesian product of range * tile_size

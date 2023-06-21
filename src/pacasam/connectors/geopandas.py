@@ -4,7 +4,7 @@ from typing import Optional
 import geopandas as gpd
 
 from pacasam.connectors.connector import Connector
-from pacasam.samplers.sampler import SPLIT_POSSIBLE_VALUES
+from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME, SPLIT_POSSIBLE_VALUES
 
 
 # TODO: add some tests.
@@ -18,8 +18,13 @@ class GeopandasConnector(Connector):
     @property
     def db(self):
         if self._db is None:
-            # TODO: check that we do not have any remaining columns related to sampling :
             # split, sampler. We can ditch them here, or be sure elsewhere that it does not conflict.
             self._db = gpd.read_file(self.gpd_database_path)
+            # Those two columns are present if we read from a sampling (in particular: from the output of CopySampler).
+            # We need to drop them to avoid conflicts when sampling again.
+            self._db = self._db.drop(
+                columns=[SPLIT_COLNAME, SAMPLER_COLNAME],
+                errors="ignore"
+            )
             # TODO: check if it works if the data is in a store
         return self._db

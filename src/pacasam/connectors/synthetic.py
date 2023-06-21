@@ -24,8 +24,6 @@ NB_POINTS_COLNAMES = [
     "nb_non_classes",
 ]
 
-log = logging.getLogger(__name__)
-
 SLAB_SIZE = 1000
 TILE_SIZE = 50
 

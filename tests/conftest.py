@@ -51,6 +51,8 @@ RIGHTY = "tests/data/792000_6272000-50mx100m-right.laz"
 RIGHTY_UP_GEOMETRY = shapely.box(xmin=792050, ymin=6271171 + 50, xmax=792100, ymax=6271271)
 RIGHTY_DOWN_GEOMETRY = shapely.box(xmin=792050, ymin=6271171, xmax=792100, ymax=6271271 - 50)
 
+LEFTY_RIGHTY_SAMPLING = "./tests/data/lefty_righty_sampling.gpkg"
+
 NUM_TEST_FILES = 2
 NUM_PATCHED_IN_EACH_FILE = 2
 
@@ -82,7 +84,7 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
 
     # Note: Uncomment to update the saved gpkg.
     # Versionnning this file is intended to facilitate CLI tests by users (see Makefile).
-    # df.to_file(Path("./tests/data/lefty_righty_sampling.gpkg"))
+    # df.to_file(Path(LEFTY_RIGHTY_SAMPLING))
 
     return toy_sampling_tmp_file
 

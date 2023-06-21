@@ -14,7 +14,7 @@
 CONNECTOR ?= LiPaCConnector  # LiPaCConnector ou SyntheticConnector
 CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml - Devrait correspondre au connecteur!
 REPORTS ?= N # N(o) ou Y(es). No pour des résultats plus rapides.
-# CopySampler non inclu pour éviter copie lourde de LiPaC.
+# CopySampler géré séparemment pour éviter copie lourde de LiPaC.
 SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler TripleSampler OutliersSampler
 
 # Paramètres pour l'extraction
@@ -74,16 +74,24 @@ open_coverage_report:
 
 # SAMPLING
 
+all: $(SAMPLERS)
+
 $(SAMPLERS):
 	python ./src/pacasam/run_sampling.py --config_file=$(CONFIG) \
 		--connector_class=$(CONNECTOR) \
 		--sampler_class=$@ \
 		--make_html_report=$(REPORTS)
 
-all: $(SAMPLERS)
+CopySampler:
+	python ./src/pacasam/run_sampling.py --config_file=$(CONFIG) \
+		--connector_class=$(CONNECTOR) \
+		--sampler_class=CopySampler \
+		--make_html_report=$(REPORTS)
+
 
 all_synthetic:
 	make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
+	make CopySampler CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 
 
 # EXTRACTION

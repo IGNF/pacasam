@@ -20,6 +20,7 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
 - **Connector**: interface de connexion aux données: 
     - `LiPaCConnector`: connexion et requêtage de la base LiPaC (Lidar Patch Catalogue).
     - `SyntheticConnector`: création d'un GeoDataFrame synthétique, composé de tuiles répartie dans une grille arbitraire, pour effectuer des tests rapidements.
+    - `GeopandasConnector`: lecture d'un format compatible avec `geopandas` (geopackage, shapefile...). Usage typique : lecture d'un sampling antérieur, pour l'échantillonner encore plus.
 - **Sampler**: interrogent les objets `Connector` suivant la configuration pour sélectionne des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
     - `TargettedSampler`: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale. NB: Si usage de ce sampler en isolation, la taille du jeu de données en sortie n'est pas garantie.
     - `OutliersSampler`:  détection des scènes les plus atypiques, via un clustering HDBSCAN (i.e. histogrammes standardisés des classes).

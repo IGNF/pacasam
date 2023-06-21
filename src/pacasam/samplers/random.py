@@ -1,7 +1,6 @@
 from typing import Iterable
 import geopandas as gpd
 from pacasam.connectors.connector import FILE_ID_COLNAME
-
 from pacasam.samplers.algos import sample_randomly
 from pacasam.samplers.sampler import Sampler
 

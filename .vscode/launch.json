@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_graphs",
+                "test_run_sampling",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"
@@ -89,6 +89,19 @@
                 "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
                 "--sampler_class=OutliersSampler",
+            ]
+        },
+        {
+            "name": "Run Sampling (Copy+Synthetic)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--config_file=configs/Synthetic.yml",
+                "--connector_class=SyntheticConnector",
+                "--sampler_class=CopySampler",
             ]
         },
         {

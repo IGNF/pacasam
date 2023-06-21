@@ -1,6 +1,6 @@
 from typing import Optional
 import numpy as np
-from pacasam.connectors.connector import FILE_ID_COLNAME, TILE_INFO
+from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_INFO
 
 from pacasam.samplers.diversity import normalize_df
 from pacasam.samplers.sampler import Sampler
@@ -34,7 +34,7 @@ class OutliersSampler(Sampler):
         cols_for_clustering = self.cf["OutliersSampler"]["columns"]
 
         df = self.connector.db
-        df = df[TILE_INFO + cols_for_clustering]
+        df = df[PATCH_INFO + cols_for_clustering]
         # Always use the default normalization method : standardization,
         # because it is the only one that gives good outliers.
         df = normalize_df(df=df, columns=self.cf["OutliersSampler"]["columns"])
@@ -45,7 +45,7 @@ class OutliersSampler(Sampler):
         # We keep the most "outliers" points i.e. supposedly the most different and informative points.
         df = df.sort_values(by="outlier_scores", ascending=False).head(num_to_sample)
 
-        patches = df[TILE_INFO + ["cluster_id", "outlier_scores"]]
+        patches = df[PATCH_INFO + ["cluster_id", "outlier_scores"]]
         self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id", FILE_ID_COLNAME])
         patches["sampler"] = self.name
         self.log.info(f"{self.name}: N={num_to_sample} patches.")

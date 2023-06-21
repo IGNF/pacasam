@@ -9,7 +9,8 @@ sys.path.append(str(root_dir))
 from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_sampling_config, setup_custom_logger
 from pacasam.analysis.graphs import make_all_graphs_and_a_report
 from pacasam.analysis.stats import Comparer
-from pacasam.samplers.sampler import save_gpd_to_any_filesystem
+from pacasam.connectors.connector import Connector
+from pacasam.samplers.sampler import Sampler, save_gpd_to_any_filesystem
 
 log = setup_custom_logger()
 
@@ -45,11 +46,11 @@ def run_sampling(args):
 
     # Connector
     connector_class = CONNECTORS_LIBRARY.get(args.connector_class)
-    connector = connector_class(log=log, **conf["connector_kwargs"])
+    connector: Connector = connector_class(log=log, **conf["connector_kwargs"])
 
     # Sampler
     sampler_class = SAMPLERS_LIBRARY.get(args.sampler_class)
-    sampler = sampler_class(connector=connector, sampling_config=conf, log=log)
+    sampler: Sampler = sampler_class(connector=connector, sampling_config=conf, log=log)
 
     # Perform sampling
     selection: gpd.GeoDataFrame = sampler.get_patches()

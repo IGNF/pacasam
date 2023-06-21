@@ -18,6 +18,8 @@ class GeopandasConnector(Connector):
     @property
     def db(self):
         if self._db is None:
+            # TODO: check that we do not have any remaining columns related to sampling :
+            # split, sampler. We can ditch them here, or be sure elsewhere that it does not conflict.
             self._db = gpd.read_file(self.gpd_database_path)
             # TODO: check if it works if the data is in a store
         return self._db

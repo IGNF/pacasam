@@ -14,6 +14,7 @@
 CONNECTOR ?= LiPaCConnector  # LiPaCConnector ou SyntheticConnector
 CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml - Devrait correspondre au connecteur!
 REPORTS ?= N # N(o) ou Y(es). No pour des résultats plus rapides.
+# CopySampler non inclu pour éviter copie lourde de LiPaC.
 SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler TripleSampler OutliersSampler
 
 # Paramètres pour l'extraction
@@ -79,7 +80,6 @@ $(SAMPLERS):
 		--sampler_class=$@ \
 		--make_html_report=$(REPORTS)
 
-# By default: run all sampling from Lipac database.
 all: $(SAMPLERS)
 
 all_synthetic:

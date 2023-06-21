@@ -54,7 +54,7 @@ class Sampler:
 
 
 def save_gpd_to_any_filesystem(gdf: GeoDataFrame, gpkg_path: Path):
-    """We need because Fiona does not support saving directly to a mounted Samba store.
+    """We need this because Fiona does not support saving directly to a mounted Samba store.
     We therefore need to save to the local filesystem and then copy the gpkg to its destination.
 
     Note: Any only means local filesystem or mounted store here.

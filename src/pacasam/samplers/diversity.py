@@ -2,7 +2,7 @@ from typing import List
 from math import ceil
 import pandas as pd
 
-from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_ID_COLNAME, TILE_INFO
+from pacasam.connectors.connector import FILE_ID_COLNAME, PATCH_ID_COLNAME, PATCH_INFO
 from pacasam.samplers.algos import fps, normalize_df, yield_chunks
 from pacasam.samplers.sampler import Sampler
 
@@ -59,7 +59,7 @@ class DiversitySampler(Sampler):
         # We sort by id with the assumption that the chunks are consecutive patches, from consecutive slabs.
         # This enables FPS to have a notion of "diversity" that is spatially specific.
         db = db.sort_values(by=[FILE_ID_COLNAME, PATCH_ID_COLNAME])
-        db = db[TILE_INFO + cols_for_fps]
+        db = db[PATCH_INFO + cols_for_fps]
         db = normalize_df(
             df=db,
             columns=cols_for_fps,
@@ -87,7 +87,7 @@ class DiversitySampler(Sampler):
                 num_to_sample = len(df)
             diverse_idx = fps(arr=df[cols_for_fps].values, num_to_sample=num_to_sample)
             # Reset index to be sure our np indices can index the dataframe.
-            diverse = df.reset_index(drop=True).loc[diverse_idx, TILE_INFO]
+            diverse = df.reset_index(drop=True).loc[diverse_idx, PATCH_INFO]
             diverse["sampler"] = self.name
             diverse["split"] = "test"
             if self.cf["frac_validation_set"] is not None:

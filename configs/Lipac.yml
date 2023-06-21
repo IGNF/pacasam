@@ -21,6 +21,9 @@ connector_kwargs:
   # Lecture par parties de la base PostGIS.
   max_chunksize_for_postgis_extraction: 100000
 
+  # TEMPORARY : chemin vers un geopackage avec le contenu de la base, pour usage de GeopandasConnector
+  # On pourra s'en passer facilement une fois hydra mis en place.
+
 DiversitySampler:
   # Gestion par parties (chunk) des vignettes via FPS.
   # Les vignettes sont ordonnées par leur identifiant unique "patch_id", et l'id est supposé avoir été choisi incrémentalement

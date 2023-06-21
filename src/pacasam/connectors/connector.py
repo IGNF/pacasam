@@ -20,7 +20,8 @@ class Connector:
     db: GeoDataFrame
     log: logging.Logger
 
-    def __init__(self):
+    def __init__(self, log: logging.Logger):
+        self.log = log
         self.name: str = self.__class__.__name__  # for convenience
 
     @property

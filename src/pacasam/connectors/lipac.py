@@ -43,8 +43,7 @@ class LiPaCConnector(Connector):
             max_chunksize_for_postgis_extraction (int, optional): For chunk-reading the (large) database. Defaults to 100000.
 
         """
-        super().__init__()
-        self.log = log
+        super().__init__(log=log)
         self.username = username
         self.host = db_lipac_host
         self.db_name = db_lipac_name

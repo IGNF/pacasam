@@ -35,8 +35,7 @@ FRAC_OF_TEST_PATCHES_IN_DATABASE = 0.2
 
 class SyntheticConnector(Connector):
     def __init__(self, log: Optional[logging.Logger], binary_descriptors_prevalence: List[float], split: SPLIT_TYPE, db_size: int = 10000):
-        super().__init__()
-        self.log = log
+        super().__init__(log=log)
         self.db_size = db_size
         # TODO: make db an attribute so that it is created when accessed instead of at initialization of the object.
         df_geom, df_file_ids = self._make_synthetic_geometries_and_slabs()

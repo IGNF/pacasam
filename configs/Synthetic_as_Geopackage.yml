@@ -1,0 +1,14 @@
+# Configuration pour l'optimisation de l'échantillonnage de patches.
+
+# Objectif de taille du dataset final.
+target_total_num_patches: 5000  # 250km² = 100000 samples, 5000 samples -> 20x reduction  | Alternatively 75km² = 30000 samples.
+frac_validation_set:  0.1 # float,ou "null" pour que la colonne "split" prenne la valeur "test" partout.
+
+# /!\ 
+# POUR L'INSTANT SEULEMENT VALIDE AVEC SYNTHETIC ET RANDOM SAMPLING ! 
+# ON UTILISERA HYDRA POUR EVITER LES REDONDANCES ET PERMETTRE LES COMBINAISONS DANS UNE PROCHAINE PR.
+
+# kwargs for lipac database
+connector_kwargs:
+  gpd_database_path: "./outputs/samplings/SyntheticConnector-CopySampler/SyntheticConnector-CopySampler-train.gpkg"
+  split: "any"

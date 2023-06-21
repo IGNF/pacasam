@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_run_sampling",
+                "test_copy_and_then_random_sampling",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

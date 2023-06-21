@@ -42,9 +42,8 @@ class SyntheticConnector(Connector):
         db_size: int = 10000,
     ):
         super().__init__(log=log)
-        self.db_size = db_size
         # TODO: make db an attribute so that it is created when accessed instead of at initialization of the object.
-        df_geom, df_file_ids = self._make_synthetic_geometries_and_slabs()
+        df_geom, df_file_ids = make_synthetic_geometries_and_slabs(db_size)
         # WARNING: the synthetic geometries will not be compliant with the FILE_ID_COLNAME.
         self.db = gpd.GeoDataFrame(
             geometry=df_geom,
@@ -69,27 +68,27 @@ class SyntheticConnector(Connector):
         np.random.shuffle(d)
         self.db[TEST_COLNAME_IN_LIPAC] = d
         self.db = filter_lipac_patches_on_split(db=self.db, split_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
-        self.db_size = len(self.db)
 
-    def _make_synthetic_geometries_and_slabs(self):
-        fake_grid_size = ceil(np.sqrt(self.db_size))
-        # Cartesian product of range * tile_size
-        df_x = DataFrame({"x": range(fake_grid_size)}) * TILE_SIZE
-        df_y = DataFrame({"y": range(fake_grid_size)}) * TILE_SIZE
-        df_xy = df_x.merge(df_y, how="cross")
 
-        # limit the size to the desired db_size
-        df_xy = df_xy.head(self.db_size)
+def make_synthetic_geometries_and_slabs(db_size: int):
+    fake_grid_size = ceil(np.sqrt(db_size))
+    # Cartesian product of range * tile_size
+    df_x = DataFrame({"x": range(fake_grid_size)}) * TILE_SIZE
+    df_y = DataFrame({"y": range(fake_grid_size)}) * TILE_SIZE
+    df_xy = df_x.merge(df_y, how="cross")
 
-        df_geom = df_xy.apply(
-            lambda row: box(
-                row["x"],
-                row["y"],
-                row["x"] + TILE_SIZE,
-                row["y"] + TILE_SIZE,
-                ccw=False,
-            ),
-            axis=1,
-        )
-        df_file_ids = (df_xy // SLAB_SIZE).apply(lambda row: str(row["x"]) + "_" + str(row["y"]), axis=1)
-        return df_geom, df_file_ids
+    # limit the size to the desired db_size
+    df_xy = df_xy.head(db_size)
+
+    df_geom = df_xy.apply(
+        lambda row: box(
+            row["x"],
+            row["y"],
+            row["x"] + TILE_SIZE,
+            row["y"] + TILE_SIZE,
+            ccw=False,
+        ),
+        axis=1,
+    )
+    df_file_ids = (df_xy // SLAB_SIZE).apply(lambda row: str(row["x"]) + "_" + str(row["y"]), axis=1)
+    return df_geom, df_file_ids

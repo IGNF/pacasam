@@ -48,12 +48,14 @@ def test_make_html_report_option_after_random_sampler():
 
 
 def test_sampling_again_from_a_previous_sampling():
-    TWO_OUT_OF_FOUR = 2
+    TWO_PATCHES_REMAIN_AFTER_SAMPLING = 2
     connector = GeopandasConnector(log=log, gpd_database_path=LEFTY_RIGHTY_SAMPLING, split="any")
     sampler = RandomSampler(
-        connector=connector, sampling_config={"target_total_num_patches": TWO_OUT_OF_FOUR, "frac_validation_set": 0}, log=log
+        connector=connector,
+        sampling_config={"target_total_num_patches": TWO_PATCHES_REMAIN_AFTER_SAMPLING, "frac_validation_set": 0},
+        log=log,
     )
     # Perform sampling
     selection: gpd.GeoDataFrame = sampler.get_patches()
     gdf = connector.extract(selection)
-    assert len(gdf) == TWO_OUT_OF_FOUR
+    assert len(gdf) == TWO_PATCHES_REMAIN_AFTER_SAMPLING

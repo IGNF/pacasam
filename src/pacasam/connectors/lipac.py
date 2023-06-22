@@ -1,4 +1,5 @@
 import logging
+import os
 from typing import Generator, Literal, Optional, Union
 
 import pandas as pd
@@ -8,7 +9,6 @@ from geopandas import GeoDataFrame
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
-import yaml
 from pacasam.connectors.connector import GEOMETRY_COLNAME, Connector
 from pacasam.samplers.sampler import PATCH_ID_COLNAME
 
@@ -135,9 +135,8 @@ def filter_lipac_patches_on_split(db: GeoDataFrame, split_colname: str, desired_
 
 
 def load_LiPaCConnector(**lipac_kwargs) -> LiPaCConnector:
-    with open(lipac_kwargs["credentials_file_path"], "r") as credentials_file:
-        credentials = yaml.safe_load(credentials_file)
-    lipac_username = credentials["DB_LOGIN"]
-    lipac_password = credentials["DB_PASSWORD"]
-    del lipac_kwargs["credentials_file_path"]  # not needed anymore
+    # TODO: at some point we will not need this since hydra will be able to
+    # to get the env variables directly.
+    lipac_username = os.getenv("LIPAC_LOGIN")
+    lipac_password = os.getenv("LIPAC_PASSWORD")
     return LiPaCConnector(username=lipac_username, password=lipac_password, **lipac_kwargs)

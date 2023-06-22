@@ -21,8 +21,9 @@ addopts = "--cov src/pacasam/ --cov-report html"
 
 filterwarnings = [
     "ignore::pandas.errors.SettingWithCopyWarning",
-    # "ignore::geopandas.UserWarning" # TODO: find the right path
+    "ignore::UserWarning"
 ]
+# TODO: find the right path
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "geoportail: marks tests that request the (often unreliable) geoportail.gouv.fr",

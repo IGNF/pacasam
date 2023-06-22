@@ -40,3 +40,4 @@ dependencies:
     - hdbscan  # For OutliersSampler
     - laspy[lazrs,laszip]==2.1.*  # laspy with LAZ backend support
     - ign-pdal-tools  # for colorization of LAZ files
+    - python-dotenv

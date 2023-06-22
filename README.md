@@ -99,7 +99,12 @@ python ./src/pacasam/run_sampling.py --config_file=configs/Synthetic.yml --conne
 
 1. Créer sa configuration dans le dossier `configs` (cf. `configs/Lipac.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
 
-2. Créer un fichier `credentials.yml` avec les champs `DB_LOGIN` et `DB_PASSWORD`, contenant les éléments de connexion à au catalogue de patch (droits en lecture nécessaires).
+2. Repartir du template de fichier d'environnement :
+```bash 
+cp .env.example .env
+```
+
+Modifier les champs `LIPAC_LOGIN` et `LIPAC_PASSWORD pour remplir les éléments de connexion au catalogue de patch (droits en lecture nécessaires).
 
 3. (Optionnel) Afficher les options de sampling. 
 
@@ -141,7 +146,8 @@ make extract_toy_laz_data  # single process
 make extract_toy_laz_data_in_parallel  # multiprocesses
 ```
 
-Passons maintenant à une extraction depuis un sampling Lipac. Si les chemins vers les fichiers LAZ correspondent à un data store Samba, il faut préciser les informatiosn de connexion via le fichier `credentials.yml` : préciser `SMB_USERNAME` (au format username@domain) et `SMB_PASSWORD`.
+Passons maintenant à une extraction depuis un sampling Lipac. 
+Si les chemins vers les fichiers LAZ correspondent à un data store Samba, il faut préciser vos informations de connexion via les variables d'environnement `SAMBA_USERNAME` (au format username@domain) et `SAMBA_PASSWORD`.
 
 Pour lancer l'extraction de façon parallélisée à partir du sampling "Triple" à l'emplacement par défaut:
 
@@ -152,7 +158,7 @@ make extract_laz_dataset_parallel \
     SAMPLING_PARTS_DIR="/tmp/my_laz_dataset_parts/" \
     DATASET_ROOT_PATH="/var/data/${USER}/pacasam_extractions/laz_dataset/" \
     PARALLEL_EXTRACTION_JOBS="50%" \
-    SAMBA_CREDENTIALS_PATH="credentials.yml"
+    USE_SAMBA="Y"
 ```
 
 Note: sous le capot, le sampling initial est divisé en autant de parties qu'il y a de fichiers LAZ initiaux concernés. Cette étape préliminaire permet une parallélisation au niveau du fichier sans changement du code d'extraction. La parallélisation est effectuée avec (`GNU parallel`)[https://www.gnu.org/software/parallel/parallel.html].

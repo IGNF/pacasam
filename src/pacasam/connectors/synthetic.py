@@ -34,7 +34,7 @@ FRAC_OF_TEST_PATCHES_IN_DATABASE = 0.2
 class SyntheticConnector(Connector):
     def __init__(
         self,
-        log: Optional[logging.Logger],
+        log: logging.Logger,
         binary_descriptors_prevalence: List[float],
         split: SPLIT_POSSIBLE_VALUES,
         db_size: int = 10000,

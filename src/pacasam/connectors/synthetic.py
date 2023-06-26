@@ -1,6 +1,6 @@
 import logging
 from math import ceil
-from typing import List, Optional
+from typing import List
 import numpy as np
 from pandas import DataFrame
 import geopandas as gpd
@@ -25,13 +25,23 @@ NB_POINTS_COLNAMES = [
 ]
 
 SLAB_SIZE = 1000
-TILE_SIZE = 50
+PATCH_SIZE = 50
 
-NUM_PATCHES_BY_SLAB = int((SLAB_SIZE / TILE_SIZE) ** 2)
+NUM_PATCHES_BY_SLAB = int((SLAB_SIZE / PATCH_SIZE) ** 2)
 FRAC_OF_TEST_PATCHES_IN_DATABASE = 0.2
 
 
 class SyntheticConnector(Connector):
+    """Connector which creates synthetic data to sample from.
+
+    Creates a set of slabs (1000m x 1000m), composed of patches (50m x 50m).
+    Each patch has the following types attributes :
+      - Number of points from different classes (e.g. nb_total, nb_sol)
+      - Binary descriptors, with specific prevalences (C1, C2...)
+      - Mandatory fields as described in connector.py
+
+    """
+
     def __init__(
         self,
         log: logging.Logger,
@@ -39,6 +49,18 @@ class SyntheticConnector(Connector):
         split: SPLIT_POSSIBLE_VALUES,
         db_size: int = 10000,
     ):
+        """Initialization.
+
+        Args:
+            log (logging.Logger): shared logger.
+            binary_descriptors_prevalence (List[float]): a list of prevalences to create synthetic boolean descriptors.
+            split (str): desired split, among `train`,`test`, or `any`.
+            db_size (int, optional): Desired size of the synthetic database. Defaults to 10000.
+
+            Note that the actual synthetuc database to sample from will be smaller than given db_size, if the split
+            is either train or val.
+
+        """
         super().__init__(log=log)
         # TODO: make db an attribute so that it is created when accessed instead of at initialization of the object.
         df_geom, df_file_ids = make_synthetic_geometries_and_slabs(db_size)
@@ -71,8 +93,8 @@ class SyntheticConnector(Connector):
 def make_synthetic_geometries_and_slabs(db_size: int):
     fake_grid_size = ceil(np.sqrt(db_size))
     # Cartesian product of range * tile_size
-    df_x = DataFrame({"x": range(fake_grid_size)}) * TILE_SIZE
-    df_y = DataFrame({"y": range(fake_grid_size)}) * TILE_SIZE
+    df_x = DataFrame({"x": range(fake_grid_size)}) * PATCH_SIZE
+    df_y = DataFrame({"y": range(fake_grid_size)}) * PATCH_SIZE
     df_xy = df_x.merge(df_y, how="cross")
 
     # limit the size to the desired db_size
@@ -82,8 +104,8 @@ def make_synthetic_geometries_and_slabs(db_size: int):
         lambda row: box(
             row["x"],
             row["y"],
-            row["x"] + TILE_SIZE,
-            row["y"] + TILE_SIZE,
+            row["x"] + PATCH_SIZE,
+            row["y"] + PATCH_SIZE,
             ccw=False,
         ),
         axis=1,

@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from typing import Optional
 import geopandas as gpd
 
 from pacasam.connectors.connector import Connector
@@ -9,6 +8,15 @@ from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME, SPLIT_POSSI
 
 class GeopandasConnector(Connector):
     def __init__(self, log: logging.Logger, gpd_database_path: Path, split: SPLIT_POSSIBLE_VALUES):
+        """Connector to interface with any geopandas-compatible file.
+
+        Args:
+            log (logging.Logger): shared logger
+            gpd_database_path (Path): path to file to connect to (e.g. geopackage file).
+            split (str): Unused. For compatibility with other samplers only.
+
+        """
+
         super().__init__(log=log)
         self.gpd_database_path = Path(gpd_database_path).resolve()
         self._db = None

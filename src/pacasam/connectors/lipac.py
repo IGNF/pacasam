@@ -16,6 +16,8 @@ TEST_COLNAME_IN_LIPAC = "test"
 
 
 class LiPaCConnector(Connector):
+    """Connector to interface with the Lidar-Patch-Catalogue database and perform queries."""
+
     lambert_93_crs = 2154
 
     def __init__(
@@ -29,10 +31,10 @@ class LiPaCConnector(Connector):
         split: SPLIT_POSSIBLE_VALUES,
         max_chunksize_for_postgis_extraction: int = 100000,
     ):
-        """Connector to interface with the Lidar-Patch-Catalogue database and perform queries.
+        """Initialization.
 
         Args:
-            log (logging.Logger): _description_
+            log (logging.Logger): shared logger
             username (str): username to connect to the database (must have read credentials)
             password (str): password to connect to the database
             db_lipac_host (str): name of the database host machine

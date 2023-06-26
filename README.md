@@ -104,7 +104,7 @@ python ./src/pacasam/run_sampling.py --config_file=configs/Synthetic.yml --conne
 cp .env.example .env
 ```
 
-Modifier les champs `LIPAC_LOGIN` et `LIPAC_PASSWORD pour remplir les éléments de connexion au catalogue de patch (droits en lecture nécessaires).
+Modifier les champs `LIPAC_LOGIN` et `LIPAC_PASSWORD` pour remplir les éléments de connexion au catalogue de patch (droits en lecture nécessaires).
 
 3. (Optionnel) Afficher les options de sampling. 
 

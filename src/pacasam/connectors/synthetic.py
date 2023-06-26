@@ -35,7 +35,7 @@ class SyntheticConnector(Connector):
     """Connector which creates synthetic data to sample from.
 
     Creates a set of slabs (1000m x 1000m), composed of patches (50m x 50m).
-    Each patch has the following types attributes :
+    Each patch has the following types attributes:
       - Number of points from different classes (e.g. nb_total, nb_sol)
       - Binary descriptors, with specific prevalences (C1, C2...)
       - Mandatory fields as described in connector.py

@@ -86,7 +86,7 @@ class SyntheticConnector(Connector):
         d = np.concatenate([np.ones(shape=(n_target,)).astype(bool), np.full(shape=(db_size - n_target,), fill_value=np.nan)])
         np.random.shuffle(d)
         self.db[TEST_COLNAME_IN_LIPAC] = d
-        self.db = filter_lipac_patches_on_split(db=self.db, split_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
+        self.db = filter_lipac_patches_on_split(db=self.db, test_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
 
 
 def make_synthetic_geometries_and_slabs(db_size: int):

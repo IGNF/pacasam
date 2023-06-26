@@ -52,7 +52,7 @@ class LiPaCConnector(Connector):
         with open(extraction_sql_query_path, "r") as file:
             extraction_sql_query = file.read()
         self.db = self.download_database(extraction_sql_query, max_chunksize_for_postgis_extraction)
-        self.db = filter_lipac_patches_on_split(db=self.db, split_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
+        self.db = filter_lipac_patches_on_split(db=self.db, test_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
         self.db_size = len(self.db)
 
     def create_session(self, password):
@@ -87,7 +87,7 @@ class LiPaCConnector(Connector):
         return gdf
 
 
-def filter_lipac_patches_on_split(db: GeoDataFrame, split_colname: str, desired_split: SPLIT_POSSIBLE_VALUES):
+def filter_lipac_patches_on_split(db: GeoDataFrame, test_colname: str, desired_split: SPLIT_POSSIBLE_VALUES):
     """Filter patches based on the desired split.
 
     Parameters
@@ -96,6 +96,7 @@ def filter_lipac_patches_on_split(db: GeoDataFrame, split_colname: str, desired_
         The input GeoDataFrame containing the patches to filter.
     split_colname : str
         The name of the column containing the split information.
+        It contains True for test patches, and False or None for other patches.
     desired_split : SPLIT_TYPE
         The desired split type to filter patches. Valid options are 'train', 'test', or 'any'.
 
@@ -118,9 +119,9 @@ def filter_lipac_patches_on_split(db: GeoDataFrame, split_colname: str, desired_
     if desired_split == "any":
         return db
     if desired_split == "test":
-        return db[db[split_colname] == "test"]
+        return db[db[test_colname] == True]
     if desired_split == "train":
-        return db[db[split_colname].isna() | (db[split_colname] == "train")]
+        return db[db[test_colname].isna() | (db[test_colname] == False)]
     else:
         raise ValueError(f"Invalid desired split: `{desired_split}`. Choose among `train`, `test`, or `any`.")
 

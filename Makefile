@@ -30,7 +30,7 @@ help:
 	@echo "Cibles pour l'échantillonnage:"
 	@echo "  $(SAMPLERS) - Exécute chaque échantillonneur individuellement."
 	@echo "  all - Exécute tous les samplers pour un connecteur donné (par défaut: connecteur Lipac)"
-	@echo "  all_synthetic - Exécute tous les samplers pour le connecteur synthtéique"
+	@echo "  all_synthetic - Exécute tous les samplers pour le connecteur synthétique"
 	@echo "Note: L'option 'REPORTS=Y' permet la création d'un rapport HTML à partir du sampling."
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"

@@ -48,7 +48,7 @@ class OutliersSampler(Sampler):
         patches = df[PATCH_INFO + ["cluster_id", "outlier_scores"]]
         self._set_validation_patches_with_stratification(patches=patches, keys=["cluster_id", FILE_ID_COLNAME])
         patches["sampler"] = self.name
-        self.log.info(f"{self.name}: N={num_to_sample} patches.")
+        self.log.info(f"{self.name}: N={min(num_to_sample, len(patches))}/{num_to_sample} patches.")
 
         # UNCOMMENT FOR DEBUG: cluster_id et "outlier_scores" can be returned for visual exploration.
         # return patches[self.sampling_schema + ["cluster_id", "outlier_scores"]]

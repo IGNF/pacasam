@@ -1,5 +1,5 @@
 import logging
-from typing import Generator, Literal, Optional, Union
+from typing import Generator
 
 import pandas as pd
 import geopandas as gpd
@@ -10,13 +10,14 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
 import yaml
 from pacasam.connectors.connector import GEOMETRY_COLNAME, Connector
-from pacasam.samplers.sampler import PATCH_ID_COLNAME
+from pacasam.samplers.sampler import PATCH_ID_COLNAME, SPLIT_POSSIBLE_VALUES
 
 TEST_COLNAME_IN_LIPAC = "test"
-SPLIT_TYPE = Union[Literal["train"], Literal["test"], Literal["any"]]
 
 
 class LiPaCConnector(Connector):
+    """Connector to interface with the Lidar-Patch-Catalogue database and perform queries."""
+
     lambert_93_crs = 2154
 
     def __init__(
@@ -27,13 +28,13 @@ class LiPaCConnector(Connector):
         db_lipac_host: str,
         db_lipac_name: str,
         extraction_sql_query_path: str,
-        split: SPLIT_TYPE,
+        split: SPLIT_POSSIBLE_VALUES,
         max_chunksize_for_postgis_extraction: int = 100000,
     ):
-        """Connector to interface with the Lidar-Patch-Catalogue database and perform queries.
+        """Initialization.
 
         Args:
-            log (logging.Logger): _description_
+            log (logging.Logger): shared logger
             username (str): username to connect to the database (must have read credentials)
             password (str): password to connect to the database
             db_lipac_host (str): name of the database host machine
@@ -43,15 +44,14 @@ class LiPaCConnector(Connector):
             max_chunksize_for_postgis_extraction (int, optional): For chunk-reading the (large) database. Defaults to 100000.
 
         """
-        super().__init__()
-        self.log = log
+        super().__init__(log=log)
         self.username = username
         self.host = db_lipac_host
         self.db_name = db_lipac_name
         self.create_session(password)
         with open(extraction_sql_query_path, "r") as file:
             extraction_sql_query = file.read()
-        self.db = self.extract_all_samples_as_a_df(extraction_sql_query, max_chunksize_for_postgis_extraction)
+        self.db = self.download_database(extraction_sql_query, max_chunksize_for_postgis_extraction)
         self.db = filter_lipac_patches_on_split(db=self.db, test_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
         self.db_size = len(self.db)
 
@@ -68,7 +68,7 @@ class LiPaCConnector(Connector):
         self.session = scoped_session(sessionmaker())
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
-    def extract_all_samples_as_a_df(self, extraction_sql_query: str, max_chunksize_for_postgis_extraction: int) -> gpd.GeoDataFrame:
+    def download_database(self, extraction_sql_query: str, max_chunksize_for_postgis_extraction: int) -> gpd.GeoDataFrame:
         """This function extracts all data from a PostGIS database.
 
         It uses using the SQL query provided as a parameter, and returns a
@@ -86,17 +86,8 @@ class LiPaCConnector(Connector):
         gdf = gdf.sort_values(by=PATCH_ID_COLNAME)
         return gdf
 
-    def extract(self, selection: Optional[gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
-        """Extract using ids. If selection is None, select everything."""
-        extract = self.db.merge(
-            selection,
-            how="inner",
-            on=PATCH_ID_COLNAME,
-        )
-        return extract
 
-
-def filter_lipac_patches_on_split(db: GeoDataFrame, test_colname: str, desired_split: SPLIT_TYPE):
+def filter_lipac_patches_on_split(db: GeoDataFrame, test_colname: str, desired_split: SPLIT_POSSIBLE_VALUES):
     """Filter patches based on the desired split.
 
     Parameters

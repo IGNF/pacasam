@@ -57,7 +57,7 @@ class SyntheticConnector(Connector):
             split (str): desired split, among `train`,`test`, or `any`.
             db_size (int, optional): Desired size of the synthetic database. Defaults to 10000.
 
-            Note that the actual synthetuc database to sample from will be smaller than given db_size, if the split
+            Note that the actual synthetic database to sample from will be smaller than given db_size, if the split
             is either train or val.
 
         """

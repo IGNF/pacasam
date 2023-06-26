@@ -62,7 +62,6 @@ class SyntheticConnector(Connector):
 
         """
         super().__init__(log=log)
-        # TODO: make db an attribute so that it is created when accessed instead of at initialization of the object.
         df_geom, df_file_ids = make_synthetic_geometries_and_slabs(db_size)
         # WARNING: the synthetic geometries will not be compliant with the FILE_ID_COLNAME.
         self.db = gpd.GeoDataFrame(

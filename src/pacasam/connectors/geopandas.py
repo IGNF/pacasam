@@ -10,7 +10,7 @@ from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME, SPLIT_POSSI
 class GeopandasConnector(Connector):
     def __init__(self, log: logging.Logger, gpd_database_path: Path, split: SPLIT_POSSIBLE_VALUES):
         super().__init__(log=log)
-        self.gpd_datab4ase_path = Path(gpd_database_path).resolve()
+        self.gpd_database_path = Path(gpd_database_path).resolve()
         self._db = None
 
     @property

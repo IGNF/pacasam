@@ -53,7 +53,6 @@ class LiPaCConnector(Connector):
             extraction_sql_query = file.read()
         self.db = self.download_database(extraction_sql_query, max_chunksize_for_postgis_extraction)
         self.db = filter_lipac_patches_on_split(db=self.db, test_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
-        self.db_size = len(self.db)
 
     def create_session(self, password):
         url = URL.create(

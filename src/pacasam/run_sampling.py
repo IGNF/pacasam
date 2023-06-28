@@ -74,6 +74,8 @@ def run_sampling(args):
         log.info(f"Making an html report, saved at {output_path}")
         make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
 
+    return gpkg_path
+
 
 if __name__ == "__main__":
     args = parser.parse_args()

@@ -1,6 +1,5 @@
 import logging
-from typing import Iterable
-from pandas import Series
+from typing import Iterable, Optional
 from geopandas import GeoDataFrame
 
 # Those are the necessary columns that are needed in the database to perform a sampling.
@@ -13,19 +12,20 @@ FILE_ID_COLNAME = "file_id"  # Unique identifier to each file.
 # TODO: turn this into an attribute of Connector. Reference accordingly.
 PATCH_INFO = [PATCH_ID_COLNAME, FILE_ID_COLNAME]
 
-log = logging.getLogger(__name__)
-
 
 class Connector:
-    """Connector to a patch database."""
+    """Connector to a patch database. Uses GeoDataFrames under the hood."""
 
-    db_size: int
     db: GeoDataFrame
+    log: logging.Logger
 
-    # TODO: log should always be a param here?
-    def __init__(self):
-        self.name: str = self.__class__.__name__
-        self.log = None
+    def __init__(self, log: logging.Logger):
+        self.log = log
+        self.name: str = self.__class__.__name__  # for convenience
+
+    @property
+    def db_size(self):
+        return len(self.db)
 
     def request_patches_by_boolean_indicator(self, bool_descriptor_name) -> GeoDataFrame:
         if self.db[bool_descriptor_name].dtype != "bool":
@@ -42,6 +42,7 @@ class Connector:
         """Request all patches i.e. without excluding any patch."""
         return self.db[PATCH_INFO]
 
-    def extract(self, ids: Series) -> GeoDataFrame:
-        """Extract selected ids and geometries from the database."""
-        raise NotImplementedError()
+    def extract(self, selection: Optional[GeoDataFrame]) -> GeoDataFrame:
+        """Extract everything using ids."""
+        extract = self.db.merge(selection, how="inner", on=PATCH_ID_COLNAME)
+        return extract

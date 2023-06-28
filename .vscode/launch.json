@@ -13,7 +13,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_run_sampling",
+                "test_main_graphs",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"
@@ -68,14 +68,16 @@
             ]
         },
         {
-            "name": "Run Sampling (Outliers+Lipac)",
+            "name": "Run Sampling (CopySampler+GeopandasConnector)",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/pacasam/run_sampling.py",
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--sampler_class=OutliersSampler",
+                "--config_file=configs/Lipac_as_Geopackage.yml",
+                "--sampler_class=CopySampler",
+                "--connector_class=GeopandasConnector",
             ]
         },
         {

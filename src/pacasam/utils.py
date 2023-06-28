@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 import yaml
 import sys
+from pacasam.connectors.geopandas import GeopandasConnector
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
 from pacasam.samplers.copy import CopySampler
@@ -61,4 +62,5 @@ SAMPLERS_LIBRARY = {
 CONNECTORS_LIBRARY = {
     "LiPaCConnector": load_LiPaCConnector,
     "SyntheticConnector": SyntheticConnector,
+    "GeopandasConnector": GeopandasConnector
 }

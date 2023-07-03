@@ -34,6 +34,8 @@ class Sampler:
         raise NotImplementedError("This is an abstract class. Use child class for specific sampling approaches.")
 
     def drop_duplicates_by_id_and_log_sampling_attrition(self, gdf: GeoDataFrame):
+        if not len(gdf):
+            return gdf
         n_sampled = len(gdf)
         gdf = gdf.drop_duplicates(subset=[PATCH_ID_COLNAME])
         n_distinct = len(gdf)

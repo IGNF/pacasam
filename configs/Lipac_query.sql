@@ -47,7 +47,7 @@ FROM
                 NB_EAU,
                 NB_SURSOL_PERENNE,
                 NB_NON_CLASSES,
-                NB_ARTEFACTS,
+                NB_ARTEFACT,
                 DENIVELE,
                 ALTITUDE,
                 (NB_BATI >= 500) AS NB_POINTS_BATI_HEQ_500,

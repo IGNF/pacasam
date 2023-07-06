@@ -3,6 +3,9 @@ import sys
 from pathlib import Path
 import geopandas as gpd
 import yaml
+from dotenv import load_dotenv
+
+load_dotenv()
 
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))

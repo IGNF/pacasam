@@ -22,7 +22,13 @@ SAMPLING_PATH ?= outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-T
 SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/  # Où diviser le sampling en n parties, une par fichier de données.
 DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/  # Où extraire le jeu de données.
 PARALLEL_EXTRACTION_JOBS ?= "75%"  # Niveau de parallélisation. Un entier ou un pourcentage des cpu.
-SAMBA_CREDENTIALS_PATH ?= '""'  # ATTENTION: requis si données dans un store Samba. P.ex. credentials.py
+
+USE_SAMBA ?= '""'  # Passer à valeur non nulle si fichiers LAZ dans un store.
+ifneq ($(strip $(USE_SAMBA)),)
+    # Utiliser store samba filesystem
+	USE_SAMBA := --samba_filesystem
+endif
+
 
 help:
 	@echo "Makefile"
@@ -112,14 +118,13 @@ _run_extraction_in_parallel_from_parts:
 	# Single part sampling are removed upon completion of extraction.
 	# We can resume extraction without changing the command.
 	# Note: another way could be to use option --resume, and we would need to use --joblog beforehand.
-	# Note: Need to simple quote the SAMBA_CREDENTIALS_PATH variable to explicitly give an empty string when etxracting toy_dataset.
 	# Note: we need to double quote the whole command, including deletion, so that they happen together.
 	ls -1 -d ${SAMPLING_PARTS_DIR}/* | \
 		parallel --jobs ${PARALLEL_EXTRACTION_JOBS} --keep-order --progress --verbose --eta \
 			"python ./src/pacasam/run_extraction.py \
 			--sampling_path {} \
 			--dataset_root_path ${DATASET_ROOT_PATH} \
-			--samba_credentials_path '${SAMBA_CREDENTIALS_PATH}' \
+			${USE_SAMBA} \
 			&& rm {}"
 
 # EXTRACTION ON TOY DATA

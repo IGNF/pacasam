@@ -7,7 +7,7 @@ sys.path.append(str(root_dir))
 
 from pacasam.connectors.connector import FILE_PATH_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.samplers.sampler import SPLIT_COLNAME
-from pacasam.extractors.extractor import Extractor, set_smb_client_singleton
+from pacasam.extractors.extractor import Extractor
 from pacasam.extractors.laz import LAZExtractor
 from pacasam.utils import set_log_text_handler, setup_custom_logger
 
@@ -30,10 +30,10 @@ parser.add_argument(
     "-d", "--dataset_root_path", default=None, type=lambda p: Path(p).absolute(), help="Path to extract data to. Created if needed."
 )
 parser.add_argument(
-    "--samba_credentials_path",
-    default="",
-    type=lambda p: Path(p).absolute() if p.strip() else None,
-    help="Set to a file with samba credentials (e.g. credentials.yml) to use samba file system instead of local filesystem.",
+    "--samba_filesystem",
+    default=False,
+    action="store_true",
+    help="Use a samba file system (i.e. a data store) instead of the local filesystem.",
 )
 
 
@@ -44,14 +44,8 @@ def run_extraction(args):
     log.info(f"COMMAND: {' '.join(sys.argv)}")
     log.info(f"SAMPLING GEOPACKAGE: {args.sampling_path}")
     log.info(f"OUTPUT DATASET DIR: {args.dataset_root_path}")
-
-    use_samba = False
-    if args.samba_credentials_path:
-        use_samba = True
-        set_smb_client_singleton(args.samba_credentials_path)
-
     extractor: Extractor = LAZExtractor(
-        log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=use_samba
+        log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=args.samba_filesystem
     )
     extractor.extract()
     log.info(f"Extracted data in {args.dataset_root_path}")

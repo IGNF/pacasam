@@ -51,7 +51,9 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args": [
-                "--config_file=/home/CGaydon/repositories/pacasam/configs/Lipac.yml",
+                "--config_file=configs/Synthetic.yml",
+                "--connector_class=SyntheticConnector",
+                // "--config_file=/home/CGaydon/repositories/pacasam/configs/Lipac.yml",
                 "--output_path=/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/${USER}/samplings/test_save_to_store/"
             ]
         },
@@ -64,7 +66,7 @@
             "justMyCode": false,
             "args": [
                 "--config_file=/home/CGaydon/repositories/pacasam/configs/20230606_PACASAM_TRIPLE_30000_From_PO_Block-TRAIN.yml",
-                "--output_path=/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/${USER}/samplings/20230606_PACASAM_TRIPLE_30000_From_PO_Block/"
+                "--output_path=/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/$USER/samplings/20230606_PACASAM_TRIPLE_30000_From_PO_Block/"
             ]
         },
         {

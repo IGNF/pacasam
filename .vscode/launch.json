@@ -12,8 +12,8 @@
             "justMyCode": false,
             "args": [
                 "-s",
-                "-k",
-                "test_main_graphs",
+                // "-k",
+                // "test_main_graphs",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

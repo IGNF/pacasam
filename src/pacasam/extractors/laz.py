@@ -45,7 +45,7 @@ import tempfile
 from typing import Union
 import laspy
 from laspy import LasData, LasHeader
-from pdaltools.color import decomp_and_color
+from pdaltools.color import color
 from geopandas import GeoDataFrame
 import smbclient
 from pacasam.connectors.connector import FILE_PATH_COLNAME, FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
@@ -125,7 +125,7 @@ def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Unio
 
     By default, srid_str="" means that pdaltools infer the srid form the LAZ file directly.
 
-    Wrapper to support Path objects since decomp_and_color does not accept Path objects, only strings as file paths.
+    Wrapper to support Path objects since color does not accept Path objects, only strings as file paths.
 
     """
     if isinstance(nocolor_patch, str):
@@ -133,4 +133,4 @@ def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Unio
     if isinstance(colorized_patch, str):
         colorized_patch = Path(colorized_patch)
 
-    decomp_and_color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()), proj=srid_str)
+    color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()), proj=srid_str)

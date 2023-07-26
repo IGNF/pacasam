@@ -23,7 +23,7 @@ SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/  # Où diviser le sampling en n parti
 DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/  # Où extraire le jeu de données.
 PARALLEL_EXTRACTION_JOBS ?= "75%"  # Niveau de parallélisation. Un entier ou un pourcentage des cpu.
 
-USE_SAMBA ?= '""'  # Passer à valeur non nulle si fichiers LAZ dans un store.
+USE_SAMBA ?=  # Passer à valeur non nulle si fichiers LAZ dans un store.
 ifneq ($(strip $(USE_SAMBA)),)
     # Utiliser store samba filesystem
 	USE_SAMBA := --samba_filesystem
@@ -136,11 +136,12 @@ extract_toy_laz_data:
 
 extract_toy_laz_data_in_parallel:
 	# Extraction parallélisée depuis les données de test.
-	# On utilise .ONESHELL:, donc pas besoin d'exporter les variables. 
-	SAMPLING_PATH=./tests/data/lefty_righty_sampling.gpkg
-	SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/"
-	DATASET_ROOT_PATH=./outputs/extractions/toy_laz_dataset/
-	PARALLEL_EXTRACTION_JOBS=2
+	# En théorie .ONESHELL: fait qu'on n'a pas besoin d'exporter les variables.
+	# Mais cela semble créer des erreurs ici... 
+	export SAMPLING_PATH=./tests/data/lefty_righty_sampling.gpkg
+	export SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/"
+	export DATASET_ROOT_PATH=./outputs/extractions/toy_laz_dataset/
+	export PARALLEL_EXTRACTION_JOBS=2
 	make extract_laz_dataset_parallel
 
 # CLEANING

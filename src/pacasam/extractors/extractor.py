@@ -37,6 +37,8 @@ def set_smb_client_singleton() -> None:
     For more information see: https://pypi.org/project/smbprotocol/
 
     """
+    if (not "SAMBA_USERNAME" in os.environ) or (not "SAMBA_PASSWORD" in os.environ):
+        raise KeyError("Either SAMBA_USERNAME or SAMBA_PASSWORD were not exported, but you are using samba (USE_SAMBA is not null).")
     smb_username = os.getenv("SAMBA_USERNAME")
     smb_password = os.getenv("SAMBA_PASSWORD")
     smbclient.ClientConfig(username=smb_username, password=smb_password)

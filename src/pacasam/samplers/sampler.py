@@ -3,6 +3,7 @@ from math import floor
 import os
 from pathlib import Path
 import shutil
+import tempfile
 from typing import Dict, List, Literal, Union
 import fiona
 from geopandas import GeoDataFrame
@@ -54,16 +55,20 @@ class Sampler:
 
 
 def save_gpd_to_any_filesystem(gdf: GeoDataFrame, gpkg_path: Path):
-    """We need this because Fiona does not support saving directly to a mounted Samba store.
-    We therefore need to save to the local filesystem and then copy the gpkg to its destination.
+    """Save the gpd to either local or samba filesystem.
 
-    Note: Any only means local filesystem or mounted store here.
+    We need this because Fiona does not support saving directly to a mounted Samba store.
+    We therefore save to the local filesystem and then copy the gpkg to its destination.
+
+    We make it the default behavior since trying to establish a connection is longer and then catch
+    an exception (fiona.errors.TransactionError) takes longer than writing + copying.
+    Also trying to catch the exception does not always work, and lead to another exceptions:
+        "fiona._err.CPLE_AppDefinedError: b'sqlite3_exec(COMMIT) failed: database is locked'"
+
+    cf. https://github.com/r-spatial/sf/issues/628#issuecomment-364004859 on this issue.
 
     """
-    try:
-        gdf.to_file(gpkg_path)
-    except fiona.errors.TransactionError:
-        tmp_copy = f"outputs/samplings/TEMPORARY-{gpkg_path.name}"
+
+    with tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="tmp_geopackage") as tmp_copy:
         gdf.to_file(tmp_copy)
-        shutil.copy(tmp_copy, gpkg_path)
-        os.remove(tmp_copy)
+        shutil.copy(tmp_copy.name, gpkg_path)

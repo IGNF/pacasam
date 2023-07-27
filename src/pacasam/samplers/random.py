@@ -16,7 +16,6 @@ class RandomSampler(Sampler):
         patches = self.connector.request_all_other_patches(exclude_ids=current_selection_ids)
         patches = sample_randomly(patches=patches, num_to_sample=num_to_sample)
         self.log.info(f"{self.name}: N={min(num_to_sample, len(patches))}/{num_to_sample} patches.")
-
-        self._set_validation_patches_with_stratification(patches=patches, keys=[FILE_ID_COLNAME])
         patches["sampler"] = self.name
+        self._set_validation_patches_with_stratification(patches=patches, keys=[FILE_ID_COLNAME])
         return patches[self.sampling_schema]

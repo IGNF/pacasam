@@ -90,8 +90,6 @@ class DiversitySampler(Sampler):
             # Reset index to be sure our np indices can index the dataframe.
             diverse = df.reset_index(drop=True).loc[diverse_idx, PATCH_INFO]
             diverse["sampler"] = self.name
-            diverse["split"] = "test"
-            if self.cf["frac_validation_set"] is not None:
-                diverse = self._set_validation_patches_with_stratification(patches=diverse, keys=FILE_ID_COLNAME)
+            diverse = self._set_validation_patches_with_stratification(patches=diverse, keys=FILE_ID_COLNAME)
             diverse = diverse[self.sampling_schema]
             yield diverse

@@ -45,8 +45,8 @@ class TargettedSampler(Sampler):
                 f"| Found: {(num_samples_to_sample/self.cf['target_total_num_patches']):.03f} (n={num_samples_to_sample})."
             )
 
-        self._set_validation_patches_with_stratification(patches=patches, keys=[FILE_ID_COLNAME])
         patches["sampler"] = self.name
+        self._set_validation_patches_with_stratification(patches=patches, keys=[FILE_ID_COLNAME])
         return patches[self.sampling_schema]
 
     def sorted_targets(self, criteria: Dict):

@@ -16,7 +16,6 @@ class SpatialSampler(Sampler):
         patches = self.connector.request_all_other_patches(exclude_ids=current_selection_ids)
         patches = sample_with_stratification(patches, num_to_sample, keys=[FILE_ID_COLNAME])
         self.log.info(f"{self.name}: N={min(num_to_sample, len(patches))}/{num_to_sample} patches.")
-
-        self._set_validation_patches_with_stratification(patches=patches, keys=[FILE_ID_COLNAME])
         patches["sampler"] = self.name
+        self._set_validation_patches_with_stratification(patches=patches, keys=[FILE_ID_COLNAME])
         return patches[self.sampling_schema]

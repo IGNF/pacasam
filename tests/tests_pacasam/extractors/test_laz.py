@@ -3,6 +3,7 @@ import tempfile
 import numpy as np
 import laspy
 import pytest
+import requests
 from pacasam.extractors.extractor import (
     check_all_files_exist_in_default_filesystem,
     check_sampling_format,
@@ -107,10 +108,11 @@ def test_lefty_and_righty_color_are_white_and_equal(cloud_path):
     assert np.array_equal(lefty.red, lefty.blue)
 
 
-@pytest.mark.geoportail  # This tests requests the geoportail
+@pytest.mark.geoportail
 @pytest.mark.timeout(60)
-@pytest.mark.parametrize("cloud_path", [Path(LEFTY), RIGHTY])
-def test_colorize_single_patch(cloud_path):
+@pytest.mark.parametrize("cloud_path", [Path(LEFTY), Path(RIGHTY)])
+@pytest.mark.parametrize("srid", [2154, 0, None])
+def test_colorize_single_patch(cloud_path, srid):
     """Tests RGB+NIR colorization from orthoimages using pdaltools package."""
     with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_test_data_") as tmp_copy:
         colorize_single_patch(cloud_path, Path(tmp_copy.name))
@@ -126,3 +128,12 @@ def test_colorize_single_patch(cloud_path):
         for dim in ["red", "green", "blue", "nir"]:
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=WHITE_COLOR_VALUE))
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))
+
+
+@pytest.mark.geoportail
+@pytest.mark.timeout(60)
+def test_colorize_with_bad_srid_raises_error():
+    with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_test_data_") as tmp_copy:
+        cloud_path = Path(LEFTY)
+        with pytest.raises(requests.exceptions.HTTPError) as exc_info:
+            colorize_single_patch(cloud_path, Path(tmp_copy.name), 123456789)

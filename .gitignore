@@ -1,6 +1,5 @@
-nohup.out
+nohup.out*
 pacasam.code-workspace
-
 
 # Byte-compiled / optimized / DLL files
 outputs/

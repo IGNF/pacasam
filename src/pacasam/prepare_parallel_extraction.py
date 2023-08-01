@@ -49,13 +49,6 @@ def split_sampling_by_file(sampling_path: Path, sampling_parts_dir: Path):
     sampling = load_sampling(sampling_path)
     sampling_suffix = sampling_path.suffix
 
-    # for single_file_path, single_file_sampling in sampling.groupby(FILE_PATH_COLNAME):
-    #     save_single_file_sampling(
-    #         sampling_parts_dir,
-    #         single_file_path,
-    #         single_file_sampling,
-    #         sampling_suffix=sampling_suffix,
-    #     )
     with WorkerPool(n_jobs=cpu_count() // 3) as pool:
         iterable = [
             (sampling_parts_dir, single_file_path, single_file_sampling, sampling_suffix)

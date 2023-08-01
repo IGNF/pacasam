@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 import argparse
-
+from mpire import WorkerPool
 
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
@@ -50,11 +50,25 @@ def split_sampling_by_file(sampling_path: Path, sampling_parts_dir: Path):
     sampling_suffix = sampling_path.suffix
 
     for single_file_path, single_file_sampling in sampling.groupby(FILE_PATH_COLNAME):
-        sampling_part_filename = sampling_parts_dir / Path(get_stem_from_any_file_format(single_file_path)).with_suffix(sampling_suffix)
-        # Reformat since Path object cannot be savec by geopandas/fiona
-        single_file_sampling[FILE_PATH_COLNAME] = single_file_sampling[FILE_PATH_COLNAME].apply(str)
-        single_file_sampling.to_file(sampling_part_filename)
-        print(sampling_part_filename)  # ONLY ALLOWED PRINT STATEMENT HERE.
+        save_single_file_sampling(
+            sampling_parts_dir,
+            single_file_path,
+            single_file_sampling,
+            sampling_suffix=sampling_suffix,
+        )
+
+
+def save_single_file_sampling(
+    sampling_parts_dir, single_file_path, single_file_sampling, sampling_suffix: str = ".gpkg"
+):
+    """Select the patches of a single data file, and save them as a single file sampling."""
+    sampling_part_filename = sampling_parts_dir / Path(
+        get_stem_from_any_file_format(single_file_path)
+    ).with_suffix(sampling_suffix)
+    # Reformat since Path object cannot be savec by geopandas/fiona
+    single_file_sampling[FILE_PATH_COLNAME] = single_file_sampling[FILE_PATH_COLNAME].apply(str)
+    single_file_sampling.to_file(sampling_part_filename)
+    print(sampling_part_filename)  # ONLY ALLOWED PRINT STATEMENT HERE.
 
 
 def get_stem_from_any_file_format(file_path: str):

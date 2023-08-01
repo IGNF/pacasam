@@ -40,8 +40,6 @@ def split_sampling_by_file(sampling_path: Path, sampling_parts_dir: Path):
     without any change, and parallelize easely with `parallel`.
 
     See https://www.gnu.org/software/parallel/parallel.html) for more on `parallel`.
-
-    WARNING: there should be not other print since we want to pipe directly from this function.
     """
 
     os.makedirs(sampling_parts_dir, exist_ok=True)

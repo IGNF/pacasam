@@ -143,8 +143,8 @@ Pour produire un rapport html interactif de statistiques descriptives, ainsi que
 Pour tester l'extraction sur le jeu de données de test, lancer
 ```bash
 conda activate pacasam
-make extract_toy_laz_data  # single process
-make extract_toy_laz_data_in_parallel  # multiprocesses
+make extract_toy_laz_data
+make extract_toy_laz_data_in_parallel  # multiprocesses via parallel
 ```
 
 Passons maintenant à une extraction depuis un sampling Lipac. 

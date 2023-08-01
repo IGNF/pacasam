@@ -11,7 +11,11 @@ from pacasam.extractors.extractor import (
     load_sampling_with_checks,
 )
 
-from pacasam.extractors.laz import GEOMETRY_COLNAME, colorize_single_patch, extract_single_patch_from_LasData
+from pacasam.extractors.laz import (
+    GEOMETRY_COLNAME,
+    colorize_single_patch,
+    extract_single_patch_from_LasData,
+)
 from conftest import (
     LEFTY,
     LEFTY_DOWN_GEOMETRY,
@@ -87,12 +91,16 @@ def test_extract_single_patch_from_LasData(cloud_path_and_bounds):
     cloud_path, patch_bounds = cloud_path_and_bounds
     """Test the extraction of a single patch to the tmp file, based on bounds."""
     cloud = laspy.read(cloud_path)
-    nocolor_patch_tmp_file: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, cloud.header, patch_bounds)
+    nocolor_patch_tmp_file: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(
+        cloud, cloud.header, patch_bounds
+    )
     patch_data = laspy.read(nocolor_patch_tmp_file.name)
     # Test that non empty and the right size
     assert len(patch_data) > 0
     for dim in ["x", "y"]:
-        assert patch_data[dim].max() - patch_data[dim].min() == pytest.approx(PATCH_WIDTH_METERS, abs=ONE_METER_ABS_TOLERANCE)
+        assert patch_data[dim].max() - patch_data[dim].min() == pytest.approx(
+            PATCH_WIDTH_METERS, abs=ONE_METER_ABS_TOLERANCE
+        )
 
 
 @pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])
@@ -126,7 +134,9 @@ def test_colorize_single_patch(cloud_path, srid):
 
         # Assert both non-white (i.e. colorization *did* happen) and non-trivial colorization
         for dim in ["red", "green", "blue", "nir"]:
-            assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=WHITE_COLOR_VALUE))
+            assert not np.array_equal(
+                cloud[dim], np.full_like(cloud[dim], fill_value=WHITE_COLOR_VALUE)
+            )
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))
 
 
@@ -135,5 +145,5 @@ def test_colorize_single_patch(cloud_path, srid):
 def test_colorize_with_bad_srid_raises_error():
     with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_test_data_") as tmp_copy:
         cloud_path = Path(LEFTY)
-        with pytest.raises(requests.exceptions.HTTPError) as exc_info:
+        with pytest.raises(requests.exceptions.HTTPError) as _:
             colorize_single_patch(cloud_path, Path(tmp_copy.name), 123456789)

@@ -37,7 +37,7 @@ export DATASET_ROOT_PATH="/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSP
 export USE_SAMBA=Y
 
 export SAMPLING_PATH="/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/$USER/${SAMPLING_NAME}/train/LiPaCConnector-TripleSampler-train.gpkg"
-export SAMPLING_PARTS_DIR="/tmp/sampling_parts_for_${SAMPLING_NAME}/"
+export SAMPLING_PARTS_DIR="/tmp/sampling_parts_for_${SAMPLING_NAME}-train"
 make extract_laz_dataset_parallel
 # nohup make extract_laz_dataset_parallel > "${DATASET_ROOT_PATH}nohup.out.train" &
 

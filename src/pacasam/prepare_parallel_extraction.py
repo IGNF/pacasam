@@ -2,7 +2,7 @@ import os
 import sys
 from pathlib import Path
 import argparse
-
+from mpire import WorkerPool, cpu_count
 
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
@@ -40,8 +40,6 @@ def split_sampling_by_file(sampling_path: Path, sampling_parts_dir: Path):
     without any change, and parallelize easely with `parallel`.
 
     See https://www.gnu.org/software/parallel/parallel.html) for more on `parallel`.
-
-    WARNING: there should be not other print since we want to pipe directly from this function.
     """
 
     os.makedirs(sampling_parts_dir, exist_ok=True)
@@ -49,12 +47,24 @@ def split_sampling_by_file(sampling_path: Path, sampling_parts_dir: Path):
     sampling = load_sampling(sampling_path)
     sampling_suffix = sampling_path.suffix
 
-    for single_file_path, single_file_sampling in sampling.groupby(FILE_PATH_COLNAME):
-        sampling_part_filename = sampling_parts_dir / Path(get_stem_from_any_file_format(single_file_path)).with_suffix(sampling_suffix)
-        # Reformat since Path object cannot be savec by geopandas/fiona
-        single_file_sampling[FILE_PATH_COLNAME] = single_file_sampling[FILE_PATH_COLNAME].apply(str)
-        single_file_sampling.to_file(sampling_part_filename)
-        print(sampling_part_filename)  # ONLY ALLOWED PRINT STATEMENT HERE.
+    with WorkerPool(n_jobs=cpu_count() // 3) as pool:
+        iterable = [
+            (sampling_parts_dir, single_file_path, single_file_sampling, sampling_suffix)
+            for single_file_path, single_file_sampling in sampling.groupby(FILE_PATH_COLNAME)
+        ]
+        pool.map(save_single_file_sampling, iterable, progress_bar=True)
+
+
+def save_single_file_sampling(
+    sampling_parts_dir, single_file_path, single_file_sampling, sampling_suffix: str = ".gpkg"
+):
+    """Select the patches of a single data file, and save them as a single file sampling."""
+    sampling_part_filename = sampling_parts_dir / Path(
+        get_stem_from_any_file_format(single_file_path)
+    ).with_suffix(sampling_suffix)
+    # Reformat since Path object cannot be savec by geopandas/fiona
+    single_file_sampling[FILE_PATH_COLNAME] = single_file_sampling[FILE_PATH_COLNAME].apply(str)
+    single_file_sampling.to_file(sampling_part_filename)
 
 
 def get_stem_from_any_file_format(file_path: str):

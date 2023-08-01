@@ -42,7 +42,7 @@ Read and check the sampling geopackage:
 
 from pathlib import Path
 import tempfile
-from typing import Union
+from typing import Optional, Union
 import laspy
 from laspy import LasData, LasHeader
 from pdaltools.color import color
@@ -56,7 +56,7 @@ from pacasam.samplers.sampler import SPLIT_COLNAME
 # Necessary to handle situations where proj=None in the LAZ, which defaults to EPSG:9001 ("World") when
 # pdaltools tries to infer the projection from the LAZ file.
 SRID_LAZ_COLNAME = "srid"
-EMPTY_STRING_SO_THAT_PDALTOOLS_INFER_PROJ_FROM_LAZ_FILE_IF_SRID_IS_NOT_GIVEN = ""
+EMPTY_STRING_TO_TELL_PDALTOOLS_TO_INFER_PROJ_FROM_LAZ_FILE = ""
 
 
 class LAZExtractor(Extractor):
@@ -95,8 +95,8 @@ class LAZExtractor(Extractor):
                 patch_suffix=self.patch_suffix,
             )
             # Use given srid if possible, else pdaltools will infer it from the LAZ file.
-            epsg = getattr(patch_info, SRID_LAZ_COLNAME, EMPTY_STRING_SO_THAT_PDALTOOLS_INFER_PROJ_FROM_LAZ_FILE_IF_SRID_IS_NOT_GIVEN)
-            colorize_single_patch(nocolor_patch=Path(tmp_nocolor_patch.name), colorized_patch=colorized_patch, srid_str=str(epsg))
+            srid = getattr(patch_info, SRID_LAZ_COLNAME, None)
+            colorize_single_patch(nocolor_patch=Path(tmp_nocolor_patch.name), colorized_patch=colorized_patch, srid=srid)
 
 
 def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_bounds) -> tempfile._TemporaryFileWrapper:
@@ -120,7 +120,7 @@ def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_b
     return patch_tmp_file
 
 
-def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Union[str, Path], srid_str: str = "") -> None:
+def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Union[str, Path], srid: Optional[int] = None) -> None:
     """Colorizes (RGBNIR) laz in a secure way to avoid corrupted files due to interruptions.
 
     By default, srid_str="" means that pdaltools infer the srid form the LAZ file directly.
@@ -128,9 +128,13 @@ def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Unio
     Wrapper to support Path objects since color does not accept Path objects, only strings as file paths.
 
     """
+    # Special case: EPSG:0 is an invalid SRID, and we should infer from the LAZ.
+    if srid is None or srid == 0:
+        srid = EMPTY_STRING_TO_TELL_PDALTOOLS_TO_INFER_PROJ_FROM_LAZ_FILE
+
     if isinstance(nocolor_patch, str):
         nocolor_patch = Path(nocolor_patch)
     if isinstance(colorized_patch, str):
         colorized_patch = Path(colorized_patch)
 
-    color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()), proj=srid_str)
+    color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()), proj=str(srid))

@@ -51,8 +51,12 @@ class LiPaCConnector(Connector):
         self.create_session(password)
         with open(extraction_sql_query_path, "r") as file:
             extraction_sql_query = file.read()
-        self.db = self.download_database(extraction_sql_query, max_chunksize_for_postgis_extraction)
-        self.db = filter_lipac_patches_on_split(db=self.db, test_colname=TEST_COLNAME_IN_LIPAC, desired_split=split)
+        self.db = self.download_database(
+            extraction_sql_query, max_chunksize_for_postgis_extraction
+        )
+        self.db = filter_lipac_patches_on_split(
+            db=self.db, test_colname=TEST_COLNAME_IN_LIPAC, desired_split=split
+        )
 
     def create_session(self, password):
         url = URL.create(
@@ -67,7 +71,9 @@ class LiPaCConnector(Connector):
         self.session = scoped_session(sessionmaker())
         self.session.configure(bind=self.engine, autoflush=False, expire_on_commit=False)
 
-    def download_database(self, extraction_sql_query: str, max_chunksize_for_postgis_extraction: int) -> gpd.GeoDataFrame:
+    def download_database(
+        self, extraction_sql_query: str, max_chunksize_for_postgis_extraction: int
+    ) -> gpd.GeoDataFrame:
         """This function extracts all data from a PostGIS database.
 
         It uses using the SQL query provided as a parameter, and returns a
@@ -76,9 +82,14 @@ class LiPaCConnector(Connector):
         Data is read data the database in blocks of size `CHUNKSIZE_FOR_POSTGIS_REQUESTS`.
         This allows processing the data in blocks rather than loading all of it into memory at once.
         """
-        self.log.info(f"Requesting the LiPaC database via the following SQL command: \n {extraction_sql_query}")
+        self.log.info(
+            f"Requesting the LiPaC database via the following SQL command: \n {extraction_sql_query}"
+        )
         chunks: Generator = gpd.read_postgis(
-            text(extraction_sql_query), self.engine.connect(), geom_col=GEOMETRY_COLNAME, chunksize=max_chunksize_for_postgis_extraction
+            text(extraction_sql_query),
+            self.engine.connect(),
+            geom_col=GEOMETRY_COLNAME,
+            chunksize=max_chunksize_for_postgis_extraction,
         )
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
         gdf = gdf.set_crs(self.lambert_93_crs)
@@ -86,7 +97,9 @@ class LiPaCConnector(Connector):
         return gdf
 
 
-def filter_lipac_patches_on_split(db: GeoDataFrame, test_colname: str, desired_split: SPLIT_POSSIBLE_VALUES):
+def filter_lipac_patches_on_split(
+    db: GeoDataFrame, test_colname: str, desired_split: SPLIT_POSSIBLE_VALUES
+):
     """Filter patches based on the desired split.
 
     Parameters
@@ -118,11 +131,13 @@ def filter_lipac_patches_on_split(db: GeoDataFrame, test_colname: str, desired_s
     if desired_split == "any":
         return db
     if desired_split == "test":
-        return db[db[test_colname] == True]
+        return db[db[test_colname] == True]  # noqa
     if desired_split == "train":
-        return db[db[test_colname].isna() | (db[test_colname] == False)]
+        return db[db[test_colname].isna() | (db[test_colname] == False)]  # noqa
     else:
-        raise ValueError(f"Invalid desired split: `{desired_split}`. Choose among `train`, `test`, or `any`.")
+        raise ValueError(
+            f"Invalid desired split: `{desired_split}`. Choose among `train`, `test`, or `any`."
+        )
 
 
 def load_LiPaCConnector(**lipac_kwargs) -> LiPaCConnector:

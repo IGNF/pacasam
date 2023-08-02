@@ -39,13 +39,13 @@ export USE_SAMBA=Y
 export SAMPLING_PATH="/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/$USER/${SAMPLING_NAME}/train/LiPaCConnector-TripleSampler-train.gpkg"
 export SAMPLING_PARTS_DIR="/tmp/sampling_parts_for_${SAMPLING_NAME}-train"
 make extract_laz_dataset_parallel
-# nohup make extract_laz_dataset_parallel > "${DATASET_ROOT_PATH}nohup.out.train" &
+# nohup make extract_laz_dataset_parallel &
 
 # test
 export SAMPLING_PATH="/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/$USER/${SAMPLING_NAME}/test/LiPaCConnector-TripleSampler-test.gpkg"
 export SAMPLING_PARTS_DIR="/tmp/sampling_parts_for_${SAMPLING_NAME}-test"
 make extract_laz_dataset_parallel
-# nohup make extract_laz_dataset_parallel > "${DATASET_ROOT_PATH}nohup.out.test" &
+# nohup make extract_laz_dataset_parallel &
 
 # Remaining
 # (pacasam) CGaydon@DEL2212S027:~/repositories/pacasam$ ls $SAMPLING_PARTS_DIR

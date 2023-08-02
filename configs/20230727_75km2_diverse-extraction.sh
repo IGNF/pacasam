@@ -104,3 +104,4 @@ make extract_laz_dataset_parallel
 # Du a LAZ vide car on n'a pas filtré les patches avec nb_total>1 (on le fera dans la branche de dev et on corrigera...)
 # On le fait, et on adapte myria3d au passage pour accepter ces situations :
 # https://github.com/IGNF/myria3d/pull/81
+# Manquant car hauteur/largeur à 0 : 3 en train/val, 6 en test. OK.

@@ -22,7 +22,7 @@ class Comparer:
         # Compare prevalence of all boolean descriptors.
         output_csv = self.output_path / "comparison-bool_descriptors.csv"
         comparison_df = self.compare_bools(df_database, df_sampling)
-        comparison_df.to_csv(output_csv, index=False)
+        comparison_df.to_csv(output_csv)
 
         # Prepare to compare areas and couts of patches.
         for df in [df_database, df_sampling]:
@@ -36,12 +36,16 @@ class Comparer:
             if df_sampling[key].nunique() <= 1:
                 continue
             # Compare prevalence of all boolean descriptors.
-            comparison_df_by_key = self.compare_by_key(df_database, df_sampling, key, self.compare_bools)
+            comparison_df_by_key = self.compare_by_key(
+                df_database, df_sampling, key, self.compare_bools
+            )
             output_csv = self.output_path / f"comparison-bool_descriptors-by_{key}.csv"
             comparison_df_by_key.to_csv(output_csv)
 
             # Compara areas
-            comparison_df_by_key = self.compare_by_key(df_database, df_sampling, key, self.compare_sizes)
+            comparison_df_by_key = self.compare_by_key(
+                df_database, df_sampling, key, self.compare_sizes
+            )
             output_csv = self.output_path / f"comparison-sizes-by_{key}.csv"
             comparison_df_by_key.to_csv(output_csv)
 
@@ -61,20 +65,32 @@ class Comparer:
         boolean_descriptors_names = df_database.select_dtypes(include=bool).columns
 
         # Calculate prevalence (proportion) of each boolean descriptor for each dataframe
-        prevalence_base = DataFrame(df_database[boolean_descriptors_names].mean(), columns=["df_database"])
-        prevalence_sampling = DataFrame(df_sampling[boolean_descriptors_names].mean(), columns=["df_sampling"])
+        prevalence_base = DataFrame(
+            df_database[boolean_descriptors_names].mean(), columns=["df_database"]
+        )
+        prevalence_sampling = DataFrame(
+            df_sampling[boolean_descriptors_names].mean(), columns=["df_sampling"]
+        )
 
         # Concatenate prevalence dataframes horizontally to create comparison dataframe
         comparison_df = pd.concat([prevalence_base, prevalence_sampling], axis=1)
         # comparison_df = comparison_df.reset_index(names=["descriptor_name"])
-        comparison_df["ratio"] = (comparison_df["df_sampling"] / comparison_df["df_database"]).round(decimals=2)
+        comparison_df["ratio"] = (
+            comparison_df["df_sampling"] / comparison_df["df_database"]
+        ).round(decimals=2)
         return comparison_df
 
     def compare_sizes(self, df_database: DataFrame, df_sampling: DataFrame):
-        sizes_base = DataFrame(df_database[["area_km2", "num_patches"]].sum(), columns=["df_database"])
-        sizes_sampling = DataFrame(df_sampling[["area_km2", "num_patches"]].sum(), columns=["df_sampling"])
+        sizes_base = DataFrame(
+            df_database[["area_km2", "num_patches"]].sum(), columns=["df_database"]
+        )
+        sizes_sampling = DataFrame(
+            df_sampling[["area_km2", "num_patches"]].sum(), columns=["df_sampling"]
+        )
         comparison_df = pd.concat([sizes_base, sizes_sampling], axis=1)
-        comparison_df["ratio"] = (comparison_df["df_sampling"] / comparison_df["df_database"]).round(decimals=2)
+        comparison_df["ratio"] = (
+            comparison_df["df_sampling"] / comparison_df["df_database"]
+        ).round(decimals=2)
         return comparison_df
 
     def compare_by_key(self, df_database, df_sampling, key, method):

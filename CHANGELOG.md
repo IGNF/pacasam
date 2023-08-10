@@ -1,4 +1,7 @@
-# dev
+# main
+
+# 0.7.1
+- Stats: save comparison-bool_descriptors.csv with its index
 
 # 0.7.0
 - Refactor SQL using Common-Term-Expression for better maintainability

@@ -1,7 +1,7 @@
 # dev
 
 # 0.7.0
-- Refactor SQL using Common-Term-Expression for better maintanability
+- Refactor SQL using Common-Term-Expression for better maintainability
 
 # 0.6.0
 - Parallelization of test_prepare_parallel_extraction.py using MPIRE

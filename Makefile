@@ -13,7 +13,6 @@
 # Paramètres pour l'échantillonnage
 CONNECTOR ?= LiPaCConnector  # LiPaCConnector ou SyntheticConnector
 CONFIG ?= configs/Lipac.yml  # configs/Lipac.yml ou configs/Synthetic.yml - Devrait correspondre au connecteur!
-REPORTS ?= N # N(o) ou Y(es). No pour des résultats plus rapides.
 # CopySampler géré séparemment pour éviter copie lourde de LiPaC.
 SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler TripleSampler OutliersSampler
 
@@ -37,7 +36,6 @@ help:
 	@echo "  $(SAMPLERS) - Exécute chaque échantillonneur individuellement."
 	@echo "  all - Exécute tous les samplers pour un connecteur donné (par défaut: connecteur Lipac)"
 	@echo "  all_synthetic - Exécute tous les samplers pour le connecteur synthétique"
-	@echo "Note: L'option 'REPORTS=Y' permet la création d'un rapport HTML à partir du sampling."
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
 	@echo "  extract_toy_laz_data - Vérifie que tout est OK en extrayant depuis les données LAZ de test."
@@ -54,7 +52,7 @@ help:
 # Une seule session bash est utilisé par cible, ce qui permet de partager des variables d'environnement en les exportant.
 .ONESHELL:
 
-.PHONY: help all all_for_all_connectors_with_reports $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
+.PHONY: help all $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
 .PHONY: extract_toy_laz_data extract_toy_laz_data_in_parallel _prepare_parallel_extraction _run_extraction_in_parallel_from_parts
 .PHONY: clean_samplings clean_extractions
 
@@ -85,14 +83,12 @@ all: $(SAMPLERS)
 $(SAMPLERS):
 	python ./src/pacasam/run_sampling.py --config_file=$(CONFIG) \
 		--connector_class=$(CONNECTOR) \
-		--sampler_class=$@ \
-		--make_html_report=$(REPORTS)
+		--sampler_class=$@
 
 CopySampler:
 	python ./src/pacasam/run_sampling.py --config_file=$(CONFIG) \
 		--connector_class=$(CONNECTOR) \
-		--sampler_class=CopySampler \
-		--make_html_report=$(REPORTS)
+		--sampler_class=CopySampler
 
 
 all_synthetic:

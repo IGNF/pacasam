@@ -116,8 +116,10 @@ def tiny_synthetic_sampling(synthetic_connector: SyntheticConnector) -> GeoDataF
     """Very tiny synthetic database with the columns that make it a sampling."""
     # Add the necessary elements to turn the db into a sampling
     synthetic_connector.db[SPLIT_COLNAME] = np.random.choice(
-        ["train", "val", "test"], size=len(synthetic_connector.db), p=[0.8, 0.1, 0.1]
+        ["train", "val", "test"], size=len(synthetic_connector.db), p=[0.5, 0.25, 0.25]
     )
     synthetic_connector.db[FILE_PATH_COLNAME] = str(Path(LEFTY).resolve())
-    synthetic_connector.db[SAMPLER_COLNAME] = "my_test_sampler"
+    synthetic_connector.db[SAMPLER_COLNAME] = np.random.choice(
+        ["sampler_1", "sampler_2"], size=len(synthetic_connector.db)
+    )
     return synthetic_connector.db

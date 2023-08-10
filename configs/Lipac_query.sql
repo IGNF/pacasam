@@ -7,7 +7,7 @@ Ces cinq colonnes sont obligatoires pour tout échantillonnage :
 - patch_id : identifiant unique de chaque patch dans le résultat de la requête
 - file_id : identifiant unique de chaque fichier dans le résultat de la requête
 - file_path : chemin d'accès pour l'extraction des données, utilisé après l'échantillonnage (attendu: chemin samba)
-- test: booléen identifiant les dalles réservées au test de modèles et à exclure des jeux de données d'apprentissage. 
+- test: booléen identifiant les dalles réservées au test de modèles et à exclure des jeux de données d'apprentissage
 
 
 La requête :

@@ -1,5 +1,8 @@
 # dev
 
+# XXX
+- Stats: save comparison-bool_descriptors.csv with its index
+
 # 0.6.0
 - Parallelization of test_prepare_parallel_extraction.py using MPIRE
 

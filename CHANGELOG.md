@@ -1,5 +1,8 @@
 # dev
 
+# XXX
+- Drop unused graphs.py and remove all reference to it
+
 # 0.6.0
 - Parallelization of test_prepare_parallel_extraction.py using MPIRE
 

@@ -38,8 +38,13 @@ sys.path.append(str(root_dir / "tests"))
 
 
 from pacasam.utils import CONNECTORS_LIBRARY
-from pacasam.samplers.sampler import SPLIT_COLNAME
-from pacasam.connectors.connector import FILE_ID_COLNAME, FILE_PATH_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME
+from pacasam.connectors.connector import (
+    FILE_ID_COLNAME,
+    FILE_PATH_COLNAME,
+    GEOMETRY_COLNAME,
+    PATCH_ID_COLNAME,
+)
 from pacasam.connectors.synthetic import SyntheticConnector
 
 
@@ -67,7 +72,12 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
     df = gpd.GeoDataFrame(
         data={
             PATCH_ID_COLNAME: [0, 1, 2, 3],
-            GEOMETRY_COLNAME: [LEFTY_UP_GEOMETRY, LEFTY_DOWN_GEOMETRY, RIGHTY_UP_GEOMETRY, RIGHTY_DOWN_GEOMETRY],
+            GEOMETRY_COLNAME: [
+                LEFTY_UP_GEOMETRY,
+                LEFTY_DOWN_GEOMETRY,
+                RIGHTY_UP_GEOMETRY,
+                RIGHTY_DOWN_GEOMETRY,
+            ],
             FILE_PATH_COLNAME: [LEFTY, LEFTY, RIGHTY, RIGHTY],
             FILE_ID_COLNAME: [
                 "792000_6272000-50mx100m-left",
@@ -79,7 +89,9 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
         },
         crs="EPSG:2154",
     )
-    toy_sampling_tmp_file = tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="toy_sampling_tmp_file_")
+    toy_sampling_tmp_file = tempfile.NamedTemporaryFile(
+        suffix=".gpkg", prefix="toy_sampling_tmp_file_"
+    )
     df.to_file(toy_sampling_tmp_file)
 
     # Note: Uncomment to update the saved gpkg.
@@ -93,7 +105,9 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
 def synthetic_connector() -> SyntheticConnector:
     """Synthetic connector to a (very tiny) fake database."""
     connector_class = CONNECTORS_LIBRARY.get("SyntheticConnector")
-    connector = connector_class(log=None, binary_descriptors_prevalence=[0.1], db_size=10, split="train")
+    connector = connector_class(
+        log=None, binary_descriptors_prevalence=[0.1], db_size=10, split="train"
+    )
     return connector
 
 
@@ -101,6 +115,9 @@ def synthetic_connector() -> SyntheticConnector:
 def tiny_synthetic_sampling(synthetic_connector: SyntheticConnector) -> GeoDataFrame:
     """Very tiny synthetic database with the columns that make it a sampling."""
     # Add the necessary elements to turn the db into a sampling
-    synthetic_connector.db[SPLIT_COLNAME] = np.random.choice(["train", "val", "test"], size=len(synthetic_connector.db), p=[0.8, 0.1, 0.1])
+    synthetic_connector.db[SPLIT_COLNAME] = np.random.choice(
+        ["train", "val", "test"], size=len(synthetic_connector.db), p=[0.8, 0.1, 0.1]
+    )
     synthetic_connector.db[FILE_PATH_COLNAME] = str(Path(LEFTY).resolve())
+    synthetic_connector.db[SAMPLER_COLNAME] = "my_test_sampler"
     return synthetic_connector.db

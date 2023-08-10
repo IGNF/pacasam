@@ -1,6 +1,5 @@
 from pathlib import Path
 import tempfile
-from pacasam.analysis.graphs import parser as graphs_parser, main as main_graphs
 from pacasam.analysis.stats import Comparer
 
 

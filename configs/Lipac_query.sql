@@ -1,3 +1,24 @@
+/* Requête de Lidar-Patch-Catalogue
+
+Usage : c'est la sous-requête STAT_LIDAR_REFERENCE qui peut être modifiée pour ajouter de nouveaux critères de ciblage.
+
+Ces quatre colonnes sont obligatoires pour l'échantillonnage :
+- geometry : géométrie du patch
+- patch_id : identifiant unique de chaque patch dans le résultat de la requête
+- file_id : identifiant unique de chaque fichier dans le résultat de la requête
+- file_path : chemin d'accès pour l'extraction des données, utilisé après l'échantillonnage (attendu: chemin samba)
+
+La requête :
+- Filtre FICHIER_LIDAR_HD pour ne conserver que les versions de référence.
+- Joint FICHIER_LIDAR_HD à STAT_VIGNETTE_LIDAR pour ne garder que les stats des versions de référence.
+- Joint VIGNETTE, STAT_VIGNETTE_LIDAR, et CROISEMENT_VIGNETTE --> "VIGNETTES_AVEC_STATS_ET_CROISEMENT"
+       - Crée à la volée de nouveaux indicateurs (p.ex. NB_POINTS_BATI_HEQ_500).
+       - Nota: CROISEMENT_VIGNETTE un LEFT JOIN est employé au cas où CROISEMENT_VIGNETTE n'est pas encore remplie.
+- Obtient le SRID du bloc après avoir fait le lien avec le BLOC via la DALLE.
+- Filtre les dalles à exclures après avoir fait le lien avec les JEU_DE_DALLES via la DALLE.
+
+*/
+
 WITH FICHIER_LIDAR_REFERENCE AS
   (SELECT FICHIER_LIDAR.ID,
           VERSION_DE_REFERENCE,

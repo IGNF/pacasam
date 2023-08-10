@@ -2,11 +2,13 @@
 
 Usage : c'est la sous-requête STAT_LIDAR_REFERENCE qui peut être modifiée pour ajouter de nouveaux critères de ciblage.
 
-Ces quatre colonnes sont obligatoires pour l'échantillonnage :
+Ces quatre colonnes sont obligatoires pour tout échantillonnage :
 - geometry : géométrie du patch
 - patch_id : identifiant unique de chaque patch dans le résultat de la requête
 - file_id : identifiant unique de chaque fichier dans le résultat de la requête
 - file_path : chemin d'accès pour l'extraction des données, utilisé après l'échantillonnage (attendu: chemin samba)
+- test: booléen identifiant les dalles réservées au test de modèles et à exclure des jeux de données d'apprentissage. 
+
 
 La requête :
 - Filtre FICHIER_LIDAR_HD pour ne conserver que les versions de référence.

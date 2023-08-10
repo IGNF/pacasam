@@ -1,13 +1,13 @@
 # main
 
+# 0.7.2
+- Drop unused graphs.py and remove all reference to it
+
 # 0.7.1
 - Stats: save comparison-bool_descriptors.csv with its index
 
 # 0.7.0
 - Refactor SQL using Common-Term-Expression for better maintainability
-
-# XXX
-- Drop unused graphs.py and remove all reference to it
 
 # 0.6.0
 - Parallelization of test_prepare_parallel_extraction.py using MPIRE

@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 
 def _run_sampling_by_args(
-    sampler_class, output_path, connector_class="SyntheticConnector", config_file="configs/Synthetic.yml", make_html_report="F"
+    sampler_class, output_path, connector_class="SyntheticConnector", config_file="configs/Synthetic.yml",
 ):
     args = parser.parse_args(
         args=[
@@ -23,8 +23,6 @@ def _run_sampling_by_args(
             connector_class,
             "--config_file",
             config_file,
-            "--make_html_report",
-            make_html_report,
             "--output_path",
             output_path,
         ]
@@ -38,13 +36,6 @@ def test_run_sampling_on_synthetic_data(sampler_class):
     """Test the samplers on synthetic data."""
     with tempfile.TemporaryDirectory() as output_path:
         _run_sampling_by_args(sampler_class=sampler_class, output_path=output_path)
-
-
-@pytest.mark.slow  # Creating an html report is slow.
-def test_make_html_report_option_after_random_sampler():
-    """Integration test of sampling followed by html reporting."""
-    with tempfile.TemporaryDirectory() as output_path:
-        _run_sampling_by_args(sampler_class="RandomSampler", output_path=output_path, make_html_report="Y")
 
 
 def test_sampling_again_from_a_previous_sampling():

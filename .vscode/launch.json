@@ -225,7 +225,6 @@
                 "--config_file=configs/Synthetic.yml",
                 "--connector_class=SyntheticConnector",
                 "--sampler_class=TargettedSampler",
-                "--make_html_report=Y"
             ]
         },
     ]

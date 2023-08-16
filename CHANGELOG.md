@@ -1,5 +1,8 @@
 # main
 
+# 0.7.2
+- Drop unused graphs.py and remove all reference to it
+
 # 0.7.1
 - Stats: save comparison-bool_descriptors.csv with its index
 

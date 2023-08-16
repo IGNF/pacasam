@@ -10,7 +10,6 @@ load_dotenv()
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
 from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_handler, load_sampling_config, setup_custom_logger
-from pacasam.analysis.graphs import make_all_graphs_and_a_report
 from pacasam.analysis.stats import Comparer
 from pacasam.connectors.connector import Connector
 from pacasam.samplers.sampler import Sampler, save_gpd_to_any_filesystem
@@ -27,7 +26,6 @@ parser.add_argument("--connector_class", default="LiPaCConnector", choices=CONNE
 parser.add_argument("--sampler_class", default="TripleSampler", choices=SAMPLERS_LIBRARY.keys())
 
 parser.add_argument("--output_path", default=None)
-parser.add_argument("--make_html_report", default="N", choices=[True, False], type=lambda choice: choice == "Y")
 
 
 def run_sampling(args):
@@ -67,12 +65,6 @@ def run_sampling(args):
     # Get descriptive statistics by comparing the database and the sampling
     comparer = Comparer(output_path=args.output_path / "stats")
     comparer.compare(connector.db, gdf)
-
-    # (Optionnaly) make a html report with descriptive stats.
-    if args.make_html_report:
-        output_path = args.output_path / "dataviz"
-        log.info(f"Making an html report, saved at {output_path}")
-        make_all_graphs_and_a_report(gpkg_path=gpkg_path, output_path=output_path)
 
     return gpkg_path
 

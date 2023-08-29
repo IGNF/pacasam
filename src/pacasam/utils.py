@@ -5,6 +5,8 @@ import sys
 from pacasam.connectors.geopandas import GeopandasConnector
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
+from pacasam.extractors.laz import LAZExtractor
+from pacasam.extractors.orthoimages import OrthoimagesExtractor
 from pacasam.samplers.copy import CopySampler
 from pacasam.samplers.outliers import OutliersSampler
 from pacasam.samplers.spatial import SpatialSampler
@@ -49,6 +51,8 @@ def load_sampling_config(config_file):
 
 # Dictionnaries to parametrize the access to object via configs.
 
+CONNECTORS_LIBRARY = {"LiPaCConnector": load_LiPaCConnector, "SyntheticConnector": SyntheticConnector, "GeopandasConnector": GeopandasConnector}
+
 SAMPLERS_LIBRARY = {
     "TripleSampler": TripleSampler,
     "TargettedSampler": TargettedSampler,
@@ -59,8 +63,4 @@ SAMPLERS_LIBRARY = {
     "CopySampler": CopySampler,
 }
 
-CONNECTORS_LIBRARY = {
-    "LiPaCConnector": load_LiPaCConnector,
-    "SyntheticConnector": SyntheticConnector,
-    "GeopandasConnector": GeopandasConnector
-}
+EXTRACTORS_LIBRARY = {"LAZExtractor": LAZExtractor, "OrthoimagesExtractor": OrthoimagesExtractor}

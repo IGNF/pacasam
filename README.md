@@ -21,17 +21,19 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
     - `LiPaCConnector`: connexion et requêtage de la base LiPaC (Lidar Patch Catalogue).
     - `SyntheticConnector`: création d'un GeoDataFrame synthétique, composé de tuiles répartie dans une grille arbitraire, pour effectuer des tests rapidements.
     - `GeopandasConnector`: lecture d'un format compatible avec `geopandas` (geopackage, shapefile...). Usage typique : lecture d'un sampling antérieur, pour l'échantillonner encore plus.
-- **Sampler**: interrogent les objets `Connector` suivant la configuration pour sélectionne des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
+- **Sampler**: interrogent les objets `Connector` suivant la configuration pour sélectionner des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
     - `TargettedSampler`: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale. NB: Si usage de ce sampler en isolation, la taille du jeu de données en sortie n'est pas garantie.
     - `OutliersSampler`:  détection des scènes les plus atypiques, via un clustering HDBSCAN (i.e. histogrammes standardisés des classes).
     - `DiversitySampler`: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. histogrammes standardisés ou quantilisés des classes).
     - `SpatialSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
     - **`TripleSampler`**: (1) `TargettedSampled`, puis complétion à part égale avec (2) `DiversitySampler`, et (3) `SpatialSampler`. C'est un compromis entre les trois méthodes. On pourrait envisager d'utiliser `OutliersSampler` en (2) pour encore mieux cibler les éléments atypiques.
     - **`CopySampler`**: un objet permettant la copie complète de la base de données.
+- **Extractor**: créeent un jeu de données à prtir d'un sampling.
+    - `LAZExtractor` : extraction et colorisation (orthoimages RGB+Infrarouge) de patches de Lidar (format LAZ).
+    - `OrthoimagesExtractor` : extraction de patches d'orthoimages RGB+Infrarouge à partir du Géoportail (format TIFF).
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-train.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val/test pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`.
 
-L'extraction des jeux de données passe quant à elle par l'usage d'**Extractors**, et en particulier de l'objet suivant : `LAZExtractor`, qui à partir d'un échantillonnage, extrait des patches de Lidar (format LAZ) et les colorise (orthoimages IRC).
 
 </details>
 

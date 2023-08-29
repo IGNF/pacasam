@@ -2,6 +2,8 @@ import sys
 from pathlib import Path
 import argparse
 
+from pacasam.extractors.orthoimages import OrthoimagesExtractor
+
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
 
@@ -9,7 +11,7 @@ from pacasam.connectors.connector import FILE_PATH_COLNAME, GEOMETRY_COLNAME, PA
 from pacasam.samplers.sampler import SPLIT_COLNAME
 from pacasam.extractors.extractor import Extractor
 from pacasam.extractors.laz import LAZExtractor
-from pacasam.utils import set_log_text_handler, setup_custom_logger
+from pacasam.utils import EXTRACTORS_LIBRARY, set_log_text_handler, setup_custom_logger
 
 log = setup_custom_logger()
 
@@ -27,7 +29,7 @@ parser.add_argument(
     ),
 )
 parser.add_argument(
-    "-d", "--dataset_root_path", default=None, type=lambda p: Path(p).absolute(), help="Path to extract data to. Created if needed."
+    "-d", "--dataset_root_path", default=None, type=lambda p: Path(p).absolute(), help="Path where to extract dataset. Created if needed."
 )
 parser.add_argument(
     "--samba_filesystem",
@@ -35,18 +37,26 @@ parser.add_argument(
     action="store_true",
     help="Use a samba file system (i.e. a data store) instead of the local filesystem.",
 )
+parser.add_argument(
+    "--extractor_class", default="LAZExtractor", type=str, help=("Name of class of Extractor to use."), choices=EXTRACTORS_LIBRARY.keys()
+)
 
 
 def run_extraction(args):
-    # Prepare logging
     set_log_text_handler(log, args.dataset_root_path)
     log.info("Extraction of a dataset using pacasam (https://github.com/IGNF/pacasam).\n")
     log.info(f"COMMAND: {' '.join(sys.argv)}")
     log.info(f"SAMPLING GEOPACKAGE: {args.sampling_path}")
     log.info(f"OUTPUT DATASET DIR: {args.dataset_root_path}")
-    extractor: Extractor = LAZExtractor(
-        log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=args.samba_filesystem
-    )
+    log.info(f"EXTRACTOR CLASS: {args.extractor_class}")
+    if args.extractor_class == "LAZExtractor":
+        extractor: Extractor = LAZExtractor(
+            log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=args.samba_filesystem
+        )
+    elif args.extractor_class == "OrthoimagesExtractor":
+        extractor: Extractor = OrthoimagesExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
+    else:
+        raise ValueError(f"Extractor {args.extractor_class} is unknown. See argparse choices with --help.")
     extractor.extract()
     log.info(f"Extracted data in {args.dataset_root_path}")
 

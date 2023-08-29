@@ -20,6 +20,8 @@ from tqdm import tqdm
 from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.extractors.extractor import Extractor, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
+import rasterio
+from rasterio.merge import merge
 
 
 class OrthoimagesExtractor(Extractor):
@@ -58,11 +60,11 @@ class OrthoimagesExtractor(Extractor):
 
         # apply decorator to retry 3 times, and wait 30 seconds each times
         download_image_from_geoportail_retrying = retry(7, 15, 2)(download_image_from_geoportail)
-        tmp_ortho = tempfile.NamedTemporaryFile().name
+        tmp_ortho = tempfile.NamedTemporaryFile(suffix=".tiff").name
         download_image_from_geoportail_retrying(
             self.proj, "ORTHOIMAGERY.ORTHOPHOTOS", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho, self.timeout_second
         )
-        tmp_ortho_irc = tempfile.NamedTemporaryFile().name
+        tmp_ortho_irc = tempfile.NamedTemporaryFile(suffix=".tiff").name
         download_image_from_geoportail_retrying(
             self.proj, "ORTHOIMAGERY.ORTHOPHOTOS.IRC", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_irc, self.timeout_second
         )
@@ -70,5 +72,24 @@ class OrthoimagesExtractor(Extractor):
 
     def collate_rgbnir_and_save(self, tmp_ortho, tmp_ortho_irc, tiff_patch_path: Path):
         """Collate RGB and NIR tiff images and save to a new geotiff."""
-        tmp_ortho
-        a = 1
+
+        # Ouvrir les fichiers TIFF d'entrée
+        ortho_rgb = rasterio.open(tmp_ortho)
+        ortho_irc = rasterio.open(tmp_ortho_irc)
+
+        # Profil du fichier résultant
+        merged_profile = ortho_rgb.profile
+        merged_profile.update(count=4)
+
+        with rasterio.open(tiff_patch_path, "w", **merged_profile) as dst:
+            dst.write(ortho_rgb.read(1), 1)
+            dst.set_band_description(1, "Red")
+            dst.write(ortho_rgb.read(2), 2)
+            dst.set_band_description(2, "Green")
+            dst.write(ortho_rgb.read(3), 3)
+            dst.set_band_description(3, "Blue")
+            dst.write(ortho_irc.read(1), 4)
+            dst.set_band_description(4, "Infrared")
+
+        ortho_rgb.close()
+        ortho_irc.close()

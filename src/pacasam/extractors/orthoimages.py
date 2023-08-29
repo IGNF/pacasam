@@ -42,7 +42,7 @@ class OrthoimagesExtractor(Extractor):
             self.extract_single_patch(patch_info)
 
     def extract_single_patch(self, patch_info):
-        """Extract RGB+IRC TIFF for patch."""
+        """Extract and RGB+NIR tiff for the patch."""
         patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
         file_id = getattr(patch_info, FILE_ID_COLNAME)
         tiff_patch_path: Path = format_new_patch_path(
@@ -55,11 +55,12 @@ class OrthoimagesExtractor(Extractor):
         tmp_ortho, tmp_ortho_irc = self.get_orthoimages_for_patch(patch_bounds)
         self.collate_rgbnir_and_save(tmp_ortho, tmp_ortho_irc, tiff_patch_path)
 
-    def get_orthoimages_for_patch(self, patch_bounds):
+    def get_orthoimages_for_patch(self, patch_bounds: tuple):
+        """Request RGB and NIR-Color orthoimages,"""
         xmin, ymin, xmax, ymax = patch_bounds
 
-        # apply decorator to retry 3 times, and wait 30 seconds each times
         download_image_from_geoportail_retrying = retry(7, 15, 2)(download_image_from_geoportail)
+
         tmp_ortho = tempfile.NamedTemporaryFile(suffix=".tiff").name
         download_image_from_geoportail_retrying(
             self.proj, "ORTHOIMAGERY.ORTHOPHOTOS", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho, self.timeout_second
@@ -72,12 +73,8 @@ class OrthoimagesExtractor(Extractor):
 
     def collate_rgbnir_and_save(self, tmp_ortho, tmp_ortho_irc, tiff_patch_path: Path):
         """Collate RGB and NIR tiff images and save to a new geotiff."""
-
-        # Ouvrir les fichiers TIFF d'entrée
         ortho_rgb = rasterio.open(tmp_ortho)
         ortho_irc = rasterio.open(tmp_ortho_irc)
-
-        # Profil du fichier résultant
         merged_profile = ortho_rgb.profile
         merged_profile.update(count=4)
 

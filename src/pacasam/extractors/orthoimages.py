@@ -21,7 +21,6 @@ from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATC
 from pacasam.extractors.extractor import Extractor, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
 import rasterio
-from rasterio.merge import merge
 
 
 class OrthoimagesExtractor(Extractor):

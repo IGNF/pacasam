@@ -98,7 +98,7 @@ conda activate pacasam
 python ./src/pacasam/run_sampling.py --config_file=configs/Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
 ```
 
-### Lancer un échantillonnage sur des données réelles - base PostGIS LiPaC:
+### Lancer un échantillonnage sur des données réelles - base LiPaC et extraction d'un jeu de données Lidar colorisé
 
 1. Créer sa configuration dans le dossier `configs` (cf. `configs/Lipac.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
 

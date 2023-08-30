@@ -42,16 +42,15 @@ class OrthoimagesExtractor(Extractor):
 
     def extract_single_patch(self, patch_info):
         """Extract and RGB+NIR tiff for the patch."""
+
+        split = getattr(patch_info, SPLIT_COLNAME)
+        patch_id = getattr(patch_info, PATCH_ID_COLNAME)
+        dir_to_save_patch: Path = self.dataset_root_path / split
+        tiff_patch_path = dir_to_save_patch / f"{split.upper()}-{patch_id}"
+
         patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
-        file_id = getattr(patch_info, FILE_ID_COLNAME)
-        tiff_patch_path: Path = format_new_patch_path(
-            dataset_root_path=self.dataset_root_path,
-            file_id=file_id,
-            patch_id=getattr(patch_info, PATCH_ID_COLNAME),
-            split=getattr(patch_info, SPLIT_COLNAME),
-            patch_suffix=self.patch_suffix,
-        )
         tmp_ortho, tmp_ortho_irc = self.get_orthoimages_for_patch(patch_bounds)
+
         self.collate_rgbnir_and_save(tmp_ortho, tmp_ortho_irc, tiff_patch_path)
 
     def get_orthoimages_for_patch(self, patch_bounds: tuple):
@@ -72,11 +71,13 @@ class OrthoimagesExtractor(Extractor):
 
     def collate_rgbnir_and_save(self, tmp_ortho, tmp_ortho_irc, tiff_patch_path: Path):
         """Collate RGB and NIR tiff images and save to a new geotiff."""
+
+        tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
+
         ortho_rgb = rasterio.open(tmp_ortho)
         ortho_irc = rasterio.open(tmp_ortho_irc)
         merged_profile = ortho_rgb.profile
         merged_profile.update(count=4)
-
         with rasterio.open(tiff_patch_path, "w", **merged_profile) as dst:
             dst.write(ortho_rgb.read(1), 1)
             dst.set_band_description(1, "Red")

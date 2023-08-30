@@ -1,5 +1,8 @@
 # main
 
+# 0.9.0
+- Implement the OrthoimagesExtractor
+
 # 0.7.2
 - Drop unused graphs.py and remove all reference to it
 

@@ -39,6 +39,7 @@ help:
 	@echo "  all_synthetic - Exécute tous les samplers pour le connecteur synthétique"
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
+	@echo "  extract_dataset - Extrait un dataset."
 	@echo "  extract_toy_laz_data - Vérifie que tout est OK en extrayant depuis les données LAZ de test."
 	@echo "  extract_toy_orthoimages_data - Vérifie que tout est OK en extrayant des orthoimages."
 	@echo "  _prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans SAMPLING_PARTS_DIR."

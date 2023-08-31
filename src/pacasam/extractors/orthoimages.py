@@ -41,7 +41,7 @@ class OrthoimagesExtractor(Extractor):
         split = getattr(patch_info, SPLIT_COLNAME)
         patch_id = getattr(patch_info, PATCH_ID_COLNAME)
         dir_to_save_patch: Path = self.dataset_root_path / split
-        tiff_patch_path = dir_to_save_patch / f"{split.upper()}-{patch_id}"
+        tiff_patch_path = dir_to_save_patch / f"{split.upper()}-{patch_id}{self.patch_suffix}"
 
         patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
         # Use given srid if possible, else use the default value.

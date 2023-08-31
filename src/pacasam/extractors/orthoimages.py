@@ -1,5 +1,5 @@
 """
-This module provides functions to download patches of orthoimages from a sampling geopackage and save them as .tif files
+This module provides functions to download patches of orthoimages from a sampling geopackage and save them as .tiff files
 Behavior is similar to the one described in `laz.py`
 
 dataset_root_path/

@@ -20,7 +20,8 @@ SAMPLERS = RandomSampler SpatialSampler TargettedSampler DiversitySampler Triple
 SAMPLING_PATH ?= outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg  # Chemin vers le sampling à extraire.
 SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/  # Où diviser le sampling en n parties, une par fichier de données.
 DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/  # Où extraire le jeu de données.
-PARALLEL_EXTRACTION_JOBS ?= "75%"  # Niveau de parallélisation. Un entier ou un pourcentage des cpu.
+EXTRACTOR_CLASS ?= "LAZExtractor"
+PARALLEL_EXTRACTION_JOBS ?= 45  # Niveau de parallélisation (int)
 
 USE_SAMBA ?=  # Passer à valeur non nulle si fichiers LAZ dans un store.
 ifneq ($(strip $(USE_SAMBA)),)
@@ -39,10 +40,8 @@ help:
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
 	@echo "  extract_toy_laz_data - Vérifie que tout est OK en extrayant depuis les données LAZ de test."
-	@echo "  extract_toy_laz_data_in_parallel - Vérifie que tout est OK en extrayant depuis les données LAZ de test de façon parallélisée."
+	@echo "  extract_toy_orthoimages_data - Vérifie que tout est OK en extrayant des orthoimages."
 	@echo "  _prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans SAMPLING_PARTS_DIR."
-	@echo "  _run_extraction_in_parallel_from_parts - Extrait le jeu de donnée à partir des n sampling. Spécifier SAMPLING_PARTS_DIR et DATASET_ROOT_PATH"
-	@echo "Note: la cible _run_extraction_in_parallel_from_parts permet aussi de poursuivre une extraction interrompue."
 	@echo "------------------------------------"
 	@echo "Cleaning:"
 	@echo "  clean_extractions - Supprime ./outputs/extractions/"
@@ -96,49 +95,42 @@ all_synthetic:
 	make CopySampler CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 
 
+# EXTRACTION ON TOY DATA
+
+extract_toy_laz_data:
+	export SAMPLING_PATH="./tests/data/lefty_righty_sampling.gpkg"
+	export DATASET_ROOT_PATH="./outputs/extractions/toy_laz_dataset/"
+	export PARALLEL_EXTRACTION_JOBS=2
+	export EXTRACTOR_CLASS="LAZExtractor"
+	make extract_dataset
+
+extract_toy_orthoimages_data:
+	export SAMPLING_PATH="./tests/data/lefty_righty_sampling.gpkg"
+	export DATASET_ROOT_PATH="./outputs/extractions/toy_orthoimages_dataset/"
+	export PARALLEL_EXTRACTION_JOBS=2
+	export EXTRACTOR_CLASS="OrthoimagesExtractor"
+	make extract_dataset
+
 # EXTRACTION
 
-extract_laz_dataset_parallel:
-	# Extraction parallélisée du jeu de données.
-	make _prepare_parallel_extraction
-	make _run_extraction_in_parallel_from_parts
+extract_dataset:
+	python ./src/pacasam/run_extraction.py \
+		--sampling_path "${SAMPLING_PATH}" \
+		--dataset_root_path ${DATASET_ROOT_PATH} \
+		--extractor_class "${EXTRACTOR_CLASS}" \
+		--n_jobs "${PARALLEL_EXTRACTION_JOBS}"
+
+
+# PREPARATION FOR FILE-LEVEL PARALLELIZATIN
+# Only needed to use a file-level paralellization outside of pacasam
 
 _prepare_parallel_extraction:
-	# Split sampling into n parts, one for each distinct LAZ file.
 	python ./src/pacasam/prepare_parallel_extraction.py \
 		--sampling_path="${SAMPLING_PATH}" \
 		--sampling_parts_dir="${SAMPLING_PARTS_DIR}"
 
-_run_extraction_in_parallel_from_parts:
-	# Run extraction in a parallel fashion based on the listing.
-	# Single part sampling are removed upon completion of extraction.
-	# We can resume extraction without changing the command.
-	# Note: another way could be to use option --resume, and we would need to use --joblog beforehand.
-	# Note: we need to double quote the whole command, including deletion, so that they happen together.
-	ls -1 -d ${SAMPLING_PARTS_DIR}/* | \
-		parallel --jobs ${PARALLEL_EXTRACTION_JOBS} --keep-order --progress --verbose --eta \
-			"python ./src/pacasam/run_extraction.py \
-			--sampling_path {} \
-			--dataset_root_path ${DATASET_ROOT_PATH} \
-			${USE_SAMBA} \
-			&& rm {}"
 
-# EXTRACTION ON TOY DATA
 
-extract_toy_laz_data:
-	python ./src/pacasam/run_extraction.py \
-		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
-		--dataset_root_path ./outputs/extractions/toy_laz_dataset/
-
-extract_toy_laz_data_in_parallel:
-	# Extraction parallélisée depuis les données de test.
-	# En théorie .ONESHELL: fait qu'on n'a pas besoin d'exporter les variables.
-	# Mais cela semble créer des erreurs ici... 
-	export SAMPLING_PATH=./tests/data/lefty_righty_sampling.gpkg
-	export SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/"
-	export DATASET_ROOT_PATH=./outputs/extractions/toy_laz_dataset/
-	export PARALLEL_EXTRACTION_JOBS=2
-	make extract_laz_dataset_parallel
 
 # CLEANING
 clean_samplings:

@@ -41,6 +41,13 @@ parser.add_argument(
     "--extractor_class", default="LAZExtractor", type=str, help=("Name of class of Extractor to use."), choices=EXTRACTORS_LIBRARY.keys()
 )
 
+parser.add_argument(
+    "--n_jobs",
+    default=1,
+    type=int,
+    help="Num of processors to use for parallelization of the extraction with MPIRE.",
+)
+
 
 def run_extraction(args):
     set_log_text_handler(log, args.dataset_root_path)
@@ -51,10 +58,16 @@ def run_extraction(args):
     log.info(f"EXTRACTOR CLASS: {args.extractor_class}")
     if args.extractor_class == "LAZExtractor":
         extractor: Extractor = LAZExtractor(
-            log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=args.samba_filesystem
+            log=log,
+            sampling_path=args.sampling_path,
+            dataset_root_path=args.dataset_root_path,
+            use_samba=args.samba_filesystem,
+            n_jobs=args.n_jobs,
         )
     elif args.extractor_class == "OrthoimagesExtractor":
-        extractor: Extractor = OrthoimagesExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
+        extractor: Extractor = OrthoimagesExtractor(
+            log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, n_jobs=args.n_jobs
+        )
     else:
         raise ValueError(f"Extractor {args.extractor_class} is unknown. See argparse choices with --help.")
     extractor.extract()

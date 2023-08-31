@@ -51,6 +51,7 @@ import smbclient
 from pacasam.connectors.connector import FILE_PATH_COLNAME, FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.extractor import Extractor, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
+from mpire import WorkerPool
 
 # Optionally : if SRID_COLNAME is given in the sampling, the specified srid will be used during extraxtions
 # Is is useful to handle situations where proj=None in the LAZ,
@@ -69,13 +70,12 @@ class LAZExtractor(Extractor):
         Uses pandas groupby to handle both single-file and multiple-file samplings.
 
         """
-        for single_file_path, single_file_sampling in self.sampling.groupby(FILE_PATH_COLNAME):
-            self.log.info(f"{self.name}: Extraction + Colorization from {single_file_path} (k={len(single_file_sampling)} patches)")
-            self._extract_from_single_file(single_file_path, single_file_sampling)
-            self.log.info(f"{self.name}: SUCCESS for {single_file_path}")
+        with WorkerPool(n_jobs=self.n_jobs) as pool:
+            pool.map(self._extract_from_single_file, self.sampling.groupby(FILE_PATH_COLNAME), progress_bar=True)
 
     def _extract_from_single_file(self, single_file_path: Path, single_file_sampling: GeoDataFrame):
         """Extract all patches from a single file based on its sampling."""
+        self.log.info(f"{self.name}: Extraction + Colorization from {single_file_path} (k={len(single_file_sampling)} patches)")
         if self.use_samba:
             with smbclient.open_file(single_file_path, mode="rb") as open_single_file:
                 cloud = laspy.read(open_single_file)
@@ -96,6 +96,7 @@ class LAZExtractor(Extractor):
             # Use given srid if possible, else pdaltools will infer it from the LAZ file.
             srid = getattr(patch_info, SRID_COLNAME, None)
             colorize_single_patch(nocolor_patch=Path(tmp_nocolor_patch.name), colorized_patch=colorized_patch, srid=srid)
+        self.log.info(f"{self.name}: SUCCESS for {single_file_path}")
 
 
 def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_bounds) -> tempfile._TemporaryFileWrapper:

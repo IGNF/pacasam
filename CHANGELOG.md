@@ -1,5 +1,8 @@
 # main
 
+# 0.10.0
+- Parallelize extractions using MPIRE instead of GNU-parallel
+
 # 0.9.1
 - Update ign-pdal-tools version dependency to avoid cluttered /tmp/ folder.
 

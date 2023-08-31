@@ -133,29 +133,32 @@ L'échantillonnage est visualisable dans un SIG, p.ex. QGIS.
 
 6. Lancer l'extraction du jeu de données : extraction des patches et colorisation IRC
 
-Pour tester l'extraction sur le jeu de données de test, lancer
+Quick run: extractions sur le jeu de données de test :
+
 ```bash
 conda activate pacasam
-make extract_toy_laz_data
-make extract_toy_laz_data_in_parallel  # multiprocesses via parallel
+make extract_toy_orthoimages_data  # "./outputs/extractions/toy_orthoimages_dataset/"
+make extract_toy_laz_data  # "./outputs/extractions/toy_laz_dataset/"
 ```
 
 Passons maintenant à une extraction depuis un sampling Lipac. 
 Si les chemins vers les fichiers LAZ correspondent à un data store Samba, il faut préciser vos informations de connexion via les variables d'environnement `SAMBA_USERNAME` (au format username@domain) et `SAMBA_PASSWORD`.
 
-Pour lancer l'extraction de façon parallélisée à partir du sampling "Triple" à l'emplacement par défaut:
+Pour lancer l'extraction de façon parallélisée (15 processeurs) à partir du sampling "Triple" à l'emplacement par défaut:
 
 ```bash
 conda activate pacasam
-make extract_laz_dataset_parallel \
-    SAMPLING_PATH="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg" \
-    SAMPLING_PARTS_DIR="/tmp/my_laz_dataset_parts/" \
-    DATASET_ROOT_PATH="/var/data/${USER}/pacasam_extractions/laz_dataset/" \
-    PARALLEL_EXTRACTION_JOBS="50%" \
-    USE_SAMBA="Y"
+export SAMPLING_PATH="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg"
+export DATASET_ROOT_PATH="/var/data/${USER}/pacasam_extractions/laz_dataset/"
+export PARALLEL_EXTRACTION_JOBS=15
+export EXTRACTOR_CLASS="LAZExtractor"
+export USE_SAMBA="Y"
+python ./src/pacasam/run_extraction.py \
+    --sampling_path ${SAMPLING_PATH} \
+    --dataset_root_path ${DATASET_ROOT_PATH} \
+    --extractor_class ${EXTRACTOR_CLASS} \
+    --n_jobs ${PARALLEL_EXTRACTION_JOBS}
 ```
-
-Note: sous le capot, le sampling initial est divisé en autant de parties qu'il y a de fichiers LAZ initiaux concernés. Cette étape préliminaire permet une parallélisation au niveau du fichier sans changement du code d'extraction. La parallélisation est effectuée avec (`GNU parallel`)[https://www.gnu.org/software/parallel/parallel.html].
 
 ### Jeu d'apprentissage et jeu de test
 
@@ -189,6 +192,8 @@ NB: un timeout d'une minute est appliqué aux tests impliquant le géoportail.
 Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur machine locale avec 7.2GB de RAM -> taille totale en mémoire de 600MB environ pour 4M de vignettes. Le sampling FPS se fait par parties si nécessaires p.ex. par 20k vignettes successives.
 
 Pacasam ne permet que d'extraire des vignettes carrées, et alignées avec les axes X et Y du système de coordonnées de référence.
+
+
 
 ### Pistes pour améliorer les samplers
 

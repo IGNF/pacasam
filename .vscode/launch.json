@@ -14,7 +14,22 @@
             "args": [
                 "--sampling_path=/home/CGaydon/repositories/multimodal-tree-classification-dataset/outputs/Store-Analyse-outputs/tmp_local/20230830_PureForestStandDataset-Patches-Labeled-BDF12C-WithPath-Split.gpkg",
                 "--dataset_root_path=/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/CGaydon/20230830_PureForestStandDataset/imagery/",
-                "--extractor_class=OrthoimagesExtractor"
+                "--extractor_class=OrthoimagesExtractor",
+                "--n_jobs=1"
+            ]
+        },
+        {
+            "name": "Run Extraction (laz forest)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_extraction.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampling_path=/home/CGaydon/repositories/multimodal-tree-classification-dataset/outputs/Store-Analyse-outputs/tmp_local/20230830_PureForestStandDataset-Patches-Labeled-BDF12C-WithPath-Split.gpkg",
+                "--dataset_root_path=/mnt/store-lidarhd/projet-LHD/IA/PACASAM-SHARED-WORKSPACE/CGaydon/20230830_PureForestStandDataset/debug_mode/",
+                "--extractor_class=LAZExtractor",
+                "--n_jobs=1",
             ]
         },
         {

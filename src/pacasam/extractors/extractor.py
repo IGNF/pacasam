@@ -16,17 +16,12 @@ DEFAULT_SRID_LAMBERT93 = "2154"  # Assume Lambert93 if we cannot infer srid from
 class Extractor:
     """Abstract class defining extractor interface."""
 
-    def __init__(
-        self,
-        log: logging.Logger,
-        sampling_path: Path,
-        dataset_root_path: Path,
-        use_samba: bool = False,
-    ):
+    def __init__(self, log: logging.Logger, sampling_path: Path, dataset_root_path: Path, use_samba: bool = False, n_jobs: int = 1):
         """Initializes the extractor. Always loads the sampling with sanity checks on format."""
         self.log = log
         self.name: str = self.__class__.__name__
         self.dataset_root_path = dataset_root_path
+        self.n_jobs = n_jobs  # parallelization
         # Wether to use samba client or use the local filesystem.
         if use_samba:
             set_smb_client_singleton()

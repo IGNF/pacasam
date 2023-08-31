@@ -21,7 +21,7 @@ from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRI
 from pacasam.extractors.extractor import Extractor, DEFAULT_SRID_LAMBERT93
 from pacasam.samplers.sampler import SPLIT_COLNAME
 import rasterio
-from mpire import WorkerPool, cpu_count
+from mpire import WorkerPool
 
 
 class OrthoimagesExtractor(Extractor):
@@ -35,7 +35,7 @@ class OrthoimagesExtractor(Extractor):
         """Download the orthoimages dataset."""
         # mpire does argument unpacking, see https://github.com/sybrenjansen/mpire/issues/29#issuecomment-984559662.
         patch_infos = [(patch_info,) for _, patch_info in self.sampling.iterrows()]
-        with WorkerPool(n_jobs=cpu_count() // 4) as pool:
+        with WorkerPool(n_jobs=self.n_jobs) as pool:
             pool.map(self.extract_single_patch, patch_infos, progress_bar=True)
 
     def extract_single_patch(self, patch_info):

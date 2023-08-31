@@ -28,7 +28,7 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
     - `SpatialSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
     - **`TripleSampler`**: (1) `TargettedSampled`, puis complétion à part égale avec (2) `DiversitySampler`, et (3) `SpatialSampler`. C'est un compromis entre les trois méthodes. On pourrait envisager d'utiliser `OutliersSampler` en (2) pour encore mieux cibler les éléments atypiques.
     - **`CopySampler`**: un objet permettant la copie complète de la base de données.
-- **Extractor**: créeent un jeu de données à prtir d'un sampling.
+- **Extractor**: créeent un jeu de données à partir d'un sampling.
     - `LAZExtractor` : extraction et colorisation (orthoimages RGB+Infrarouge) de patches de Lidar (format LAZ).
     - `OrthoimagesExtractor` : extraction de patches d'orthoimages RGB+Infrarouge à partir du Géoportail (format TIFF).
 

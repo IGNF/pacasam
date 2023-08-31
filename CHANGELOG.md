@@ -3,6 +3,9 @@
 # 0.9.0
 - Implement the OrthoimagesExtractor
 
+# 0.8.0
+- Keep only patches that are in France using the new LiPaC attribute VIGNETTE.EN_FRANCE
+
 # 0.7.2
 - Drop unused graphs.py and remove all reference to it
 

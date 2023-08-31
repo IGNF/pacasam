@@ -31,9 +31,6 @@ class OrthoimagesExtractor(Extractor):
     timeout_second = 300
     pixel_per_meter = 5
 
-    def __init__(self,):
-
-
     def extract(self) -> None:
         """Download the orthoimages dataset."""
         for _, patch_info in tqdm(self.sampling.iterrows()):

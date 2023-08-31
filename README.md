@@ -21,17 +21,19 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
     - `LiPaCConnector`: connexion et requêtage de la base LiPaC (Lidar Patch Catalogue).
     - `SyntheticConnector`: création d'un GeoDataFrame synthétique, composé de tuiles répartie dans une grille arbitraire, pour effectuer des tests rapidements.
     - `GeopandasConnector`: lecture d'un format compatible avec `geopandas` (geopackage, shapefile...). Usage typique : lecture d'un sampling antérieur, pour l'échantillonner encore plus.
-- **Sampler**: interrogent les objets `Connector` suivant la configuration pour sélectionne des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
+- **Sampler**: interrogent les objets `Connector` suivant la configuration pour sélectionner des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
     - `TargettedSampler`: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale. NB: Si usage de ce sampler en isolation, la taille du jeu de données en sortie n'est pas garantie.
     - `OutliersSampler`:  détection des scènes les plus atypiques, via un clustering HDBSCAN (i.e. histogrammes standardisés des classes).
     - `DiversitySampler`: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. histogrammes standardisés ou quantilisés des classes).
     - `SpatialSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.
     - **`TripleSampler`**: (1) `TargettedSampled`, puis complétion à part égale avec (2) `DiversitySampler`, et (3) `SpatialSampler`. C'est un compromis entre les trois méthodes. On pourrait envisager d'utiliser `OutliersSampler` en (2) pour encore mieux cibler les éléments atypiques.
     - **`CopySampler`**: un objet permettant la copie complète de la base de données.
+- **Extractor**: créeent un jeu de données à partir d'un sampling.
+    - `LAZExtractor` : extraction et colorisation (orthoimages RGB+Infrarouge) de patches de Lidar (format LAZ).
+    - `OrthoimagesExtractor` : extraction de patches d'orthoimages RGB+Infrarouge à partir du Géoportail (format TIFF).
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-train.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val/test pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`.
 
-L'extraction des jeux de données passe quant à elle par l'usage d'**Extractors**, et en particulier de l'objet suivant : `LAZExtractor`, qui à partir d'un échantillonnage, extrait des patches de Lidar (format LAZ) et les colorise (orthoimages IRC).
 
 </details>
 
@@ -96,7 +98,7 @@ conda activate pacasam
 python ./src/pacasam/run_sampling.py --config_file=configs/Synthetic.yml --connector_class=SyntheticConnector --sampler_class=TripleSampler
 ```
 
-### Lancer un échantillonnage sur des données réelles - base PostGIS LiPaC:
+### Lancer un échantillonnage sur des données réelles - base LiPaC et extraction d'un jeu de données Lidar colorisé
 
 1. Créer sa configuration dans le dossier `configs` (cf. `configs/Lipac.yml`). Vérifier notamment les champs liés à la base de données PostGIS à requêter.
 
@@ -192,86 +194,3 @@ Pacasam ne permet que d'extraire des vignettes carrées, et alignées avec les a
 
 - Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par file_id et patch_id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.
 - Remplacement purement et simplement de DiversitySampler via FPS, par le OutliersSampler. Cf. pull request de [OutlierSampler](https://github.com/IGNF/pacasam/pull/1) sur les visuels et la comparaison. Simple, élégant, et à combiner avec le reste donnera des résultats intéressants. Essayer ça sur une branche et comparer les performances.
-
-
-<details>
-<summary><h3>Development Roadmap</h3></summary>
-
-- Pytest 
-    - [X] main pour les méthodes sur jeu de données synthétique.
-    - [ ] Test impliquant LiPaC connector
-    - [X] Tests impliquant les graphes et la création d'un rapport
-- [X] Module extractor
-    - [X] API unique : objet extractor abstrait dès le début, pour l'instant dans le même module, pour définir l'interface. En entrée un objet gpd compatible, avec à minima : geometry, split, LAZ file, (id). On préciser : la classe de l'objet : LAZExtractor.
-    - [X] Est-ce que main se fait remplacer par un autre objet ? Ou bien deux scripts séparés, appelés dans un troisième ? Quelles sont les bonnes pratiques là dessus (un seul point d'entrée ?). L'extraction est une opération longue donc on peut préférer un entrypoint différent, on ne souhaite pas enchaîner les deux...
-        -  Need : 2 carrés de 100m*100m, qu'on décrira avec un nouveau connector ? Occasion de créer le connector qui effectue une description ? "geopandas" ? NON, trop lourd pour l'instant. Privilégier.
-        - Fonctionnalités:
-            - Lire GDF d'échantillonnage
-                - Check : vérifier présence des bonnes colonnes, et leur types.
-                - Check : vérifier existence et accessibilité de tous les fichiers visés.
-            - groupby fichier (pas à tester), qui permettra parallélisation ensuite plus facilement.
-            - opération 1 LAZ + subset du gpd correspondant -> extraction de n lidar
-            - opération 2 LAZ + 2 subsets du gpd correspondant -> extraction val et test.
-            - Colorisation (dans un second temps, difficile à tester également à part présence des canaux)
-
-Design question :
-- For now, patches should always be rectangular bounding boxes. This simplify extraction. And there is no know use case for arbitrary shaped patches - and we do not use circular ones for now.
-    - [X] Make sure that this is explicit during the extraction - that we extract along x and y axes only. Instantiate elements with (?) shapely.bbox instead of Polygon.
-- Make explicit the ins and outs of samplers, extractors, connectors. Do that in their abstract classes - using pandas_dataclasses seems overkill.
-
-- Tasks:
-    - [X] Redéfinir frac_validation_set et associés vers notion de jeu de validation.
-    - [X] Enlever le comportement par défaut "critere > 0". Toujours mettre commande sql pour être explicite.
-    - [X] Télécharger une fois en un geopackage le jeu de données complet: possible avec le randomsampler en précisant target_total_num_patches=db_size (il faut avoir en tête la taille de la db, mais ça marche si sampling sans remise)
-    - [X] Logging :
-        - [X] Changer la logique pour que la requête SQL initiale permettre de créer des indicateurs plus complexe, type SELECT (nb_bati >=500) as nb_points_bati_heq500. Les indicateurs seront alors *toujours des booléens*. D'où simplification dans le code où on n'a plus besoin de clause "where". La requête SQL dans la config documente efficacement la définition de chaque indicateur, et laisse de la flexibilité.
-        - [X] Viser fichier csv avec un ligne par indicateur, une colonne par jeu de données. Décrire les indicateurs présents dans le df, puisqu'ils correspondent à tous les indicateurs utilisés dans le sampling. On a simplemet besoin de lister tous les indicateurs, et ensuite on peut simplement calculer les prévalences. 
-        Possibilité de calculer ces éléments avec un objet à part qui prend le df en entrée. Pourra prendre le df ET le sampling. Pour faire un croisement / une comparaison, avec des delta.
-        - [X] Métadata plus générales : surface totale. Surface totale pour chaque sampler utilisée x par split test/val.
-        - [X] Revoir ce que je veux inclure dans graphs.py. Simplifier / rendre scalable ? Export du html vers pdf? Supprimer ?
-
-- FAQ / Cas spécifiques
-    - Cas "pas de jeu de validation" : frac_validation_set=0 OK. 
-    - Cas "que du jeu de validation" : frac_validation_set=1 OK. Peut être utilisé pour jeu de test... Mais à voir si on peut mettre "test" à la place. 
-    - Cas "un critère totalement absent" -> ok actuellement Diversity & Random & Spatial & Triple.
-        make all  CONNECTOR=SyntheticConnector CONFIG="configs/Synthetic.yml"
-    - Cas "la somme des critères dépasse 100%" -> c'est ok
-    - Cas "on sélectionne plus que voulu avec TargettedSampler" -> un warning.
-
-Ci-après : roadmap pré-20230420
-
-- Structure :
-    - [X] mise en place espace de travail
-        - [X] repo github, env, connector, structure... attention aux credentials.
-    - Objets: connector, une config, un sampler. 
-        - entrée : config et contraintes sur chaque critère
-        - tout le système pour requêter la BD, le plus indépendant du schéma possible (connecteur + config mdp).
-        - Le système de sauvegarde du sampling = un listing des id à conserver + les géométries pour possibilité d'inspection dans QGIS --> dump direct d'une sous sélection de la base en geopackage.
-    - [X] Fonctionnalités de bases des connecteurs:
-        - [X] Requêter si indicateur binaire est vrai (Nota: doit on faire aussi si faux ?)
-        - [X] Compléter aléatoirement avec d'autres ids
-        - [X] Faire un extract sur la base des ids.
-        - [X] Requête spatialement distribuée. Si large base (> seuil), travailler par chunk, puis redistribution eventuelle dans la sélection.
-    - [X] Connecteur "données synthétique"
-    - [X] Connecteur LiPaC
-    - [X] *random* completion -> spatial sampling for completion.
-- [X] Prise en main PGADMIN ou BDBeaver pour anticipation des opérations copie+manipulation. Idée de "version de référence" maintenue dont partent des copies / enrichissements, qui se feraient avec des requêtes simples.
-- [X] API unique pour les samplers, dans run.py, avec config en argument.
-- [X] Renommer criteria dans config pour préciser qu'il s'agit de targetted sampling. Le nommer par le nom de la classe !
-- [X] Possibilité d'un filtre en amont sur la BD. 
-    - Filtre nb_points > 50. (Mais qu'en est-il de l'eau alors ?...)
-    - Filtre sur les chantier, pour exclure ou inclure certains, et créer le **jeu de test de façon exclusive**.
-    - (Peut-être mise en mémoire alors de la BD filtrée, avec un connecteur type GeoDataFrame ? (Vérifier que ça scalera). -6> pas très satisfaisant, enlève l'intérêt d'une base "online" facilement inspectable.
-- Optimisation :
-    - [X] Config de base avec l'ensemble des indicateurs, pour tests sur 250km² et une npremière viz. 
-    - [X] Spatiale Sampling par itération sur les dalles et sélection d'un patch à chaque fois.
-        On peut envisager une méthode effficae où on attribue un index à chaque patch au sein de chaque dalle, et ensuite on filtre avec un seuil ? Overkill, commencer simple : on devrait sélectionner max 5 patches en conditions réelles. MAIS : les patches ne seront pas optimisés spatialement entre des dalles adjacentes, juste bien répartie par grille. Semble OK.
-        - [X] Version "in memory" qui nécessite de charger id et dalle en mémoire.
-    - [X] Seeds to have a reproductible dataset. Works with postgis as well?
-    - [X] Diversity sampling : Sampling prenant en compte des clusters 'e.g. les deciles de chaque classe, croisés ensemble), de façon représentative, et spatialisée.
-        - [X] Contrôle et paramétrisation des éléments du diversity sampling. En gros, les différents indicators à définir par des requêter sql (si différent du nom de base, cf. targets_for_TargettedSampler). Être capable de faire une unique requete sql pour remplacer l'usage de sampler.extract qui n'est pas prévue pour ça.
-    - [X] Separate spatial and random samplers.
-- Extraction
-    - [X] Extract geopackage des métadonnées
-
-</details>

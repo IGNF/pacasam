@@ -15,6 +15,7 @@ dependencies:
   - shapely
   - geoalchemy2
   - geopandas
+  - rasterio
   - plotly
   - python-kaleido  # to export images via plotly
   - ipywidgets>=7.6

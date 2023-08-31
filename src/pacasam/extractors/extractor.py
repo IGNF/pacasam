@@ -10,6 +10,7 @@ from tqdm import tqdm
 from pacasam.connectors.connector import FILE_ID_COLNAME, FILE_PATH_COLNAME
 
 ZFILL_MAX_PATCH_NUMBER = 7  # patch id consistent below 10M patches (i.e. up to 9_999_999 patches)
+DEFAULT_SRID_LAMBERT93 = "2154"  # Assume Lambert93 if we cannot infer srid from sampling or data itself
 
 
 class Extractor:
@@ -44,9 +45,7 @@ def set_smb_client_singleton() -> None:
 
     """
     if ("SAMBA_USERNAME" not in os.environ) or ("SAMBA_PASSWORD" not in os.environ):
-        raise KeyError(
-            "Either SAMBA_USERNAME or SAMBA_PASSWORD were not exported, but you are using samba (USE_SAMBA is not null)."
-        )
+        raise KeyError("Either SAMBA_USERNAME or SAMBA_PASSWORD were not exported, but you are using samba (USE_SAMBA is not null).")
     smb_username = os.getenv("SAMBA_USERNAME")
     smb_password = os.getenv("SAMBA_PASSWORD")
     smbclient.ClientConfig(username=smb_username, password=smb_password)
@@ -132,9 +131,7 @@ def check_all_files_exist_in_samba_filesystem(paths: Iterable[Path]):
 # WRITING
 
 
-def format_new_patch_path(
-    dataset_root_path: Path, file_id: str, patch_id: int, split: str, patch_suffix: str
-) -> Path:
+def format_new_patch_path(dataset_root_path: Path, file_id: str, patch_id: int, split: str, patch_suffix: str) -> Path:
     """Formats the path to save the patch data. Creates dataset dir and split subdir(s) as needed.
     Format is /{dataset_root_path}/{split}/{file_path_stem}---{zfilled patch_id}.laz
 
@@ -144,8 +141,5 @@ def format_new_patch_path(
     """
     dir_to_save_patch: Path = dataset_root_path / split
     dir_to_save_patch.mkdir(parents=True, exist_ok=True)
-    patch_path = (
-        dir_to_save_patch
-        / f"{split.upper()}-file-{file_id}-patch-{str(patch_id).zfill(ZFILL_MAX_PATCH_NUMBER)}{patch_suffix}"  # noqa
-    )
+    patch_path = dir_to_save_patch / f"{split.upper()}-file-{file_id}-patch-{str(patch_id).zfill(ZFILL_MAX_PATCH_NUMBER)}{patch_suffix}"  # noqa
     return patch_path

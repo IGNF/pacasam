@@ -9,6 +9,10 @@ GEOMETRY_COLNAME = "geometry"  # Shapely geometry (note: only rectangular shapes
 PATCH_ID_COLNAME = "patch_id"  # Unique identifier to each patch
 FILE_ID_COLNAME = "file_id"  # Unique identifier to each file.
 
+# Optionally : if SRID_COLNAME is given in the sampling, the specified srid will be used during extractions.
+# NB: elsewise, it is infered from the data when possible; alternatively, the DEFAULT_SRID from extractor.py is used.
+SRID_COLNAME = "srid"
+
 # TODO: turn this into an attribute of Connector. Reference accordingly.
 PATCH_INFO = [PATCH_ID_COLNAME, FILE_ID_COLNAME]
 

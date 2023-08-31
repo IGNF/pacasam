@@ -48,14 +48,13 @@ from laspy import LasData, LasHeader
 from pdaltools.color import color
 from geopandas import GeoDataFrame
 import smbclient
-from pacasam.connectors.connector import FILE_PATH_COLNAME, FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.connectors.connector import FILE_PATH_COLNAME, FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.extractor import Extractor, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
 
-# Optionally used: if the variable is given in the sampling it overrides the projection from the LAZ file.
-# Necessary to handle situations where proj=None in the LAZ, which defaults to EPSG:9001 ("World") when
-# pdaltools tries to infer the projection from the LAZ file.
-SRID_LAZ_COLNAME = "srid"
+# Optionally : if SRID_COLNAME is given in the sampling, the specified srid will be used during extraxtions
+# Is is useful to handle situations where proj=None in the LAZ,
+# which defaults to EPSG:9001 ("World") when pdaltools tries to infer the projection from the LAZ file.
 EMPTY_STRING_TO_TELL_PDALTOOLS_TO_INFER_PROJ_FROM_LAZ_FILE = ""
 
 
@@ -95,7 +94,7 @@ class LAZExtractor(Extractor):
                 patch_suffix=self.patch_suffix,
             )
             # Use given srid if possible, else pdaltools will infer it from the LAZ file.
-            srid = getattr(patch_info, SRID_LAZ_COLNAME, None)
+            srid = getattr(patch_info, SRID_COLNAME, None)
             colorize_single_patch(nocolor_patch=Path(tmp_nocolor_patch.name), colorized_patch=colorized_patch, srid=srid)
 
 

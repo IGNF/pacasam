@@ -31,12 +31,11 @@ class OrthoimagesExtractor(Extractor):
     timeout_second = 300
     pixel_per_meter = 5
 
+    def __init__(self,):
+
+
     def extract(self) -> None:
-        """Download the orthoimages dataset.
-
-        Uses pandas groupby to handle both single-file and multiple-file samplings.
-
-        """
+        """Download the orthoimages dataset."""
         for _, patch_info in tqdm(self.sampling.iterrows()):
             self.extract_single_patch(patch_info)
 
@@ -66,24 +65,20 @@ class OrthoimagesExtractor(Extractor):
             self.proj, "ORTHOIMAGERY.ORTHOPHOTOS.IRC", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_nir, self.timeout_second
         )
 
-    def collate_rgbnir_and_save(self, tmp_ortho: str, tmp_ortho_irc: str, tiff_patch_path: Path):
+    def collate_rgbnir_and_save(self, tmp_ortho_rgb: str, tmp_ortho_nir: str, tiff_patch_path: Path):
         """Collate RGB and NIR tiff images and save to a new geotiff."""
 
         tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
 
-        ortho_rgb = rasterio.open(tmp_ortho)
-        ortho_irc = rasterio.open(tmp_ortho_irc)
-        merged_profile = ortho_rgb.profile
-        merged_profile.update(count=4)
-        with rasterio.open(tiff_patch_path, "w", **merged_profile) as dst:
-            dst.write(ortho_rgb.read(1), 1)
-            dst.set_band_description(1, "Red")
-            dst.write(ortho_rgb.read(2), 2)
-            dst.set_band_description(2, "Green")
-            dst.write(ortho_rgb.read(3), 3)
-            dst.set_band_description(3, "Blue")
-            dst.write(ortho_irc.read(1), 4)
-            dst.set_band_description(4, "Infrared")
-
-        ortho_rgb.close()
-        ortho_irc.close()
+        with rasterio.open(tmp_ortho_rgb) as ortho_rgb, rasterio.open(tmp_ortho_nir) as ortho_irc:
+            merged_profile = ortho_rgb.profile
+            merged_profile.update(count=4)
+            with rasterio.open(tiff_patch_path, "w", **merged_profile) as dst:
+                dst.write(ortho_rgb.read(1), 1)
+                dst.set_band_description(1, "Red")
+                dst.write(ortho_rgb.read(2), 2)
+                dst.set_band_description(2, "Green")
+                dst.write(ortho_rgb.read(3), 3)
+                dst.set_band_description(3, "Blue")
+                dst.write(ortho_irc.read(1), 4)
+                dst.set_band_description(4, "Infrared")

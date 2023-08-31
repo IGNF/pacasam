@@ -17,8 +17,8 @@ from pathlib import Path
 import tempfile
 from pdaltools.color import retry, download_image_from_geoportail
 from tqdm import tqdm
-from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
-from pacasam.extractors.extractor import Extractor, format_new_patch_path
+from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
+from pacasam.extractors.extractor import Extractor, DEFAULT_SRID_LAMBERT93
 from pacasam.samplers.sampler import SPLIT_COLNAME
 import rasterio
 
@@ -27,7 +27,6 @@ class OrthoimagesExtractor(Extractor):
     """Extract a dataset of RGB-NIR data patches (4 bands TIFF)."""
 
     patch_suffix: str = ".tiff"
-    proj = 2154
     timeout_second = 300
     pixel_per_meter = 5
 
@@ -45,21 +44,23 @@ class OrthoimagesExtractor(Extractor):
         tiff_patch_path = dir_to_save_patch / f"{split.upper()}-{patch_id}"
 
         patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
+        # Use given srid if possible, else use the default value.
+        srid = getattr(patch_info, SRID_COLNAME, DEFAULT_SRID_LAMBERT93)
 
         with tempfile.NamedTemporaryFile(suffix=".tiff") as tmp_ortho_rgb, tempfile.NamedTemporaryFile(suffix=".tiff") as tmp_ortho_nir:
-            self.get_orthoimages_for_patch(patch_bounds, tmp_ortho_rgb.name, tmp_ortho_nir.name)
+            self.get_orthoimages_for_patch(patch_bounds, srid, tmp_ortho_rgb.name, tmp_ortho_nir.name)
             self.collate_rgbnir_and_save(tmp_ortho_rgb.name, tmp_ortho_nir.name, tiff_patch_path)
 
-    def get_orthoimages_for_patch(self, patch_bounds: tuple, tmp_ortho_rgb: str, tmp_ortho_nir: str):
+    def get_orthoimages_for_patch(self, patch_bounds: tuple, srid: str, tmp_ortho_rgb: str, tmp_ortho_nir: str):
         """Request RGB and NIR-Color orthoimages,"""
         xmin, ymin, xmax, ymax = patch_bounds
 
         download_image_from_geoportail_retrying = retry(7, 15, 2)(download_image_from_geoportail)
         download_image_from_geoportail_retrying(
-            self.proj, "ORTHOIMAGERY.ORTHOPHOTOS", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_rgb, self.timeout_second
+            srid, "ORTHOIMAGERY.ORTHOPHOTOS", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_rgb, self.timeout_second
         )
         download_image_from_geoportail_retrying(
-            self.proj, "ORTHOIMAGERY.ORTHOPHOTOS.IRC", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_nir, self.timeout_second
+            srid, "ORTHOIMAGERY.ORTHOPHOTOS.IRC", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_nir, self.timeout_second
         )
 
     def collate_rgbnir_and_save(self, tmp_ortho_rgb: str, tmp_ortho_nir: str, tiff_patch_path: Path):

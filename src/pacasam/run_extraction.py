@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 import argparse
 
-from pacasam.extractors.orthoimages import OrthoimagesExtractor
 
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
@@ -11,6 +10,7 @@ from pacasam.connectors.connector import FILE_PATH_COLNAME, GEOMETRY_COLNAME, PA
 from pacasam.samplers.sampler import SPLIT_COLNAME
 from pacasam.extractors.extractor import Extractor
 from pacasam.extractors.laz import LAZExtractor
+from pacasam.extractors.orthoimages import OrthoimagesExtractor
 from pacasam.utils import EXTRACTORS_LIBRARY, set_log_text_handler, setup_custom_logger
 
 log = setup_custom_logger()

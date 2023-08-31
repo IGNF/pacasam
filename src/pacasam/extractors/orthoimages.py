@@ -4,11 +4,11 @@ Behavior is similar to the one described in `laz.py`
 
 dataset_root_path/
 ├── train/
-│   ├── TRAIN-file-{file_id}-patch-{patch_id}.tif
+│   ├── TRAIN-{patch_id}.tiff
 ├── val/
-│   ├── VAL-file-{file_id}-patch-{patch_id}.tif
+│   ├── VAL-{patch_id}.tiff
 ├── test/
-│   ├── TEST-file-{file_id}-patch-{patch_id}.tif
+│   ├── TEST-{patch_id}.tiff
 
 """
 

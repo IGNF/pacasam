@@ -32,7 +32,7 @@ class OrthoimagesExtractor(Extractor):
     pixel_per_meter = 5
 
     def extract(self) -> None:
-        """Downaload the orthoimages dataset.
+        """Download the orthoimages dataset.
 
         Uses pandas groupby to handle both single-file and multiple-file samplings.
 

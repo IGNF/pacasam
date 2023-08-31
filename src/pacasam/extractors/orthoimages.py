@@ -49,27 +49,24 @@ class OrthoimagesExtractor(Extractor):
         tiff_patch_path = dir_to_save_patch / f"{split.upper()}-{patch_id}"
 
         patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
-        tmp_ortho, tmp_ortho_irc = self.get_orthoimages_for_patch(patch_bounds)
 
-        self.collate_rgbnir_and_save(tmp_ortho, tmp_ortho_irc, tiff_patch_path)
+        with tempfile.NamedTemporaryFile(suffix=".tiff") as tmp_ortho_rgb, tempfile.NamedTemporaryFile(suffix=".tiff") as tmp_ortho_nir:
+            self.get_orthoimages_for_patch(patch_bounds, tmp_ortho_rgb.name, tmp_ortho_nir.name)
+            self.collate_rgbnir_and_save(tmp_ortho_rgb.name, tmp_ortho_nir.name, tiff_patch_path)
 
-    def get_orthoimages_for_patch(self, patch_bounds: tuple):
+    def get_orthoimages_for_patch(self, patch_bounds: tuple, tmp_ortho_rgb: str, tmp_ortho_nir: str):
         """Request RGB and NIR-Color orthoimages,"""
         xmin, ymin, xmax, ymax = patch_bounds
 
         download_image_from_geoportail_retrying = retry(7, 15, 2)(download_image_from_geoportail)
-
-        tmp_ortho = tempfile.NamedTemporaryFile(suffix=".tiff").name
         download_image_from_geoportail_retrying(
-            self.proj, "ORTHOIMAGERY.ORTHOPHOTOS", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho, self.timeout_second
+            self.proj, "ORTHOIMAGERY.ORTHOPHOTOS", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_rgb, self.timeout_second
         )
-        tmp_ortho_irc = tempfile.NamedTemporaryFile(suffix=".tiff").name
         download_image_from_geoportail_retrying(
-            self.proj, "ORTHOIMAGERY.ORTHOPHOTOS.IRC", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_irc, self.timeout_second
+            self.proj, "ORTHOIMAGERY.ORTHOPHOTOS.IRC", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_nir, self.timeout_second
         )
-        return tmp_ortho, tmp_ortho_irc
 
-    def collate_rgbnir_and_save(self, tmp_ortho, tmp_ortho_irc, tiff_patch_path: Path):
+    def collate_rgbnir_and_save(self, tmp_ortho: str, tmp_ortho_irc: str, tiff_patch_path: Path):
         """Collate RGB and NIR tiff images and save to a new geotiff."""
 
         tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)

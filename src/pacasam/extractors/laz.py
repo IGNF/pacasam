@@ -40,6 +40,7 @@ Read and check the sampling geopackage:
 """
 
 
+import os
 from pathlib import Path
 import tempfile
 from typing import Optional, Union
@@ -137,4 +138,12 @@ def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Unio
     if isinstance(colorized_patch, str):
         colorized_patch = Path(colorized_patch)
 
-    color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()), proj=str(srid))
+    tmp_ortho, tmp_ortho_irc = color(str(nocolor_patch.resolve()), str(colorized_patch.resolve()), proj=str(srid))
+    # tmp fix bc for now those are string objects !
+    try:
+        # for V1.3.0 of ign-pdal-tools
+        os.remove(tmp_ortho)
+        os.remove(tmp_ortho_irc)
+    except:
+        # for V1.3.1 of ign-pdal-tools
+        pass

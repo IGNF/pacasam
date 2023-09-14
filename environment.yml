@@ -34,8 +34,8 @@ dependencies:
   - pytest-timeout  
   - pytest-xdist  # tests parallelization using `pytest -n NUM_CPUs`
   # --------- dependencies for ign-pdal-tools - they currently need explicit installation  ----------- #
-  - conda-forge:pdal==2.5.*
-  - conda-forge:python-pdal==3.2.*
+  - conda-forge:pdal==2.5.6
+  - conda-forge:python-pdal==3.2.3
   - requests
   - gdal
   - pip:

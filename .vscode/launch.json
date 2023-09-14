@@ -41,7 +41,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_run_extraction_orthoimages",
+                "test_run_extraction_laz",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

@@ -193,8 +193,6 @@ Passage à l'échelle OK : Tests avec 4M de vignettes (et ~20 variables) sur mac
 
 Pacasam ne permet que d'extraire des vignettes carrées, et alignées avec les axes X et Y du système de coordonnées de référence.
 
-
-
 ### Pistes pour améliorer les samplers
 
 - Assurer la spatialisation de FPS dans DiversitySampler. Actuellement : traitement par parties spatialisé : on ordonne par file_id et patch_id, puis les parties peuvent faire a minima 20000 patches, soit 50 dalles. On pourra ordonner par bloc_id également dans le futur, et augmenter la taille des chunks.

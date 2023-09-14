@@ -1,5 +1,8 @@
 # main
 
+# 0.9.2
+- Drop duplicates patches by patch_id right after download to anticipate potential duplicates in Lipac.
+
 # 0.9.1
 - Update ign-pdal-tools version dependency to avoid cluttered /tmp/ folder.
 

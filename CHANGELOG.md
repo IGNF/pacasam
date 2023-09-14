@@ -1,5 +1,8 @@
 # main
 
+# 0.9.1
+- Update ign-pdal-tools version dependency to avoid cluttered /tmp/ folder.
+
 # 0.9.0
 - Implement the OrthoimagesExtractor
 

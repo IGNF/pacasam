@@ -94,6 +94,7 @@ class LiPaCConnector(Connector):
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
         gdf = gdf.set_crs(self.lambert_93_crs)
         gdf = gdf.sort_values(by=PATCH_ID_COLNAME)
+        gdf = gdf.drop_duplicates(subset=PATCH_ID_COLNAME)
         return gdf
 
 

@@ -61,19 +61,23 @@ def load_sampling_with_checks(sampling_path: Path, use_samba: bool = False) -> G
 
     """
     sampling = load_sampling(sampling_path)
-    check_sampling_format(sampling)
-    unique_file_paths = sampling[FILE_PATH_COLNAME].unique()
-    if use_samba:
-        check_all_files_exist_in_samba_filesystem(unique_file_paths)
-    else:
-        check_all_files_exist_in_default_filesystem(unique_file_paths)
+    # TODO: these should should not happen for all extractors!
+    if FILE_PATH_COLNAME in sampling:
+        check_sampling_format(sampling)
+        unique_file_paths = sampling[FILE_PATH_COLNAME].unique()
+        if use_samba:
+            check_all_files_exist_in_samba_filesystem(unique_file_paths)
+        else:
+            check_all_files_exist_in_default_filesystem(unique_file_paths)
     return sampling
 
 
 def load_sampling(sampling_path: Path) -> GeoDataFrame:
     """Loads a sampling."""
     sampling: GeoDataFrame = gpd.read_file(sampling_path)
-    sampling[FILE_PATH_COLNAME] = sampling[FILE_PATH_COLNAME].apply(Path)
+    # TODO: this should not exists since file_path is for laz extractor only, and this transormation should happen there
+    if FILE_PATH_COLNAME in sampling:
+        sampling[FILE_PATH_COLNAME] = sampling[FILE_PATH_COLNAME].apply(Path)
     return sampling
 
 

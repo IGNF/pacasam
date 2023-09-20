@@ -5,6 +5,7 @@ import sys
 from pacasam.connectors.geopandas import GeopandasConnector
 from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
+from pacasam.extractors.bd_ortho_vintage import BDOrthoVintageExtractor
 from pacasam.extractors.laz import LAZExtractor
 from pacasam.extractors.orthoimages import OrthoimagesExtractor
 from pacasam.samplers.copy import CopySampler
@@ -63,4 +64,8 @@ SAMPLERS_LIBRARY = {
     "CopySampler": CopySampler,
 }
 
-EXTRACTORS_LIBRARY = {"LAZExtractor": LAZExtractor, "OrthoimagesExtractor": OrthoimagesExtractor}
+EXTRACTORS_LIBRARY = {
+    "LAZExtractor": LAZExtractor,
+    "OrthoimagesExtractor": OrthoimagesExtractor,
+    "BDOrthoVintageExtractor": BDOrthoVintageExtractor,
+}

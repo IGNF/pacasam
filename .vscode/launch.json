@@ -5,6 +5,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run _bd_ortho_catalogue",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/extractors/_bd_ortho_catalogue.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": []
+        },
+        {
             "name": "Run Pytest",
             "type": "python",
             "request": "launch",

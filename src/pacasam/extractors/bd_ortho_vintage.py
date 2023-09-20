@@ -56,11 +56,11 @@ class BDOrthoVintageExtractor(Extractor):
                 with tempfile.NamedTemporaryFile(suffix=self.patch_suffix) as tmp_patch_rgb, tempfile.NamedTemporaryFile(
                     suffix=self.patch_suffix
                 ) as tmp_patch_irc:
-                    self.extract_patch(src=rgb, bounds=patch_bounds, out_path=tmp_patch_rgb)
-                    self.extract_patch(src=irc, bounds=patch_bounds, out_path=tmp_patch_irc)
+                    self.extract_patch(src_orthoimagery=rgb, bounds=patch_bounds, out_path=tmp_patch_rgb)
+                    self.extract_patch(src_orthoimagery=irc, bounds=patch_bounds, out_path=tmp_patch_irc)
                     self.collate_rgbnir_and_save(tmp_patch_rgb.name, tmp_patch_irc.name, tiff_patch_path)
 
-    def extract_patch(src: DatasetReader, bounds: Tuple, out_path: tempfile._TemporaryFileWrapper):
+    def extract_patch(src_orthoimagery: DatasetReader, bounds: Tuple, out_path: tempfile._TemporaryFileWrapper):
         # TODO.
         ...
 

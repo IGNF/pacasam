@@ -1,45 +1,38 @@
+from datetime import date
 from glob import glob
 import re
-import sys
-import geopandas as gpd
+import warnings
+import argparse
 from pathlib import Path
 import pandas as pd
-from mpire import WorkerPool, cpu_count
-import argparse
+import geopandas as gpd
 from shapely.geometry import box
-
 import rasterio
-from tqdm import tqdm
+from mpire import WorkerPool, cpu_count
 
-root_dir = Path(__file__).resolve().parent.parent
-sys.path.append(str(root_dir))
-# current_date = date.today().strftime("%Y%m%d")
-# OUT = OUTPUTS_DIR / f"{current_date}_file_id_with_path_not_found.csv"
+current_date = date.today().strftime("%Y%m%d")
 
-
-# from pacasam.connectors.connector import FILE_PATH_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
-# from pacasam.samplers.sampler import SPLIT_COLNAME
+MIN_TARGET_YEAR = 2017  # inclusive
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "-s",
     "--src_dir",
-    default="/mnt/store.ign.fr/store-ref/produits/ortho-images/Ortho/",
-    type=lambda p: Path(p).absolute(),
+    default="/mnt/store-ref/produits/ortho-images/Ortho/",
+    type=lambda p: str(Path(p).absolute()),
     help="Path to BD Ortho dir.",
 )
 parser.add_argument(
     "-o",
     "--output_catalogue_path",
-    default="./outputs/catalogue.gpkg",
+    default=f"./outputs/{current_date}_bd_ortho_catalogue_since_{MIN_TARGET_YEAR}.gpkg",
     type=lambda p: Path(p).absolute(),
     help=("Path to save the BD Orthos Catalogue."),
 )
 
-MIN_TARGET_YEAR = 2017  # inclusive
-GLOB_DIRS_MAIN = "/mnt/store-ref/produits/ortho-images/Ortho/D*/20??"  # be specific in case we have random dirs...
-JPEG2_FILE_PATTERN = "*.jp2"
+GLOB_DIRS_MAIN = "{src_dir}/D*/20??"  # to-be formatted pattern
 
+JPEG2_FILE_PATTERN = "*.jp2"
 
 # Modalities we look for
 ORTHO_TYPE_IRC = "IRC"
@@ -50,24 +43,26 @@ ORTHO_RES_0M20 = "0M20"
 ORTHO_RES_0M15 = "0M15"
 ORTHO_RES_0M50 = "0M50"
 
-# Structure
+# Expected structure in store-ref is
 # Dir : /mnt/store.ign.fr/store-ref/produits/ortho-images/Ortho/D001/2021/
 # Subdir : BDORTHO_RVB-0M20_JP2-E100_RGF93LAMB93_D001_2021 (ou IRC). Dallage
-# File: 01-2021-0834-6551-LA93-0M20-RVB-E100.jp2  # 1km * 1km
+# File: 01-2021-0834-6551-LA93-0M20-RVB-E100.jp2  # 1km * 1km or other !
 
 
-def make_catalogue():
+def make_catalogue(src_dir: str):
     # Globbing all orthoimages vintages
-    vintage_dirs = glob(GLOB_DIRS_MAIN)
+    vintage_dirs = glob(GLOB_DIRS_MAIN.format(src_dir=src_dir))
 
-    # filter above year
+    # filter above min target year (inclusive)
     vintage_dirs = [v for v in vintage_dirs if int(v[-4:]) >= MIN_TARGET_YEAR]
 
     dfs = []
-    for vd in tqdm(vintage_dirs[:3], desc="Vintage"):
-        dfs += [get_rgb_nir_paths_from_vintage_dir(vd)]
-    # with WorkerPool(n_jobs=cpu_count() // 3) as pool:
-    # rgb_and_nir_file_pairs = pool.map(get_rgb_nir_pairs_from_vintage_dir, vintage_dirs, progress_bar=True)
+    tqdm_args = {"desc": "Cataloguing", "unit": "vintages"}
+    # for vd in tqdm(vintage_dirs[:3], **tqdm_args):
+    #     dfs += [get_rgb_nir_paths_from_vintage_dir(vd)]
+    # with WorkerPool(n_jobs=2) as pool:
+        with WorkerPool(n_jobs=cpu_count() // 3) as pool:
+        dfs = pool.map(get_rgb_nir_paths_from_vintage_dir, vintage_dirs, progress_bar=True, progress_bar_options=tqdm_args)
 
     catalogue = pd.concat(dfs, ignore_index=True)
     return catalogue
@@ -114,18 +109,27 @@ def get_rgb_nir_paths_from_vintage_dir(vintage_dir: str):
     # Find a folder for each modality, prioritizing 20cm > 15cm > 50cm.
     # Always look for E100 qualitys since is is the original data it should exist.
     list_of_dirs = list(Path(vintage_dir).iterdir())
-    rgb_dir, irc_dir = find_rgb_and_irc_dirs(list_of_dirs)
+    try:
+        rgb_dir, irc_dir = find_rgb_and_irc_dirs(list_of_dirs)
+    except ValueError:
+        warnings.warn(f"No rgb/irc files were found for {vintage_dir}")
+        return pd.DataFrame()
 
     # Find the files
-    rgb_files = glob(str(rgb_dir / JPEG2_FILE_PATTERN))  # check the missing /, use Path ?
-    irc_files = glob(str(irc_dir / JPEG2_FILE_PATTERN))  # check the missing /, use Path ?
-    assert len(rgb_files) == len(irc_files)  # sanity check. Always true if same shapes of files in irc/rgb
-    rgb_files = sorted(rgb_files)
+    rgb_files = glob(str(rgb_dir / JPEG2_FILE_PATTERN))
+    irc_files = glob(str(irc_dir / JPEG2_FILE_PATTERN))
+    try:
+        assert len(rgb_files) == len(irc_files)  # sanity check. Always true if same shapes of files in irc/rgb.
+    except AssertionError:
+        warnings.warn(f"Not same length {vintage_dir} : rgb={len(rgb_files)} vs. irc={len(irc_files)}")
+        return pd.DataFrame()
+
+    rgb_files = sorted(rgb_files)  # sort to align them with each other based on L93 coordinates
     irc_files = sorted(irc_files)
 
     rows = []
     img_width_of_vintage = None  # may change between vintages
-    for rgb_file, irc_file in tqdm(zip(rgb_files, irc_files), leave=False):
+    for rgb_file, irc_file in zip(rgb_files, irc_files):
         # define coords
         basename_parts = Path(rgb_file).name.split("-")
         min_x = basename_parts[2]
@@ -152,6 +156,6 @@ def get_rgb_nir_paths_from_vintage_dir(vintage_dir: str):
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    catalogue = make_catalogue()
+    catalogue = make_catalogue(args.src_dir)
     print(catalogue)
     catalogue.to_file(args.output_catalogue_path)

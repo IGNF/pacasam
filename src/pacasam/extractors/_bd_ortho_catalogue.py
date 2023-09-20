@@ -61,7 +61,7 @@ def make_catalogue(src_dir: str):
     # for vd in tqdm(vintage_dirs[:3], **tqdm_args):
     #     dfs += [get_rgb_nir_paths_from_vintage_dir(vd)]
     # with WorkerPool(n_jobs=2) as pool:
-        with WorkerPool(n_jobs=cpu_count() // 3) as pool:
+    with WorkerPool(n_jobs=cpu_count() // 3) as pool:
         dfs = pool.map(get_rgb_nir_paths_from_vintage_dir, vintage_dirs, progress_bar=True, progress_bar_options=tqdm_args)
 
     catalogue = pd.concat(dfs, ignore_index=True)

@@ -9,6 +9,7 @@ import geopandas as gpd
 from shapely.geometry import box
 import rasterio
 from mpire import WorkerPool, cpu_count
+from tqdm import tqdm
 
 current_date = date.today().strftime("%Y%m%d")
 
@@ -58,9 +59,12 @@ def make_catalogue(src_dir: str):
 
     dfs = []
     tqdm_args = {"desc": "Cataloguing", "unit": "vintages"}
+
+    ### Uncomment to debug without multiprocessing ##
     # for vd in tqdm(vintage_dirs[:3], **tqdm_args):
     #     dfs += [get_rgb_nir_paths_from_vintage_dir(vd)]
     # with WorkerPool(n_jobs=2) as pool:
+
     with WorkerPool(n_jobs=cpu_count() // 3) as pool:
         dfs = pool.map(get_rgb_nir_paths_from_vintage_dir, vintage_dirs, progress_bar=True, progress_bar_options=tqdm_args)
 
@@ -122,6 +126,8 @@ def get_rgb_nir_paths_from_vintage_dir(vintage_dir: str):
         assert len(rgb_files) == len(irc_files)  # sanity check. Always true if same shapes of files in irc/rgb.
     except AssertionError:
         warnings.warn(f"Not same length {vintage_dir} : rgb={len(rgb_files)} vs. irc={len(irc_files)}")
+        # One error since 2017 : D029/2018. --> Finistère. There is a 2021 batch that will do just fine.
+        # We do not try to match them for now
         return pd.DataFrame()
 
     rgb_files = sorted(rgb_files)  # sort to align them with each other based on L93 coordinates

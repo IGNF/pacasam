@@ -38,6 +38,7 @@ Read and check the sampling geopackage:
 """
 
 
+import logging
 from pathlib import Path
 import tempfile
 from typing import Optional, Union
@@ -46,9 +47,11 @@ from laspy import LasData, LasHeader
 from pdaltools.color import color
 from geopandas import GeoDataFrame
 import smbclient
-from pacasam.connectors.connector import FILE_PATH_COLNAME, FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
-from pacasam.extractors.extractor import Extractor, format_new_patch_path
+from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
+from pacasam.extractors.extractor import Extractor, check_all_files_exist_anywhere, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
+
+FILE_PATH_COLNAME = "file_path"  # path to LAZ for extraction e.g. "/path/to/file.LAZ"
 
 # Optionally : if SRID_COLNAME is given in the sampling, the specified srid will be used during extraxtions
 # Is is useful to handle situations where proj=None in the LAZ,
@@ -60,6 +63,17 @@ class LAZExtractor(Extractor):
     """Extract a dataset of LAZ data patches."""
 
     patch_suffix: str = ".laz"
+
+    def __init__(
+        self,
+        log: logging.Logger,
+        sampling_path: Path,
+        dataset_root_path: Path,
+        use_samba: bool = False,
+    ):
+        super().__init__(log, sampling_path, dataset_root_path, use_samba=use_samba)
+        unique_file_paths = self.sampling[FILE_PATH_COLNAME].unique()
+        check_all_files_exist_anywhere(unique_file_paths, self.use_samba)
 
     def extract(self) -> None:
         """Performs extraction and colorization to a laz dataset.

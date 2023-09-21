@@ -4,7 +4,6 @@ from geopandas import GeoDataFrame
 
 # Those are the necessary columns that are needed in the database to perform a sampling.
 
-FILE_PATH_COLNAME = "file_path"  # path for later extraction e.g. "/path/to/file.LAZ"
 GEOMETRY_COLNAME = "geometry"  # Shapely geometry (note: only rectangular shapes aligend with x/y are supported)
 PATCH_ID_COLNAME = "patch_id"  # Unique identifier to each patch
 FILE_ID_COLNAME = "file_id"  # Unique identifier to each file.

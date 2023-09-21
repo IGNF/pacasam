@@ -23,7 +23,7 @@ def test_run_extraction_laz(toy_sampling_file):
 @pytest.mark.timeout(60)
 @pytest.mark.slow
 @pytest.mark.geoportail
-def test_run_extraction_orthoimages(toy_sampling_file):
+def test_run_extraction_bd_ortho_today(toy_sampling_file):
     with tempfile.TemporaryDirectory() as tmp_output_path:
         args = parser.parse_args(
             args=[
@@ -32,7 +32,7 @@ def test_run_extraction_orthoimages(toy_sampling_file):
                 "--dataset_root_path",
                 tmp_output_path,
                 "--extractor_class",
-                "OrthoimagesExtractor",
+                "BDOrthoTodayExtractor",
             ]
         )
         run_extraction(args)

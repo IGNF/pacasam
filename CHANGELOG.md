@@ -1,5 +1,8 @@
 # main
 
+# 0.9.4
+- Refactor: move all laz-specific logics (e.g. use of file_path) to the right places. 
+
 # 0.9.3
 - Rename extractor: `orthoimages` to `bd_ortho_today.`
 
@@ -10,7 +13,7 @@
 - Update ign-pdal-tools version dependency to avoid cluttered /tmp/ folder.
 
 # 0.9.0
-- Implement the OrthoimagesExtractor
+- Implement the BDOrthoTodayExtractor
 
 # 0.8.0
 - Keep only patches that are in France using the new LiPaC attribute VIGNETTE.EN_FRANCE

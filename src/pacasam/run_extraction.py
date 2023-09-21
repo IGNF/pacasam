@@ -6,7 +6,7 @@ import argparse
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
 
-from pacasam.connectors.connector import FILE_PATH_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.samplers.sampler import SPLIT_COLNAME
 from pacasam.extractors.extractor import Extractor
 from pacasam.extractors.laz import LAZExtractor
@@ -25,7 +25,8 @@ parser.add_argument(
     type=lambda p: Path(p).absolute(),
     help=(
         "Path to a valid sampling i.e. a geopackage with columns: "
-        f"{FILE_PATH_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
+        f"{PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
+        f"and {SRID_COLNAME} (optionaly)"
     ),
 )
 parser.add_argument(
@@ -53,7 +54,7 @@ def run_extraction(args):
         extractor: Extractor = LAZExtractor(
             log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=args.samba_filesystem
         )
-    elif args.extractor_class == "OrthoimagesExtractor":
+    elif args.extractor_class == "BDOrthoTodayExtractor":
         extractor: Extractor = BDOrthoTodayExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
     else:
         raise ValueError(f"Extractor {args.extractor_class} is unknown. See argparse choices with --help.")

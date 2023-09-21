@@ -7,7 +7,8 @@ import geopandas as gpd
 from shapely import Polygon
 import smbclient
 from tqdm import tqdm
-from pacasam.connectors.connector import FILE_ID_COLNAME, FILE_PATH_COLNAME
+from pacasam.connectors.connector import FILE_ID_COLNAME
+
 
 ZFILL_MAX_PATCH_NUMBER = 7  # patch id consistent below 10M patches (i.e. up to 9_999_999 patches)
 DEFAULT_SRID_LAMBERT93 = "2154"  # Assume Lambert93 if we cannot infer srid from sampling or data itself
@@ -30,7 +31,8 @@ class Extractor:
         # Wether to use samba client or use the local filesystem.
         if use_samba:
             set_smb_client_singleton()
-        self.sampling = load_sampling(sampling_path=sampling_path, use_samba=use_samba)
+        self.sampling = load_sampling(sampling_path=sampling_path)
+        check_sampling_format(self.sampling)
         self.use_samba = use_samba
 
     def extract(self):
@@ -54,22 +56,6 @@ def set_smb_client_singleton() -> None:
 # READING SAMPLINGS
 
 
-def load_sampling_with_checks(sampling_path: Path, use_samba: bool = False) -> GeoDataFrame:
-    """Load a sampling, with useful checks on format and file existence.
-
-    If use_samba=True, checks will know that the files are in a samba store.
-
-    """
-    sampling = load_sampling(sampling_path)
-    check_sampling_format(sampling)
-    unique_file_paths = sampling[FILE_PATH_COLNAME].unique()
-    if use_samba:
-        check_all_files_exist_in_samba_filesystem(unique_file_paths)
-    else:
-        check_all_files_exist_in_default_filesystem(unique_file_paths)
-    return sampling
-
-
 def load_sampling(sampling_path: Path) -> GeoDataFrame:
     """Loads a sampling."""
     sampling: GeoDataFrame = gpd.read_file(sampling_path)
@@ -80,7 +66,7 @@ def check_sampling_format(sampling: GeoDataFrame) -> None:
     """Checks if the geopackage file follows the expected format.
 
     Args:
-    - sampling (GeoDataFrame): A geopandas dataframe containing columns "split", "geometry" and FILE_PATH_COLNAME.
+    - sampling (GeoDataFrame): A geopandas dataframe containing columns "split", "geometry", in the right format.
 
     Returns:
     - None
@@ -89,7 +75,7 @@ def check_sampling_format(sampling: GeoDataFrame) -> None:
     - ValueError: If any of the required columns is missing or has an incorrect format.
 
     """
-    required_columns = ["split", "geometry", FILE_PATH_COLNAME, FILE_ID_COLNAME]
+    required_columns = ["split", "geometry"]
     for col in required_columns:
         if col not in sampling.columns:
             raise ValueError(f"Column '{col}' missing from the sampling dataframe")
@@ -101,9 +87,29 @@ def check_sampling_format(sampling: GeoDataFrame) -> None:
         raise TypeError("Column 'geometry' should be a geometry column")
 
 
-def check_all_files_exist_in_default_filesystem(paths: Iterable[Path]):
+def check_all_files_exist_anywhere(unique_file_paths: Iterable[str], use_samba: bool = False):
+    # unique_file_paths = sampling[FILE_PATH_COLNAME].unique()
+    if use_samba:
+        check_all_files_exist_in_samba_filesystem(unique_file_paths)
+    else:
+        check_all_files_exist_in_default_filesystem(unique_file_paths)
+
+
+def check_all_files_exist_in_default_filesystem(paths: Iterable[str]):
     """Raises an informative error if some file(s) cannot be reached."""
-    files_not_found = [str(p) for p in paths if not p.exists()]
+    files_not_found = [p for p in paths if not Path(p).exists()]
+    if files_not_found:
+        raise_explicit_FileNotFoundError(files_not_found)
+
+
+def check_all_files_exist_in_samba_filesystem(paths: Iterable[str]):
+    files_not_found = []
+    for p in tqdm(paths, unit="Samba file", desc="Checking Samba file existence."):
+        try:
+            with smbclient.open_file(p, mode="rb") as f:
+                ...
+        except FileNotFoundError:
+            files_not_found += [f]
     if files_not_found:
         raise_explicit_FileNotFoundError(files_not_found)
 
@@ -113,18 +119,6 @@ def raise_explicit_FileNotFoundError(files_not_found):
         files_not_found = files_not_found[:5] + ["..."] + files_not_found[-5:]
     files_not_found_str = "\n".join(files_not_found)
     raise FileNotFoundError(f"Expected files to exists and be accessible: \n{files_not_found_str}")
-
-
-def check_all_files_exist_in_samba_filesystem(paths: Iterable[Path]):
-    files_not_found = []
-    for p in tqdm(paths, unit="Samba file", desc="Checking Samba file existence."):
-        try:
-            with smbclient.open_file(p, mode="rb") as f:
-                ...
-        except FileNotFoundError:
-            files_not_found += [str(f)]
-    if files_not_found:
-        raise_explicit_FileNotFoundError(files_not_found)
 
 
 # WRITING

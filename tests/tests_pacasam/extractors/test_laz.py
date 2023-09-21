@@ -34,11 +34,11 @@ RANDOM_INT = 55
 
 def test_check_files_accessibility():
     # Test when all files exist - we test this with this module's own path.
-    file_paths = [Path(LEFTY), Path(RIGHTY)]
+    file_paths = [LEFTY, RIGHTY]
     check_all_files_exist_in_default_filesystem(file_paths)
 
     # Test when some files do not exist
-    file_paths = [Path(LEFTY), Path("fake_non_existing_file.txt"), Path(RIGHTY)]
+    file_paths = [LEFTY, "fake_non_existing_filetxt", RIGHTY]
     with pytest.raises(FileNotFoundError):
         check_all_files_exist_in_default_filesystem(file_paths)
 
@@ -85,16 +85,12 @@ def test_extract_single_patch_from_LasData(cloud_path_and_bounds):
     cloud_path, patch_bounds = cloud_path_and_bounds
     """Test the extraction of a single patch to the tmp file, based on bounds."""
     cloud = laspy.read(cloud_path)
-    nocolor_patch_tmp_file: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(
-        cloud, cloud.header, patch_bounds
-    )
+    nocolor_patch_tmp_file: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, cloud.header, patch_bounds)
     patch_data = laspy.read(nocolor_patch_tmp_file.name)
     # Test that non empty and the right size
     assert len(patch_data) > 0
     for dim in ["x", "y"]:
-        assert patch_data[dim].max() - patch_data[dim].min() == pytest.approx(
-            PATCH_WIDTH_METERS, abs=ONE_METER_ABS_TOLERANCE
-        )
+        assert patch_data[dim].max() - patch_data[dim].min() == pytest.approx(PATCH_WIDTH_METERS, abs=ONE_METER_ABS_TOLERANCE)
 
 
 @pytest.mark.parametrize("cloud_path", [LEFTY, RIGHTY])
@@ -128,9 +124,7 @@ def test_colorize_single_patch(cloud_path, srid):
 
         # Assert both non-white (i.e. colorization *did* happen) and non-trivial colorization
         for dim in ["red", "green", "blue", "nir"]:
-            assert not np.array_equal(
-                cloud[dim], np.full_like(cloud[dim], fill_value=WHITE_COLOR_VALUE)
-            )
+            assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=WHITE_COLOR_VALUE))
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))
 
 

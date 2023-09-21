@@ -63,4 +63,4 @@ SAMPLERS_LIBRARY = {
     "CopySampler": CopySampler,
 }
 
-EXTRACTORS_LIBRARY = {"LAZExtractor": LAZExtractor, "OrthoimagesExtractor": BDOrthoTodayExtractor}
+EXTRACTORS_LIBRARY = {"LAZExtractor": LAZExtractor, "BDOrthoTodayExtractor": BDOrthoTodayExtractor}

@@ -1,5 +1,8 @@
 # main
 
+# 0.9.3
+- Rename extractor: `orthoimages` to `bd_ortho_today.`
+
 # 0.9.2
 - Drop duplicates patches by patch_id right after download to anticipate potential duplicates in Lipac.
 

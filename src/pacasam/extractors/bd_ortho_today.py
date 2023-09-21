@@ -23,7 +23,7 @@ from pacasam.samplers.sampler import SPLIT_COLNAME
 import rasterio
 
 
-class OrthoimagesExtractor(Extractor):
+class BDOrthoTodayExtractor(Extractor):
     """Extract a dataset of RGB-NIR data patches (4 bands TIFF)."""
 
     patch_suffix: str = ".tiff"

@@ -10,7 +10,7 @@ from pacasam.connectors.connector import FILE_PATH_COLNAME, GEOMETRY_COLNAME, PA
 from pacasam.samplers.sampler import SPLIT_COLNAME
 from pacasam.extractors.extractor import Extractor
 from pacasam.extractors.laz import LAZExtractor
-from pacasam.extractors.orthoimages import OrthoimagesExtractor
+from pacasam.extractors.bd_ortho_today import BDOrthoTodayExtractor
 from pacasam.utils import EXTRACTORS_LIBRARY, set_log_text_handler, setup_custom_logger
 
 log = setup_custom_logger()
@@ -54,7 +54,7 @@ def run_extraction(args):
             log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=args.samba_filesystem
         )
     elif args.extractor_class == "OrthoimagesExtractor":
-        extractor: Extractor = OrthoimagesExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
+        extractor: Extractor = BDOrthoTodayExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
     else:
         raise ValueError(f"Extractor {args.extractor_class} is unknown. See argparse choices with --help.")
     extractor.extract()

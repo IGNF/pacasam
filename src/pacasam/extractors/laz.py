@@ -30,8 +30,6 @@ Functions:
         Applies colorization to a single patch.
 
 Read and check the sampling geopackage:
-    - `load_sampling_with_checks(sampling_path: Path) -> GeoDataFrame`:
-        Loads the sampling geopackage as a geopandas dataframe and checks if it follows the expected format.
     - `check_sampling_format(sampling: GeoDataFrame) -> None`:
         Checks if the sampling geopackage follows the expected format.
     - `all_files_can_be_accessed(files: Iterable[Path]) -> bool`:

@@ -8,7 +8,6 @@ from pacasam.extractors.extractor import (
     check_all_files_exist_in_default_filesystem,
     check_sampling_format,
     load_sampling,
-    load_sampling_with_checks,
 )
 
 from pacasam.extractors.laz import (
@@ -69,11 +68,6 @@ def test_check_sampling_format(tiny_synthetic_sampling):
 
 def test_load_sampling(toy_sampling_file):
     df_loaded = load_sampling(toy_sampling_file.name)
-    assert len(df_loaded)
-
-
-def test_load_sampling_with_checks(toy_sampling_file):
-    df_loaded = load_sampling_with_checks(toy_sampling_file.name)
     assert len(df_loaded)
 
 

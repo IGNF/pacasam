@@ -30,7 +30,7 @@ class Extractor:
         # Wether to use samba client or use the local filesystem.
         if use_samba:
             set_smb_client_singleton()
-        self.sampling = load_sampling_with_checks(sampling_path=sampling_path, use_samba=use_samba)
+        self.sampling = load_sampling(sampling_path=sampling_path, use_samba=use_samba)
         self.use_samba = use_samba
 
     def extract(self):

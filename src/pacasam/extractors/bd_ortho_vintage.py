@@ -17,6 +17,7 @@ we need rgb_file and irc_file, which are path to the orthoimages (jp2 files, typ
 
 
 from copy import deepcopy
+import os
 from pathlib import Path
 from typing import Tuple
 import numpy as np
@@ -33,14 +34,19 @@ from geopandas import GeoDataFrame
 
 
 class BDOrthoVintageExtractor(Extractor):
-    """Extract a dataset of IRC,R,G,B data patches (4 bands TIFF) from a BD Ortho file system."""
+    """Extract a dataset of IRC,R,G,B data patches (4 bands TIFF) from a BD Ortho file system.
+
+    Environment variables:
+      - BD_ORTHO_VINTAGE_VRT_DIR: path to a directory with subdirs irc and rgb, containing VRTs for each BD ORtho vintage (e.g. D01)
+      - NUM_JOBS: num of jobs in multiprocessing - ideally equal to the number of different vintage considered. Else, default to 1.
+
+    """
 
     patch_suffix: str = ".tiff"
     dept_column: str = "french_department_id_imagery"
     year_column: str = "year_imagery"
     pixel_per_meter: int = 5
-    # TODO: use os.getenv(BD_ORTHO_VINTAGE_VRT_DIR) and document its use.
-    vintages_vrt_dir: Path = Path("/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/202308_PureForestStandDataset_Archive/extraction/VRT/")
+    vintages_vrt_dir: Path = Path(os.getenv("BD_ORTHO_VINTAGE_VRT_DIR"))
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
@@ -50,7 +56,7 @@ class BDOrthoVintageExtractor(Extractor):
             irc_vrt = self.vintages_vrt_dir / "irc" / f"{dept}-{year}.vrt"
             iterable_of_args.append((rvb_vrt, irc_vrt, single_vintage))
 
-        with WorkerPool(n_jobs=39) as pool:
+        with WorkerPool(n_jobs=os.getenv("NUM_JOBS", default=1)) as pool:
             pool.map(self.extract_from_single_vintage, iterable_of_args, progress_bar=True)
 
     def extract_from_single_vintage(self, rvb_vrt, irc_vrt, single_file_sampling: GeoDataFrame):

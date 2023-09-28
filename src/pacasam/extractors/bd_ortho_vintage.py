@@ -39,6 +39,7 @@ class BDOrthoVintageExtractor(Extractor):
     dept_column: str = "french_department_id_imagery"
     year_column: str = "year_imagery"
     pixel_per_meter: int = 5
+    # TODO: use os.getenv(BD_ORTHO_VINTAGE_VRT_DIR) and document its use.
     vintages_vrt_dir: Path = Path("/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/202308_PureForestStandDataset_Archive/extraction/VRT/")
 
     def extract(self) -> None:
@@ -51,7 +52,6 @@ class BDOrthoVintageExtractor(Extractor):
 
         with WorkerPool(n_jobs=39) as pool:
             pool.map(self.extract_from_single_vintage, iterable_of_args, progress_bar=True)
-
 
     def extract_from_single_vintage(self, rvb_vrt, irc_vrt, single_file_sampling: GeoDataFrame):
         with rasterio.open(rvb_vrt) as rvb, rasterio.open(irc_vrt) as irc:

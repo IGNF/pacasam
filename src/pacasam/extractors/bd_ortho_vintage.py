@@ -21,7 +21,6 @@ import os
 from pathlib import Path
 from typing import Tuple
 import numpy as np
-from tqdm import tqdm
 from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.extractors.extractor import Extractor
 from pacasam.samplers.sampler import SPLIT_COLNAME
@@ -46,14 +45,15 @@ class BDOrthoVintageExtractor(Extractor):
     dept_column: str = "french_department_id_imagery"
     year_column: str = "year_imagery"
     pixel_per_meter: int = 5
-    vintages_vrt_dir: Path = Path(os.getenv("BD_ORTHO_VINTAGE_VRT_DIR"))
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
+        vintages_vrt_dir = Path(os.getenv("BD_ORTHO_VINTAGE_VRT_DIR"))
+
         iterable_of_args = []
         for (dept, year), single_vintage in self.sampling.groupby([self.dept_column, self.year_column]):
-            rvb_vrt = self.vintages_vrt_dir / "rvb" / f"{dept}-{year}.vrt"
-            irc_vrt = self.vintages_vrt_dir / "irc" / f"{dept}-{year}.vrt"
+            rvb_vrt = vintages_vrt_dir / "rvb" / f"{dept}-{year}.vrt"
+            irc_vrt = vintages_vrt_dir / "irc" / f"{dept}-{year}.vrt"
             iterable_of_args.append((rvb_vrt, irc_vrt, single_vintage))
 
         with WorkerPool(n_jobs=os.getenv("NUM_JOBS", default=1)) as pool:

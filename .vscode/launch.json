@@ -26,7 +26,7 @@
             "args": [
                 "-s",
                 "-k",
-                "test_run_extraction_laz",
+                "test_run_extraction_bd_ortho_today",
             ],
             "env": {
                 "PYTEST_ADDOPTS": "--no-cov"

@@ -13,18 +13,26 @@ dataset_root_path/
 """
 
 
+import os
 from pathlib import Path
 import tempfile
 from pdaltools.color import retry, download_image_from_geoportail
-from tqdm import tqdm
 from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.extractor import Extractor, DEFAULT_SRID_LAMBERT93
 from pacasam.samplers.sampler import SPLIT_COLNAME
 import rasterio
+from mpire import WorkerPool
 
 
 class BDOrthoTodayExtractor(Extractor):
-    """Extract a dataset of RGB-NIR data patches (4 bands TIFF)."""
+    """Extract a dataset of IRC,R,G,B data patches (4 bands TIFF) from the BD Ortho Web Map Service.
+
+    See: https://geoservices.ign.fr/services-web-experts-ortho
+
+    Environment variable:
+      - NUM_JOBS: num of jobs in multiprocessing extraction of single patches. Default to 1.
+
+    """
 
     patch_suffix: str = ".tiff"
     timeout_second = 300
@@ -32,8 +40,10 @@ class BDOrthoTodayExtractor(Extractor):
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
-        for _, patch_info in tqdm(self.sampling.iterrows(), unit="patch"):
-            self.extract_single_patch(patch_info)
+        # mpire does argument unpacking, see https://github.com/sybrenjansen/mpire/issues/29#issuecomment-984559662.
+        iterable_of_args = [(patch_info,) for _, patch_info in self.sampling.iterrows()]
+        with WorkerPool(n_jobs=os.getenv("NUM_JOBS", default=1)) as pool:
+            pool.map(self.extract_single_patch, iterable_of_args, progress_bar=True)
 
     def extract_single_patch(self, patch_info):
         """Extract and RGB+NIR tiff for the patch."""

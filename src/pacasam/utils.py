@@ -7,6 +7,7 @@ from pacasam.connectors.lipac import load_LiPaCConnector
 from pacasam.connectors.synthetic import SyntheticConnector
 from pacasam.extractors.laz import LAZExtractor
 from pacasam.extractors.bd_ortho_today import BDOrthoTodayExtractor
+from pacasam.extractors.bd_ortho_vintage import BDOrthoVintageExtractor
 from pacasam.samplers.copy import CopySampler
 from pacasam.samplers.outliers import OutliersSampler
 from pacasam.samplers.spatial import SpatialSampler
@@ -63,4 +64,8 @@ SAMPLERS_LIBRARY = {
     "CopySampler": CopySampler,
 }
 
-EXTRACTORS_LIBRARY = {"LAZExtractor": LAZExtractor, "BDOrthoTodayExtractor": BDOrthoTodayExtractor}
+EXTRACTORS_LIBRARY = {
+    "LAZExtractor": LAZExtractor,
+    "BDOrthoTodayExtractor": BDOrthoTodayExtractor,
+    "BDOrthoVintageExtractor": BDOrthoVintageExtractor,
+}

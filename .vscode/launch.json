@@ -5,6 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Run Extraction for BD Fôret dataset (Orthoimages Vintages)",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/pacasam/run_extraction.py",
+            "console": "integratedTerminal",
+            "justMyCode": false,
+            "args": [
+                "--sampling_path=/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/202308_PureForestStandDataset_Archive/post_annotation/20230830_PureForestStandDataset/20230830_PureForestStandDataset-Patches-Labeled-BDF12C-WithPath-Split-SRID-and-Orthos-SUBSET5.gpkg",
+                "--dataset_root_path=/home/CGaydon/repositories/pacasam/outputs/extractions/aerial_debug/",
+                "--extractor_class=BDOrthoVintageExtractor"
+            ]
+        },
+        {
             "name": "Run Pytest",
             "type": "python",
             "request": "launch",

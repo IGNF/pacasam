@@ -27,6 +27,7 @@ from pacasam.samplers.sampler import SPLIT_COLNAME
 import rasterio
 from rasterio import DatasetReader
 from rasterio.mask import mask
+from mpire import WorkerPool
 
 from geopandas import GeoDataFrame
 
@@ -42,12 +43,15 @@ class BDOrthoVintageExtractor(Extractor):
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
-        for (dept, year), single_vintage in tqdm(self.sampling.groupby([self.dept_column, self.year_column]), unit="vintage"):
-            self.log.info(f"{self.name}: Extraction + Colorization from {dept}-{year} (k={len(single_vintage)} patches)")
+        iterable_of_args = []
+        for (dept, year), single_vintage in self.sampling.groupby([self.dept_column, self.year_column]):
             rvb_vrt = self.vintages_vrt_dir / "rvb" / f"{dept}-{year}.vrt"
             irc_vrt = self.vintages_vrt_dir / "irc" / f"{dept}-{year}.vrt"
-            self.extract_from_single_vintage(rvb_vrt, irc_vrt, single_vintage)
-            self.log.info(f"{self.name}: SUCCESS for {dept}-{year}")
+            iterable_of_args.append((rvb_vrt, irc_vrt, single_vintage))
+
+        with WorkerPool(n_jobs=39) as pool:
+            pool.map(self.extract_from_single_vintage, iterable_of_args, progress_bar=True)
+
 
     def extract_from_single_vintage(self, rvb_vrt, irc_vrt, single_file_sampling: GeoDataFrame):
         with rasterio.open(rvb_vrt) as rvb, rasterio.open(irc_vrt) as irc:

@@ -37,7 +37,7 @@ class BDOrthoVintageExtractor(Extractor):
     patch_suffix: str = ".tiff"
     dept_column: str = "french_department_id_imagery"
     year_column: str = "year_imagery"
-    resolution: float = 0.2
+    pixel_per_meter: int = 5
     vintages_vrt_dir: Path = Path("/mnt/store-lidarhd/projet-LHD/IA/BDForet/Data/202308_PureForestStandDataset_Archive/extraction/VRT/")
 
     def extract(self) -> None:
@@ -65,11 +65,11 @@ class BDOrthoVintageExtractor(Extractor):
                 bbox = patch_geometry.bounds
                 width = bbox[2] - bbox[0]
                 height = bbox[3] - bbox[1]
-                assert width == height  # sqaures only
-                meta.update(width=width, heigh=height)
-                num_pixels = int(width / self.resolution)
-                rvb_arr = extract_patch_as_geotiffs(rvb, patch_geometry, num_pixels)
-                irc_arr = extract_patch_as_geotiffs(irc, patch_geometry, num_pixels)
+                assert width == height  # squares only
+                width_pixels = int(self.pixel_per_meter * width)
+                meta.update(width=width_pixels, height=width_pixels)
+                rvb_arr = extract_patch_as_geotiffs(rvb, patch_geometry, width_pixels)
+                irc_arr = extract_patch_as_geotiffs(irc, patch_geometry, width_pixels)
                 collate_rgbnir_and_save(meta, rvb_arr, irc_arr, tiff_patch_path)
 
 

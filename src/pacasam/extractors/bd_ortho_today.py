@@ -32,7 +32,7 @@ class BDOrthoTodayExtractor(Extractor):
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
-        for _, patch_info in tqdm(self.sampling.iterrows()):
+        for _, patch_info in tqdm(self.sampling.iterrows(), unit="patch"):
             self.extract_single_patch(patch_info)
 
     def extract_single_patch(self, patch_info):

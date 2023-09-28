@@ -20,6 +20,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Tuple
 import numpy as np
+from tqdm import tqdm
 from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.extractors.extractor import Extractor
 from pacasam.samplers.sampler import SPLIT_COLNAME
@@ -41,7 +42,7 @@ class BDOrthoVintageExtractor(Extractor):
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
-        for (dept, year), single_vintage in self.sampling.groupby([self.dept_column, self.year_column]):
+        for (dept, year), single_vintage in tqdm(self.sampling.groupby([self.dept_column, self.year_column]), unit="vintage"):
             self.log.info(f"{self.name}: Extraction + Colorization from {dept}-{year} (k={len(single_vintage)} patches)")
             rvb_vrt = self.vintages_vrt_dir / "rvb" / f"{dept}-{year}.vrt"
             irc_vrt = self.vintages_vrt_dir / "irc" / f"{dept}-{year}.vrt"

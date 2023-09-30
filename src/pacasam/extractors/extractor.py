@@ -7,7 +7,6 @@ import geopandas as gpd
 from shapely import Polygon
 import smbclient
 from tqdm import tqdm
-from pacasam.connectors.connector import FILE_ID_COLNAME
 
 
 ZFILL_MAX_PATCH_NUMBER = 7  # patch id consistent below 10M patches (i.e. up to 9_999_999 patches)

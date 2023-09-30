@@ -12,7 +12,10 @@ log = logging.getLogger(__name__)
 
 
 def _run_sampling_by_args(
-    sampler_class, output_path, connector_class="SyntheticConnector", config_file="configs/Synthetic.yml",
+    sampler_class,
+    output_path,
+    connector_class="SyntheticConnector",
+    config_file="configs/Synthetic.yml",
 ):
     args = parser.parse_args(
         args=[
@@ -37,9 +40,9 @@ def test_run_sampling_on_synthetic_data(sampler_class):
         _run_sampling_by_args(sampler_class=sampler_class, output_path=output_path)
 
 
-def test_sampling_again_from_a_previous_sampling():
+def test_sampling_again_from_a_previous_sampling(toy_sampling_file):
     TWO_PATCHES_REMAIN_AFTER_SAMPLING = 2
-    connector = GeopandasConnector(log=log, gpd_database_path=LEFTY_RIGHTY_SAMPLING, split="any")
+    connector = GeopandasConnector(log=log, gpd_database_path=toy_sampling_file.name, split="any")
     sampler = RandomSampler(
         connector=connector,
         sampling_config={"target_total_num_patches": TWO_PATCHES_REMAIN_AFTER_SAMPLING, "frac_validation_set": 0},

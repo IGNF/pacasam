@@ -37,7 +37,7 @@ class BDOrthoVintageExtractor(Extractor):
 
     Environment variables:
       - BD_ORTHO_VINTAGE_VRT_DIR: path to a directory with subdirs irc and rgb, containing VRTs for each BD ORtho vintage (e.g. D01)
-      - NUM_JOBS: num of jobs in multiprocessing - ideally equal to the number of different vintage considered. Else, default to 1.
+      - NUM_JOBS (Optional): num of jobs in multiprocessing - ideally equal to the number of different vintage considered. Else, default to 1.
 
     """
 
@@ -49,12 +49,13 @@ class BDOrthoVintageExtractor(Extractor):
     def extract(self) -> None:
         """Download the orthoimages dataset."""
         # TODO: save sampling with the two necessary columns, and only left side.
-        vintages_vrt_dir = Path(os.getenv("BD_ORTHO_VINTAGE_VRT_DIR"))
-
+        vintages_vrt_dir = os.getenv("BD_ORTHO_VINTAGE_VRT_DIR")
+        if not vintages_vrt_dir:
+            raise ValueError("You should define where BD ORtho VRTs are with env variable `BD_ORTHO_VINTAGE_VRT_DIR`")
         iterable_of_args = []
         for (dept, year), single_vintage in self.sampling.groupby([self.dept_column, self.year_column]):
-            rvb_vrt = vintages_vrt_dir / "rvb" / f"{dept}-{year}.vrt"
-            irc_vrt = vintages_vrt_dir / "irc" / f"{dept}-{year}.vrt"
+            rvb_vrt = Path(vintages_vrt_dir) / "rvb" / f"{dept}-{year}.vrt"
+            irc_vrt = Path(vintages_vrt_dir) / "irc" / f"{dept}-{year}.vrt"
             iterable_of_args.append((rvb_vrt, irc_vrt, single_vintage))
 
         with WorkerPool(n_jobs=int(os.getenv("NUM_JOBS", default=1))) as pool:

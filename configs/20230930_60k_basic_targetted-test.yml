@@ -87,10 +87,11 @@ TargettedSampler:
     points_haute_altitude_entre_1000m_2000m:
       target_min_samples_proportion: 0.005
 
-    points_haute_altitude_heq_2000m:
-      target_min_samples_proportion: 0.005
+    # NO PATCH IN TEST DATA FOR THIS CRITERIA!
+    # points_haute_altitude_heq_2000m:
+    #   target_min_samples_proportion: 0.005
 
     # nb_points_sup_zero -> anything else
     # Currently needs to be exact.
     nb_points_sup_zero:
-      target_min_samples_proportion: 0.83
+      target_min_samples_proportion: 0.835

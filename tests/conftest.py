@@ -41,18 +41,18 @@ from pacasam.utils import CONNECTORS_LIBRARY
 from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME
 from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
 from pacasam.extractors.laz import FILE_PATH_COLNAME
+from pacasam.extractors.bd_ortho_vintage import BDOrthoVintageExtractor
 from pacasam.connectors.synthetic import SyntheticConnector
 
 
-LEFTY = "tests/data/792000_6272000-50mx100m-left.laz"
+LEFTY = "tests/data/laz/792000_6272000-50mx100m-left.laz"
 LEFTY_UP_GEOMETRY = shapely.box(xmin=792000, ymin=6271171 + 50, xmax=792050, ymax=6271271)
 LEFTY_DOWN_GEOMETRY = shapely.box(xmin=792000, ymin=6271171, xmax=792050, ymax=6271271 - 50)
 
-RIGHTY = "tests/data/792000_6272000-50mx100m-right.laz"
+RIGHTY = "tests/data//laz/792000_6272000-50mx100m-right.laz"
 RIGHTY_UP_GEOMETRY = shapely.box(xmin=792050, ymin=6271171 + 50, xmax=792100, ymax=6271271)
 RIGHTY_DOWN_GEOMETRY = shapely.box(xmin=792050, ymin=6271171, xmax=792100, ymax=6271271 - 50)
 
-LEFTY_RIGHTY_SAMPLING = "./tests/data/lefty_righty_sampling.gpkg"
 
 NUM_TEST_FILES = 2
 NUM_PATCHED_IN_EACH_FILE = 2
@@ -89,8 +89,27 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
     df.to_file(toy_sampling_tmp_file)
 
     # Note: Uncomment to update the saved gpkg.
-    # Versionnning this file is intended to facilitate CLI tests by users (see Makefile).
-    # df.to_file(Path(LEFTY_RIGHTY_SAMPLING))
+    # Versionnning this file is intended to facilitate CLI tests by users (see Makefile) and inspection.
+    # df.to_file(Path("./tests/data/lefty_righty_sampling.gpkg"))
+
+    return toy_sampling_tmp_file
+
+
+@pytest.fixture(scope="session")
+def toy_sampling_file_for_BDOrthoVintageExtractor(toy_sampling_file) -> tempfile._TemporaryFileWrapper:
+    """Returns a temporary file of a toy sampling (geopackage) adapted to BDORthoVintageExtractor"""
+    sampling = gpd.read_file(toy_sampling_file.name)
+    sampling = sampling[sampling["file_path"].str.contains("left")]
+    sampling = sampling.drop(columns=["file_path", "file_id"])
+    sampling[BDOrthoVintageExtractor.dept_column] = "D30"
+    sampling[BDOrthoVintageExtractor.year_column] = 2021
+
+    toy_sampling_tmp_file = tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="toy_sampling_file_for_BDOrthoVintageExtractor")
+    sampling.to_file(toy_sampling_tmp_file)
+
+    # Note: Uncomment to update the saved gpkg.
+    # Versionnning this file is intended to facilitate CLI tests by users (see Makefile) and inspection.
+    # df.to_file(Path("./tests/data/bd_ortho_vintage/lefty_sampling_for_BDOrthoVintageExtractor.gpkg"))
 
     return toy_sampling_tmp_file
 

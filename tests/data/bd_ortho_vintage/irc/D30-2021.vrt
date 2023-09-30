@@ -1,0 +1,55 @@
+<VRTDataset rasterXSize="250" rasterYSize="497">
+  <SRS dataAxisToSRSAxisMapping="1,2">PROJCS["epsg:2154",GEOGCS["unknown",DATUM["unnamed",SPHEROID["unnamed",6378137,298.257222101004],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]]],PROJECTION["Lambert_Conformal_Conic_2SP"],PARAMETER["latitude_of_origin",46.5],PARAMETER["central_meridian",3],PARAMETER["standard_parallel_1",49],PARAMETER["standard_parallel_2",44],PARAMETER["false_easting",700000],PARAMETER["false_northing",6600000],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH]]</SRS>
+  <GeoTransform>  7.9200000000000000e+05,  2.0000000000000001e-01,  0.0000000000000000e+00,  6.2712709699999997e+06,  0.0000000000000000e+00, -1.9979829959477097e-01</GeoTransform>
+  <VRTRasterBand dataType="Byte" band="1">
+    <ColorInterp>Red</ColorInterp>
+    <SimpleSource resampling="bilinear">
+      <SourceFilename relativeToVRT="1">792000_6272000-50mx100m-left-patch-0000000.tiff</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="250" RasterYSize="250" DataType="Byte" BlockXSize="250" BlockYSize="10" />
+      <SrcRect xOff="0" yOff="0" xSize="250" ySize="250" />
+      <DstRect xOff="0" yOff="0" xSize="250" ySize="250.102228602986" />
+    </SimpleSource>
+    <SimpleSource resampling="bilinear">
+      <SourceFilename relativeToVRT="1">792000_6272000-50mx100m-left-patch-0000001.tiff</SourceFilename>
+      <SourceBand>1</SourceBand>
+      <SourceProperties RasterXSize="250" RasterYSize="247" DataType="Byte" BlockXSize="250" BlockYSize="10" />
+      <SrcRect xOff="0" yOff="0" xSize="250" ySize="246.998772754926" />
+      <DstRect xOff="0" yOff="250.102228602986" xSize="250" ySize="246.897771397014" />
+    </SimpleSource>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="Byte" band="2">
+    <ColorInterp>Green</ColorInterp>
+    <SimpleSource resampling="bilinear">
+      <SourceFilename relativeToVRT="1">792000_6272000-50mx100m-left-patch-0000000.tiff</SourceFilename>
+      <SourceBand>2</SourceBand>
+      <SourceProperties RasterXSize="250" RasterYSize="250" DataType="Byte" BlockXSize="250" BlockYSize="10" />
+      <SrcRect xOff="0" yOff="0" xSize="250" ySize="250" />
+      <DstRect xOff="0" yOff="0" xSize="250" ySize="250.102228602986" />
+    </SimpleSource>
+    <SimpleSource resampling="bilinear">
+      <SourceFilename relativeToVRT="1">792000_6272000-50mx100m-left-patch-0000001.tiff</SourceFilename>
+      <SourceBand>2</SourceBand>
+      <SourceProperties RasterXSize="250" RasterYSize="247" DataType="Byte" BlockXSize="250" BlockYSize="10" />
+      <SrcRect xOff="0" yOff="0" xSize="250" ySize="246.998772754926" />
+      <DstRect xOff="0" yOff="250.102228602986" xSize="250" ySize="246.897771397014" />
+    </SimpleSource>
+  </VRTRasterBand>
+  <VRTRasterBand dataType="Byte" band="3">
+    <ColorInterp>Blue</ColorInterp>
+    <SimpleSource resampling="bilinear">
+      <SourceFilename relativeToVRT="1">792000_6272000-50mx100m-left-patch-0000000.tiff</SourceFilename>
+      <SourceBand>3</SourceBand>
+      <SourceProperties RasterXSize="250" RasterYSize="250" DataType="Byte" BlockXSize="250" BlockYSize="10" />
+      <SrcRect xOff="0" yOff="0" xSize="250" ySize="250" />
+      <DstRect xOff="0" yOff="0" xSize="250" ySize="250.102228602986" />
+    </SimpleSource>
+    <SimpleSource resampling="bilinear">
+      <SourceFilename relativeToVRT="1">792000_6272000-50mx100m-left-patch-0000001.tiff</SourceFilename>
+      <SourceBand>3</SourceBand>
+      <SourceProperties RasterXSize="250" RasterYSize="247" DataType="Byte" BlockXSize="250" BlockYSize="10" />
+      <SrcRect xOff="0" yOff="0" xSize="250" ySize="246.998772754926" />
+      <DstRect xOff="0" yOff="250.102228602986" xSize="250" ySize="246.897771397014" />
+    </SimpleSource>
+  </VRTRasterBand>
+</VRTDataset>

@@ -48,6 +48,7 @@ class BDOrthoVintageExtractor(Extractor):
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
+        # TODO: save sampling with the two necessary columns, and only left side.
         vintages_vrt_dir = Path(os.getenv("BD_ORTHO_VINTAGE_VRT_DIR"))
 
         iterable_of_args = []
@@ -56,7 +57,7 @@ class BDOrthoVintageExtractor(Extractor):
             irc_vrt = vintages_vrt_dir / "irc" / f"{dept}-{year}.vrt"
             iterable_of_args.append((rvb_vrt, irc_vrt, single_vintage))
 
-        with WorkerPool(n_jobs=os.getenv("NUM_JOBS", default=1)) as pool:
+        with WorkerPool(n_jobs=int(os.getenv("NUM_JOBS", default=1))) as pool:
             pool.map(self.extract_from_single_vintage, iterable_of_args, progress_bar=True)
 
     def extract_from_single_vintage(self, rvb_vrt, irc_vrt, single_file_sampling: GeoDataFrame):

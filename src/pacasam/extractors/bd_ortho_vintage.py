@@ -26,6 +26,7 @@ from pacasam.extractors.extractor import Extractor
 from pacasam.samplers.sampler import SPLIT_COLNAME
 import rasterio
 from rasterio import DatasetReader
+from rasterio import Affine
 from rasterio.mask import mask
 from mpire import WorkerPool
 
@@ -63,10 +64,6 @@ class BDOrthoVintageExtractor(Extractor):
 
     def extract_from_single_vintage(self, rvb_vrt, irc_vrt, single_file_sampling: GeoDataFrame):
         with rasterio.open(rvb_vrt) as rvb, rasterio.open(irc_vrt) as irc:
-            meta = deepcopy(rvb.meta)  # Important: use meta and not profile!
-            meta.update(count=4)
-            meta.update(driver="GTiff")
-            # for each patch
             for patch_info in single_file_sampling.itertuples():
                 split = getattr(patch_info, SPLIT_COLNAME)
                 patch_id = getattr(patch_info, PATCH_ID_COLNAME)
@@ -79,10 +76,23 @@ class BDOrthoVintageExtractor(Extractor):
                 height = bbox[3] - bbox[1]
                 assert width == height  # squares only
                 width_pixels = int(self.pixel_per_meter * width)
-                meta.update(width=width_pixels, height=width_pixels)
                 rvb_arr = extract_patch_as_geotiffs(rvb, patch_geometry, width_pixels)
                 irc_arr = extract_patch_as_geotiffs(irc, patch_geometry, width_pixels)
-                collate_rgbnir_and_save(meta, rvb_arr, irc_arr, tiff_patch_path)
+                image_resolution = 1 / self.pixel_per_meter
+                options = {
+                    "driver": "GTiff",
+                    "count": 4,
+                    "dtype": rvb_arr.dtype,
+                    "transform": Affine(image_resolution, 0, bbox[0], 0, -image_resolution, bbox[3]),
+                    "crs": rvb.crs,
+                    "width": width_pixels,
+                    "height": width_pixels,
+                    "compress": "DEFLATE",
+                    "tiled": False,
+                    "bigtiff": "IF_SAFER",
+                    "nodata": None,
+                }
+                collate_rgbnir_and_save(options, rvb_arr, irc_arr, tiff_patch_path)
 
 
 def extract_patch_as_geotiffs(src_orthoimagery: DatasetReader, patch_geometry: Tuple, num_pixels: int):

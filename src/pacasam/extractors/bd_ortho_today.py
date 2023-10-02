@@ -79,9 +79,10 @@ class BDOrthoTodayExtractor(Extractor):
         tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
 
         with rasterio.open(tmp_ortho_rgb) as ortho_rgb, rasterio.open(tmp_ortho_nir) as ortho_irc:
-            merged_profile = ortho_rgb.profile
-            merged_profile.update(count=4)
-            with rasterio.open(tiff_patch_path, "w", **merged_profile) as dst:
+            options = ortho_rgb.meta
+            options.update(count=4)
+            options.update(compress="DEFLATE")
+            with rasterio.open(tiff_patch_path, "w", **options) as dst:
                 dst.write(ortho_irc.read(1), 1)
                 dst.set_band_description(1, "Infrared")
                 dst.write(ortho_rgb.read(1), 2)

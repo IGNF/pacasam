@@ -1,5 +1,8 @@
 # main
 
+### 0.10.2
+- Have a tiny_synthetic_sampling fixture intact as input for all tests (scope=test).
+
 ### 0.10.1
 - Fix coordinates of patches extracted via `BDOrthoTodayVintageExtractor`.
 - Control compression of both BD ORtho extractors (DEFLATE).

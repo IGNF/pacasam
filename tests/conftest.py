@@ -122,7 +122,7 @@ def synthetic_connector() -> SyntheticConnector:
     return connector
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def tiny_synthetic_sampling(synthetic_connector: SyntheticConnector) -> GeoDataFrame:
     """Very tiny synthetic database with the columns that make it a sampling."""
     # Add the necessary elements to turn the db into a sampling

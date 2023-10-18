@@ -117,7 +117,7 @@ def raise_explicit_FileNotFoundError(files_not_found):
     if len(files_not_found) > 10:  # truncate for readibility
         files_not_found = files_not_found[:5] + ["..."] + files_not_found[-5:]
     files_not_found_str = "\n".join(files_not_found)
-    raise FileNotFoundError(f"Expected files to exists and be accessible: \n{files_not_found_str}")
+    raise FileNotFoundError(f"Expected files to exist and be accessible: \n{files_not_found_str}")
 
 
 # WRITING

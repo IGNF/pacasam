@@ -27,4 +27,5 @@ filterwarnings = [
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "geoportail: marks tests that request the (often unreliable) geoportail.gouv.fr",
+    "lipac: marks tests that request Lidar-Patch-Catalogue, accessible only within IGN network." 
 ]

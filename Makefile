@@ -76,7 +76,8 @@ tests_quick:
 	python -m pytest -s -n auto --dist worksteal --maxprocesses=6 -m "not geoportail and not lipac and not slow"
 
 tests_geoportail_or_slow:
-	python -m pytest -s -n auto --dist worksteal --maxprocesses=6 -m "geoportail or slow"
+	# The slower tests, and the ones relying on geoportail , excluding the ones relying on LiPaC 
+	python -m pytest -s -n auto --dist worksteal --maxprocesses=6 -m "(geoportail or slow) and not lipac"
 
 tests_lipac:
 	python -m pytest -s -n auto --dist worksteal --maxprocesses=6 -m "lipac"

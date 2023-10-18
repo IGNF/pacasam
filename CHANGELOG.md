@@ -1,5 +1,8 @@
 # main
 
+# 0.10.2
+- Log the pacasam version and the git commit SHA when doing a sampling or an extraction.
+
 ### 0.10.1
 - Add tests for run_sampling with LipacConnector, to run locally.
 

@@ -13,7 +13,7 @@ from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_han
 from pacasam.analysis.stats import Comparer
 from pacasam.connectors.connector import Connector
 from pacasam.samplers.sampler import Sampler, save_gpd_to_any_filesystem
-from _version import __version__
+from pacasam._version import __version__
 
 repo = git.Repo(search_parent_directories=True)
 sha = repo.head.object.hexsha  # Git SHA to track the exact version of the code.

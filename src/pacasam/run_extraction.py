@@ -14,7 +14,7 @@ from pacasam.extractors.laz import LAZExtractor
 from pacasam.extractors.bd_ortho_today import BDOrthoTodayExtractor
 from pacasam.extractors.bd_ortho_vintage import BDOrthoVintageExtractor
 from pacasam.utils import EXTRACTORS_LIBRARY, set_log_text_handler, setup_custom_logger
-from _version import __version__
+from pacasam._version import __version__
 
 repo = git.Repo(search_parent_directories=True)
 sha = repo.head.object.hexsha  # Git SHA to track the exact version of the code.

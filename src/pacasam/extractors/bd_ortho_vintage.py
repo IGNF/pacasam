@@ -19,6 +19,8 @@ we need rgb_file and irc_file, which are path to the orthoimages (jp2 files, typ
 from copy import deepcopy
 import os
 from pathlib import Path
+import shutil
+import tempfile
 from typing import Tuple
 import numpy as np
 from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME
@@ -71,6 +73,8 @@ class BDOrthoVintageExtractor(Extractor):
                 patch_id = getattr(patch_info, PATCH_ID_COLNAME)
                 dir_to_save_patch: Path = self.dataset_root_path / split
                 tiff_patch_path = dir_to_save_patch / f"{split.upper()}-{patch_id}{self.patch_suffix}"
+                if tiff_patch_path.exists():
+                    continue
 
                 patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
                 bbox = patch_geometry.bounds
@@ -94,7 +98,10 @@ class BDOrthoVintageExtractor(Extractor):
                     "bigtiff": "IF_SAFER",
                     "nodata": None,
                 }
-                collate_rgbnir_and_save(options, rvb_arr, irc_arr, tiff_patch_path)
+                tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=self.patch_suffix, prefix="extracted_patch")
+                collate_rgbnir_and_save(options, rvb_arr, irc_arr, tmp_patch)
+                tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(tmp_patch.name, tiff_patch_path)
 
 
 def extract_patch_as_geotiffs(src_orthoimagery: DatasetReader, patch_geometry: Tuple, num_pixels: int):
@@ -105,7 +112,6 @@ def extract_patch_as_geotiffs(src_orthoimagery: DatasetReader, patch_geometry: T
 
 def collate_rgbnir_and_save(meta, rvb_arr: np.ndarray, irc_arr: np.ndarray, tiff_patch_path: Path):
     """Collate RGB and NIR arrays and save to a new geotiff."""
-    tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
     with rasterio.open(tiff_patch_path, "w", **meta) as dst:
         dst.write(irc_arr[0], 1)
         dst.set_band_description(1, "Infrared")

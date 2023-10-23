@@ -4,6 +4,7 @@
 - `OrthoimageExtractor` becomes `BDOrthoTodayExtractor`
 - New `BDOrthoTodayVintageExtractor` relying on a folder with `irc`/`rvb` subdirs of VRTs of BD ORtho vintages.
 - Implement parallelization for all extractors via the num_jobs argument.
+- Enable resuming an extraction by checking beforehand if a patch was already extracted, and by having only atomic extractions.
 - fix: Have a tiny_synthetic_sampling fixture intact as input for all tests (scope=test).
 
 ### 0.9.4

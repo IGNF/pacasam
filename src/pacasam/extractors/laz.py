@@ -40,6 +40,7 @@ Read and check the sampling geopackage:
 
 import logging
 from pathlib import Path
+import shutil
 import tempfile
 from typing import Optional, Union
 import laspy
@@ -91,16 +92,10 @@ class LAZExtractor(Extractor):
 
     def _extract_from_single_file(self, single_file_path: Path, single_file_sampling: GeoDataFrame):
         """Extract all patches from a single file based on its sampling."""
-        if self.use_samba:
-            with smbclient.open_file(single_file_path, mode="rb") as open_single_file:
-                cloud = laspy.read(open_single_file)
-        else:
-            cloud = laspy.read(single_file_path)
-        header = cloud.header
+        cloud = None
         for patch_info in single_file_sampling.itertuples():
             patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
             file_id = getattr(patch_info, FILE_ID_COLNAME)
-            tmp_nocolor_patch: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, header, patch_bounds)
             colorized_patch: Path = format_new_patch_path(
                 dataset_root_path=self.dataset_root_path,
                 file_id=file_id,
@@ -108,9 +103,22 @@ class LAZExtractor(Extractor):
                 split=getattr(patch_info, SPLIT_COLNAME),
                 patch_suffix=self.patch_suffix,
             )
+
+            if colorized_patch.exists():
+                continue
+
+            if not cloud:
+                if self.use_samba:
+                    with smbclient.open_file(single_file_path, mode="rb") as open_single_file:
+                        cloud = laspy.read(open_single_file)
+                else:
+                    cloud = laspy.read(single_file_path)
+            tmp_patch: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, cloud.header, patch_bounds)
             # Use given srid if possible, else pdaltools will infer it from the LAZ file.
             srid = getattr(patch_info, SRID_COLNAME, None)
-            colorize_single_patch(nocolor_patch=Path(tmp_nocolor_patch.name), colorized_patch=colorized_patch, srid=srid)
+            colorize_single_patch(nocolor_patch=Path(tmp_patch.name), colorized_patch=Path(tmp_patch.name), srid=srid)
+            colorized_patch.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(tmp_patch.name, colorized_patch)
 
 
 def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_bounds) -> tempfile._TemporaryFileWrapper:
@@ -135,11 +143,11 @@ def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_b
 
 
 def colorize_single_patch(nocolor_patch: Union[str, Path], colorized_patch: Union[str, Path], srid: Optional[int] = None) -> None:
-    """Colorizes (RGBNIR) laz in a secure way to avoid corrupted files due to interruptions.
-
-    By default, srid_str="" means that pdaltools infer the srid form the LAZ file directly.
+    """Colorizes single LAZ patch.
 
     Wrapper to support Path objects since color does not accept Path objects, only strings as file paths.
+
+    By default, srid_str="" means that pdaltools infer the srid form the LAZ file directly.
 
     """
     # Special case: EPSG:0 is an invalid SRID, and we should infer from the LAZ.

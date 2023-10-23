@@ -14,16 +14,14 @@ DEFAULT_SRID_LAMBERT93 = "2154"  # Assume Lambert93 if we cannot infer srid from
 
 
 class Extractor:
-    """Abstract class defining extractor interface."""
+    """Abstract class defining extractor interface.
 
-    def __init__(
-        self,
-        log: logging.Logger,
-        sampling_path: Path,
-        dataset_root_path: Path,
-        use_samba: bool = False,
-        num_jobs: int = 1
-    ):
+    All extractors support parallelization with mpire.
+    All extractors support resuming extraction without duplication of computations: patches are only extracted
+    if they do not yet exist, and extraction operations are atomic at the patch level.
+    """
+
+    def __init__(self, log: logging.Logger, sampling_path: Path, dataset_root_path: Path, use_samba: bool = False, num_jobs: int = 1):
         """Initializes the extractor. Always loads the sampling with sanity checks on format."""
         self.log = log
         self.name: str = self.__class__.__name__

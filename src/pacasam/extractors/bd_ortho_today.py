@@ -15,6 +15,7 @@ dataset_root_path/
 
 import os
 from pathlib import Path
+import shutil
 import tempfile
 from pdaltools.color import retry, download_image_from_geoportail
 from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
@@ -52,14 +53,18 @@ class BDOrthoTodayExtractor(Extractor):
         patch_id = getattr(patch_info, PATCH_ID_COLNAME)
         dir_to_save_patch: Path = self.dataset_root_path / split
         tiff_patch_path = dir_to_save_patch / f"{split.upper()}-{patch_id}{self.patch_suffix}"
-
+        if tiff_patch_path.exists():
+            return
         patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
         # Use given srid if possible, else use the default value.
         srid = getattr(patch_info, SRID_COLNAME, DEFAULT_SRID_LAMBERT93)
 
         with tempfile.NamedTemporaryFile(suffix=".tiff") as tmp_ortho_rgb, tempfile.NamedTemporaryFile(suffix=".tiff") as tmp_ortho_nir:
             self.get_orthoimages_for_patch(patch_bounds, srid, tmp_ortho_rgb.name, tmp_ortho_nir.name)
-            self.collate_rgbnir_and_save(tmp_ortho_rgb.name, tmp_ortho_nir.name, tiff_patch_path)
+            tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=self.patch_suffix, prefix="extracted_patch")
+            self.collate_rgbnir_and_save(tmp_ortho_rgb.name, tmp_ortho_nir.name, tmp_patch)
+            tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(tmp_patch.name, tiff_patch_path)
 
     def get_orthoimages_for_patch(self, patch_bounds: tuple, srid: str, tmp_ortho_rgb: str, tmp_ortho_nir: str):
         """Request RGB and NIR-Color orthoimages,"""
@@ -75,9 +80,6 @@ class BDOrthoTodayExtractor(Extractor):
 
     def collate_rgbnir_and_save(self, tmp_ortho_rgb: str, tmp_ortho_nir: str, tiff_patch_path: Path):
         """Collate RGB and NIR tiff images and save to a new geotiff."""
-
-        tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
-
         with rasterio.open(tmp_ortho_rgb) as ortho_rgb, rasterio.open(tmp_ortho_nir) as ortho_irc:
             options = ortho_rgb.meta
             options.update(count=4)

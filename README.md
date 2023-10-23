@@ -159,6 +159,8 @@ python ./src/pacasam/run_extraction.py \
             --num_jobs 45
 ```
 
+L'extraction peut être reprise en cas d'interruption avec la même commande, sans risque de données corrompues (toutes les opérations sont atomiques).
+
 ### Jeu d'apprentissage et jeu de test
 
 Pour un apprentissage automatique, on peut créer deux configuration distinctes, p.ex. `Lipac_train.yml` et `Lipac_test.yml`, qui vont différer par:

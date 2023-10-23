@@ -138,25 +138,26 @@ Pour tester l'extraction sur le jeu de données de test, lancer
 ```bash
 conda activate pacasam
 make extract_toy_laz_data
-make extract_toy_laz_data_in_parallel  # multiprocesses via parallel
+make extract_toy_laz_data_in_parallel  # multiprocessessing via MPIRE --> méthode à privilégier
+make extract_toy_laz_data_in_parallel_from_parts  # multiprocessessing via GNU-parallel
 ```
 
 Passons maintenant à une extraction depuis un sampling Lipac.
 Si les chemins vers les fichiers LAZ correspondent à un data store Samba, il faut préciser vos informations de connexion via les variables d'environnement `SAMBA_USERNAME` (au format username@domain) et `SAMBA_PASSWORD`.
 
-Pour lancer l'extraction de façon parallélisée à partir du sampling "Triple" à l'emplacement par défaut:
+Pour lancer l'extraction de façon parallélisée à partir du sampling "Triple" à l'emplacement par défaut, sur 45 coeurs:
 
 ```bash
 conda activate pacasam
-make extract_laz_dataset_parallel \
-    SAMPLING_PATH="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg" \
-    SAMPLING_PARTS_DIR="/tmp/my_laz_dataset_parts/" \
-    DATASET_ROOT_PATH="/var/data/${USER}/pacasam_extractions/laz_dataset/" \
-    PARALLEL_EXTRACTION_JOBS="50%" \
-    USE_SAMBA="Y"
-```
+SAMPLING_PATH="outputs/samplings/LiPaCConnector-TripleSampler/LiPaCConnector-TripleSampler-train.gpkg" \
+DATASET_ROOT_PATH="/var/data/${USER}/pacasam_extractions/laz_dataset/" \
 
-Note: sous le capot, le sampling initial est divisé en autant de parties qu'il y a de fichiers LAZ initiaux concernés. Cette étape préliminaire permet une parallélisation au niveau du fichier sans changement du code d'extraction. La parallélisation est effectuée avec (`GNU parallel`)[https://www.gnu.org/software/parallel/parallel.html].
+python ./src/pacasam/run_extraction.py \
+			--sampling_path ${SAMPLING_PATH} \
+			--dataset_root_path ${DATASET_ROOT_PATH} \
+            --samba_filesystem \
+            --num_jobs 45
+```
 
 ### Jeu d'apprentissage et jeu de test
 
@@ -164,11 +165,9 @@ Pour un apprentissage automatique, on peut créer deux configuration distinctes,
     - `target_total_num_patches`: taille du jeu de données souhaité, en vignettes.
     - `frac_validation_set`: Proportion souhaitée de vignettes de validation dans le jeu `trainval`. Les vignettes de validation sont choisies de façon optimale pour chaque méthode d'échantillonnage (répartition spatiale et diversité). Pour le jeu de test, cette valeur n'a pas d'importance et peut être mise à `null` pour que la colonne `split` dans l'échantillonnage final prenne la valeur `test`.
     - `connector_kwargs.split` : `train` ou `test`. On souhaite que les jeux `train` et de `test` soient échantillonnées sur des zones bien distinctes (voir [karasiak 2022](https://link.springer.com/article/10.1007/s10994-021-05972-1) sur cette nécessité). Préciser le split conduit à un filtre sur l'attribut `JEU_DE_DALLES.TEST` dans Lipac. Si `split=train`, les dalles pour lesquelles `JEU_DE_DALLES.TEST==True` seront exclues de l'échantillonnage. Et inversement, elles seront les seules considérées si `split=test`
-Tailles des jeux de données:
 
 Pour les volumes de données Lidar HD (base LiPaC) :
     - On sait que sur des données non-échantillonnées (dalles complètes) les volumes 140km² (train dataset, dont 10km² de validation dataset) et 10km² (test dataset) donnent des modèles satisfaisants.
-    - Sur des données échantillonnées (et donc concentrées en information), on peut envisager de diviser par deux ces volumes pour commencer.
 
 ## Développements
 

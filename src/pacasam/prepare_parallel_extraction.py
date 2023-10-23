@@ -63,9 +63,6 @@ def split_sampling_by_file(sampling_path: Path, sampling_parts_dir: Path, parts_
 def save_single_file_sampling(sampling_parts_dir, single_file_path, single_file_sampling, parts_colname: str, sampling_suffix: str = ".gpkg"):
     """Select the patches of a single data file, and save them as a single file sampling."""
     sampling_part_filename = sampling_parts_dir / Path(get_stem_from_any_file_format(single_file_path)).with_suffix(sampling_suffix)
-    # Reformat since Path object cannot be saved by geopandas/fiona
-    # TODO: remove commented line. We should not do back and forth at this stage.
-    # single_file_sampling[parts_colname] = single_file_sampling[parts_colname].apply(str)
     single_file_sampling.to_file(sampling_part_filename)
 
 

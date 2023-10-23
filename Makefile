@@ -32,14 +32,20 @@ endif
 help:
 	@echo "Makefile"
 	@echo "------------------------------------"
-	@echo "Cibles pour l'échantillonnage:"
-	@echo "  $(SAMPLERS) - Exécute chaque échantillonneur individuellement."
-	@echo "  all - Exécute tous les samplers pour un connecteur donné (par défaut: connecteur Lipac)"
+	@echo "Cibles pour les tests:"
+	@echo "  tests - Lance tous les tests."
+	@echo "  tests_no_geoportail_no_slow"
+	@echo "  tests_geoportail_or_slow"
+	@echo "  open_coverage_report"
+	@echo "------------------------------------"
+	@echo "Cibles pour l'échantillonnage (par défaut le connecteur est Lipac)"
+	@echo "  $(SAMPLERS) CopySampler - Exécute chaque échantillonneur individuellement."
+	@echo "  all - Exécute tous les samplers pour un connecteur donné, sauf le CopySampler."
 	@echo "  all_synthetic - Exécute tous les samplers pour le connecteur synthétique"
 	@echo "------------------------------------"
 	@echo "Cibles pour l'extraction:"
 	@echo "  extract_toy_laz_data - Vérifie que tout est OK en extrayant depuis les données LAZ de test."
-	@echo "  extract_toy_laz_data_in_parallel - Vérifie que tout est OK en extrayant depuis les données LAZ de test de façon parallélisée."
+	@echo "  extract_toy_laz_data_in_parallel_from_parts - Vérifie que tout est OK en extrayant depuis les données LAZ de test de façon parallélisée."
 	@echo "  _prepare_parallel_extraction - Divise un sampling `SAMPLING_PATH` en n sampling, un par fichier (p.ex. par fichier LAZ), dans SAMPLING_PARTS_DIR."
 	@echo "  _run_extraction_in_parallel_from_parts - Extrait le jeu de donnée à partir des n sampling. Spécifier SAMPLING_PARTS_DIR et DATASET_ROOT_PATH"
 	@echo "Note: la cible _run_extraction_in_parallel_from_parts permet aussi de poursuivre une extraction interrompue."
@@ -53,7 +59,7 @@ help:
 .ONESHELL:
 
 .PHONY: help all $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
-.PHONY: extract_toy_laz_data extract_toy_laz_data_in_parallel _prepare_parallel_extraction _run_extraction_in_parallel_from_parts
+.PHONY: extract_toy_laz_data extract_toy_laz_data_in_parallel_from_parts _prepare_parallel_extraction _run_extraction_in_parallel_from_parts
 .PHONY: clean_samplings clean_extractions
 
 
@@ -90,18 +96,14 @@ CopySampler:
 		--connector_class=$(CONNECTOR) \
 		--sampler_class=CopySampler
 
-
 all_synthetic:
 	make all CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 	make CopySampler CONNECTOR=SyntheticConnector CONFIG=configs/Synthetic.yml
 
-
-# EXTRACTION
-
-extract_laz_dataset_parallel:
-	# Extraction parallélisée du jeu de données.
-	make _prepare_parallel_extraction
-	make _run_extraction_in_parallel_from_parts
+# Extraction en deux étapes : 
+# - Le sampling initial est divisé en autant de parties qu'il y a de fichiers LAZ initiaux concernés.
+# Cette étape préliminaire permet une parallélisation au niveau du fichier sans changement du code d'extraction. 
+# - La parallélisation est effectuée avec (`GNU parallel`)[https://www.gnu.org/software/parallel/parallel.html].
 
 _prepare_parallel_extraction:
 	# Split sampling into n parts, one for each distinct LAZ file.
@@ -131,6 +133,12 @@ extract_toy_laz_data:
 		--dataset_root_path ./outputs/extractions/toy_laz_dataset/
 
 extract_toy_laz_data_in_parallel:
+	python ./src/pacasam/run_extraction.py \
+		--sampling_path ./tests/data/lefty_righty_sampling.gpkg \
+		--dataset_root_path ./outputs/extractions/toy_laz_dataset/ \
+		--num_jobs=2
+
+extract_toy_laz_data_in_parallel_from_parts:
 	# Extraction parallélisée depuis les données de test.
 	# En théorie .ONESHELL: fait qu'on n'a pas besoin d'exporter les variables.
 	# Mais cela semble créer des erreurs ici... 
@@ -138,7 +146,8 @@ extract_toy_laz_data_in_parallel:
 	export SAMPLING_PARTS_DIR="/tmp/sampling_parts_toy_dataset/"
 	export DATASET_ROOT_PATH=./outputs/extractions/toy_laz_dataset/
 	export PARALLEL_EXTRACTION_JOBS=2
-	make extract_laz_dataset_parallel
+	make _prepare_parallel_extraction
+	make _run_extraction_in_parallel_from_parts
 
 # CLEANING
 clean_samplings:

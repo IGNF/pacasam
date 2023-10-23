@@ -34,7 +34,10 @@ from geopandas import GeoDataFrame
 
 
 class BDOrthoVintageExtractor(Extractor):
-    """Extract a dataset of IRC,R,G,B data patches (4 bands TIFF) from a BD Ortho file system.
+    """Extract a dataset of Infrared-R-G-B data patches (4 bands TIFF) from a BD Ortho file system.
+
+    Note: band are ordered by wavelenght, inspired by the TreeSatAI (https://zenodo.org/records/6780578) ordering
+    since this extractor was primarly designed to extract datset for forest classification.
 
     Environment variables:
       - BD_ORTHO_VINTAGE_VRT_DIR: path to a directory with subdirs irc and rgb, containing VRTs for each BD ORtho vintage (e.g. D01)

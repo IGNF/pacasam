@@ -113,7 +113,7 @@ def test_lefty_and_righty_color_are_white_and_equal(cloud_path):
 def test_colorize_single_patch(cloud_path, srid):
     """Tests RGB+NIR colorization from orthoimages using pdaltools package."""
     with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_test_data_") as tmp_copy:
-        colorize_single_patch(cloud_path, Path(tmp_copy.name))
+        colorize_single_patch(cloud_path, Path(tmp_copy.name), srid=srid)
         cloud = laspy.read(tmp_copy.name)
 
         # Assert presence of all necessary fields.

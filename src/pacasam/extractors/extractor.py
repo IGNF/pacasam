@@ -22,6 +22,7 @@ class Extractor:
         sampling_path: Path,
         dataset_root_path: Path,
         use_samba: bool = False,
+        num_jobs: int = 1
     ):
         """Initializes the extractor. Always loads the sampling with sanity checks on format."""
         self.log = log
@@ -33,6 +34,7 @@ class Extractor:
         self.sampling = load_sampling(sampling_path=sampling_path)
         check_sampling_format(self.sampling)
         self.use_samba = use_samba
+        self.num_jobs = num_jobs
 
     def extract(self):
         raise NotImplementedError("Abstract class.")

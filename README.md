@@ -141,7 +141,7 @@ make extract_toy_laz_data
 make extract_toy_laz_data_in_parallel  # multiprocesses via parallel
 ```
 
-Passons maintenant à une extraction depuis un sampling Lipac. 
+Passons maintenant à une extraction depuis un sampling Lipac.
 Si les chemins vers les fichiers LAZ correspondent à un data store Samba, il faut préciser vos informations de connexion via les variables d'environnement `SAMBA_USERNAME` (au format username@domain) et `SAMBA_PASSWORD`.
 
 Pour lancer l'extraction de façon parallélisée à partir du sampling "Triple" à l'emplacement par défaut:

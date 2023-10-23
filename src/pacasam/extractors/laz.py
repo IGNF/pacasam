@@ -47,6 +47,8 @@ from laspy import LasData, LasHeader
 from pdaltools.color import color
 from geopandas import GeoDataFrame
 import smbclient
+from mpire import WorkerPool
+from tqdm import tqdm
 from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.extractor import Extractor, check_all_files_exist_anywhere, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
@@ -64,14 +66,8 @@ class LAZExtractor(Extractor):
 
     patch_suffix: str = ".laz"
 
-    def __init__(
-        self,
-        log: logging.Logger,
-        sampling_path: Path,
-        dataset_root_path: Path,
-        use_samba: bool = False,
-    ):
-        super().__init__(log, sampling_path, dataset_root_path, use_samba=use_samba)
+    def __init__(self, log: logging.Logger, sampling_path: Path, dataset_root_path: Path, use_samba: bool = False, num_jobs: int = 1):
+        super().__init__(log, sampling_path, dataset_root_path, use_samba=use_samba, num_jobs=num_jobs)
         unique_file_paths = self.sampling[FILE_PATH_COLNAME].unique()
         check_all_files_exist_anywhere(unique_file_paths, self.use_samba)
 
@@ -81,10 +77,17 @@ class LAZExtractor(Extractor):
         Uses pandas groupby to handle both single-file and multiple-file samplings.
 
         """
-        for single_file_path, single_file_sampling in self.sampling.groupby(FILE_PATH_COLNAME):
-            self.log.info(f"{self.name}: Extraction + Colorization from {single_file_path} (k={len(single_file_sampling)} patches)")
-            self._extract_from_single_file(single_file_path, single_file_sampling)
-            self.log.info(f"{self.name}: SUCCESS for {single_file_path}")
+        if self.num_jobs > 1:
+            # mpire does argument unpacking, see https://github.com/sybrenjansen/mpire/issues/29#issuecomment-984559662.
+            iterable_of_args = [
+                (single_file_path, single_file_sampling) for single_file_path, single_file_sampling in self.sampling.groupby(FILE_PATH_COLNAME)
+            ]
+            with WorkerPool(n_jobs=self.num_jobs) as pool:
+                pool.map(self._extract_from_single_file, iterable_of_args, progress_bar=True)
+        else:
+            # Option to use without MPIRE, since it can have bad interaction with pdal.
+            for single_file_path, single_file_sampling in tqdm(self.sampling.groupby(FILE_PATH_COLNAME)):
+                self._extract_from_single_file(single_file_path, single_file_sampling)
 
     def _extract_from_single_file(self, single_file_path: Path, single_file_sampling: GeoDataFrame):
         """Extract all patches from a single file based on its sampling."""

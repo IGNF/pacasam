@@ -49,7 +49,7 @@ LEFTY = "tests/data/laz/792000_6272000-50mx100m-left.laz"
 LEFTY_UP_GEOMETRY = shapely.box(xmin=792000, ymin=6271171 + 50, xmax=792050, ymax=6271271)
 LEFTY_DOWN_GEOMETRY = shapely.box(xmin=792000, ymin=6271171, xmax=792050, ymax=6271271 - 50)
 
-RIGHTY = "tests/data//laz/792000_6272000-50mx100m-right.laz"
+RIGHTY = "tests/data/laz/792000_6272000-50mx100m-right.laz"
 RIGHTY_UP_GEOMETRY = shapely.box(xmin=792050, ymin=6271171 + 50, xmax=792100, ymax=6271271)
 RIGHTY_DOWN_GEOMETRY = shapely.box(xmin=792050, ymin=6271171, xmax=792100, ymax=6271271 - 50)
 

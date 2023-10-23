@@ -32,9 +32,6 @@ class BDOrthoTodayExtractor(Extractor):
 
     See: https://geoservices.ign.fr/services-web-experts-ortho
 
-    Environment variable:
-      - NUM_JOBS: num of jobs in multiprocessing extraction of single patches. Default to 1.
-
     """
 
     patch_suffix: str = ".tiff"
@@ -45,7 +42,7 @@ class BDOrthoTodayExtractor(Extractor):
         """Download the orthoimages dataset."""
         # mpire does argument unpacking, see https://github.com/sybrenjansen/mpire/issues/29#issuecomment-984559662.
         iterable_of_args = [(patch_info,) for _, patch_info in self.sampling.iterrows()]
-        with WorkerPool(n_jobs=os.getenv("NUM_JOBS", default=1)) as pool:
+        with WorkerPool(n_jobs=self.num_jobs) as pool:
             pool.map(self.extract_single_patch, iterable_of_args, progress_bar=True)
 
     def extract_single_patch(self, patch_info):

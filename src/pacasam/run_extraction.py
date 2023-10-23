@@ -40,8 +40,9 @@ parser.add_argument(
     help="Use a samba file system (i.e. a data store) instead of the local filesystem.",
 )
 parser.add_argument(
-    "--extractor_class", default="LAZExtractor", type=str, help=("Name of class of Extractor to use."), choices=EXTRACTORS_LIBRARY.keys()
+    "--extractor_class", default="LAZExtractor", type=str, help="Name of class of Extractor to use.", choices=EXTRACTORS_LIBRARY.keys()
 )
+parser.add_argument("--num_jobs", default=1, type=int, help="Number of processes for extraction.")
 
 
 def run_extraction(args):
@@ -53,12 +54,20 @@ def run_extraction(args):
     log.info(f"EXTRACTOR CLASS: {args.extractor_class}")
     if args.extractor_class == "LAZExtractor":
         extractor: Extractor = LAZExtractor(
-            log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=args.samba_filesystem
+            log=log,
+            sampling_path=args.sampling_path,
+            dataset_root_path=args.dataset_root_path,
+            use_samba=args.samba_filesystem,
+            num_jobs=args.num_jobs,
         )
     elif args.extractor_class == "BDOrthoTodayExtractor":
-        extractor: Extractor = BDOrthoTodayExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
+        extractor: Extractor = BDOrthoTodayExtractor(
+            log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, num_jobs=args.num_jobs
+        )
     elif args.extractor_class == "BDOrthoVintageExtractor":
-        extractor: Extractor = BDOrthoVintageExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
+        extractor: Extractor = BDOrthoVintageExtractor(
+            log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, num_jobs=args.num_jobs
+        )
     else:
         raise ValueError(f"Extractor {args.extractor_class} is unknown. See argparse choices with --help.")
     extractor.extract()

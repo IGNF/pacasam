@@ -36,7 +36,7 @@ def test_run_extraction_laz(toy_sampling_file, num_jobs):
 @pytest.mark.geoportail
 @pytest.mark.parametrize("num_jobs", ["1", "2"])
 def test_run_extraction_bd_ortho_today(toy_sampling_file, num_jobs):
-    if num_jobs == 2:
+    if num_jobs == "2":
         pytest.skip(
             "We cannot test multiprocessing for this extractor due to a PDAL error "
             "when using pdal info (pdaltools/color.py), an error that only happens during CICD."

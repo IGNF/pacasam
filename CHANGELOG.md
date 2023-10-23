@@ -1,16 +1,10 @@
 # main
 
-### 0.10.2
-- Have a tiny_synthetic_sampling fixture intact as input for all tests (scope=test).
-
-### 0.10.1
-- Fix coordinates of patches extracted via `BDOrthoTodayVintageExtractor`.
-- Control compression of both BD ORtho extractors (DEFLATE).
-
 ## 0.10.0
 - `OrthoimageExtractor` becomes `BDOrthoTodayExtractor`
 - New `BDOrthoTodayVintageExtractor` relying on a folder with `irc`/`rvb` subdirs of VRTs of BD ORtho vintages.
 - MPIRE parallelization in BDOrtho extractors; not in laz extractor due to bad interaction with PDAL. 
+- Have a tiny_synthetic_sampling fixture intact as input for all tests (scope=test).
 
 ### 0.9.4
 - Refactor: move all laz-specific logics (e.g. use of file_path) to the right places. 

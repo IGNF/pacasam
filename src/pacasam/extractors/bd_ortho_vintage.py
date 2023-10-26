@@ -16,7 +16,6 @@ we need rgb_file and irc_file, which are path to the orthoimages (jp2 files, typ
 """
 
 
-from copy import deepcopy
 import os
 from pathlib import Path
 import shutil

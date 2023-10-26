@@ -1,5 +1,8 @@
 # main
 
+### 0.10.1
+- Add tests for run_sampling with LipacConnector, to run locally.
+
 ## 0.10.0
 - `OrthoimageExtractor` becomes `BDOrthoTodayExtractor`
 - New `BDOrthoTodayVintageExtractor` relying on a folder with `irc`/`rvb` subdirs of VRTs of BD ORtho vintages.

@@ -58,7 +58,7 @@ help:
 # Une seule session bash est utilisé par cible, ce qui permet de partager des variables d'environnement en les exportant.
 .ONESHELL:
 
-.PHONY: help all $(SAMPLERS) tests tests_no_geoportail_no_slow open_coverage_report 
+.PHONY: help all $(SAMPLERS) tests tests_quick tests_geoportail_or_slow tests_lipac open_coverage_report 
 .PHONY: extract_toy_laz_data extract_toy_laz_data_in_parallel_from_parts _prepare_parallel_extraction _run_extraction_in_parallel_from_parts
 .PHONY: clean_samplings clean_extractions
 
@@ -71,12 +71,17 @@ tests:
 	# See https://pytest-xdist.readthedocs.io/en/stable/known-limitations.html#output-stdout-and-stderr-from-workers
 	pytest -s -n auto --dist worksteal --maxprocesses=6
 
-tests_no_geoportail_no_slow:
-	# Same, but without test marked with the geoportail marker.
-	pytest -s -n auto --dist worksteal --maxprocesses=6 -m "not geoportail and not slow"
+tests_quick:
+	# Same, but without test relying on geoportail or lipac, and without slow tests.
+	python -m pytest -s -n auto --dist worksteal --maxprocesses=6 -m "not geoportail and not lipac and not slow"
 
 tests_geoportail_or_slow:
-	pytest -s -n auto --dist worksteal --maxprocesses=6 -m "geoportail or slow"
+	# The slower tests, and the ones relying on geoportail , excluding the ones relying on LiPaC 
+	python -m pytest -s -n auto --dist worksteal --maxprocesses=6 -m "(geoportail or slow) and not lipac"
+
+tests_lipac:
+	python -m pytest -s -n auto --dist worksteal --maxprocesses=6 -m "lipac"
+
 
 open_coverage_report:
 	# firefox htmlcov/index.html

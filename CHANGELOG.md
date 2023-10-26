@@ -1,6 +1,9 @@
 # main
 
-# 0.10.2
+### 0.10.3
+- fix: Use shutil.copy instead of shutil.move to avoid invalid cross-device link error.
+
+### 0.10.2
 - Log the pacasam version and the git commit SHA when doing a sampling or an extraction.
 
 ### 0.10.1

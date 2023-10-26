@@ -4,8 +4,8 @@ from pathlib import Path
 import geopandas as gpd
 import yaml
 from dotenv import load_dotenv
-
-load_dotenv()
+import argparse
+import git
 
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
@@ -13,18 +13,18 @@ from pacasam.utils import CONNECTORS_LIBRARY, SAMPLERS_LIBRARY, set_log_text_han
 from pacasam.analysis.stats import Comparer
 from pacasam.connectors.connector import Connector
 from pacasam.samplers.sampler import Sampler, save_gpd_to_any_filesystem
+from pacasam._version import __version__
 
+repo = git.Repo(search_parent_directories=True)
+sha = repo.head.object.hexsha  # Git SHA to track the exact version of the code.
+load_dotenv()
 log = setup_custom_logger()
 
 # PARAMETERS
-import argparse
-
 parser = argparse.ArgumentParser()
 parser.add_argument("--config_file", default="configs/Lipac.yml", type=lambda p: Path(p).absolute())
-
 parser.add_argument("--connector_class", default="LiPaCConnector", choices=CONNECTORS_LIBRARY.keys())
 parser.add_argument("--sampler_class", default="TripleSampler", choices=SAMPLERS_LIBRARY.keys())
-
 parser.add_argument("--output_path", default=None)
 
 
@@ -37,6 +37,7 @@ def run_sampling(args):
     # Prepare logging
     set_log_text_handler(log, args.output_path)
     log.info("Performing a sampling with pacasam (https://github.com/IGNF/pacasam).\n")
+    log.info(f"Pacasam version is {__version__} at commit https://github.com/IGNF/pacasam/tree/{sha}.\n")
     log.info(f"COMMAND: {' '.join(sys.argv)}")
     conf = load_sampling_config(args.config_file)
     log.info(f"CONFIGURATION FILE: {args.config_file}")

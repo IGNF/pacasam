@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import argparse
+import git
 
 
 root_dir = Path(__file__).resolve().parent.parent
@@ -13,7 +14,10 @@ from pacasam.extractors.laz import LAZExtractor
 from pacasam.extractors.bd_ortho_today import BDOrthoTodayExtractor
 from pacasam.extractors.bd_ortho_vintage import BDOrthoVintageExtractor
 from pacasam.utils import EXTRACTORS_LIBRARY, set_log_text_handler, setup_custom_logger
+from pacasam._version import __version__
 
+repo = git.Repo(search_parent_directories=True)
+sha = repo.head.object.hexsha  # Git SHA to track the exact version of the code.
 log = setup_custom_logger()
 
 # PARAMETERS
@@ -48,6 +52,7 @@ parser.add_argument("--num_jobs", default=1, type=int, help="Number of processes
 def run_extraction(args):
     set_log_text_handler(log, args.dataset_root_path)
     log.info("Extraction of a dataset using pacasam (https://github.com/IGNF/pacasam).\n")
+    log.info(f"Pacasam version is {__version__} at commit https://github.com/IGNF/pacasam/tree/{sha}.\n")
     log.info(f"COMMAND: {' '.join(sys.argv)}")
     log.info(f"SAMPLING GEOPACKAGE: {args.sampling_path}")
     log.info(f"OUTPUT DATASET DIR: {args.dataset_root_path}")

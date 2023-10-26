@@ -6,11 +6,12 @@ import argparse
 root_dir = Path(__file__).resolve().parent.parent
 sys.path.append(str(root_dir))
 
-from pacasam.connectors.connector import FILE_PATH_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.samplers.sampler import SPLIT_COLNAME
 from pacasam.extractors.extractor import Extractor
 from pacasam.extractors.laz import LAZExtractor
-from pacasam.extractors.orthoimages import OrthoimagesExtractor
+from pacasam.extractors.bd_ortho_today import BDOrthoTodayExtractor
+from pacasam.extractors.bd_ortho_vintage import BDOrthoVintageExtractor
 from pacasam.utils import EXTRACTORS_LIBRARY, set_log_text_handler, setup_custom_logger
 
 log = setup_custom_logger()
@@ -25,7 +26,8 @@ parser.add_argument(
     type=lambda p: Path(p).absolute(),
     help=(
         "Path to a valid sampling i.e. a geopackage with columns: "
-        f"{FILE_PATH_COLNAME}, {PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
+        f"{PATCH_ID_COLNAME}, {GEOMETRY_COLNAME}, {SPLIT_COLNAME}"
+        f"and {SRID_COLNAME} (optionaly)"
     ),
 )
 parser.add_argument(
@@ -38,8 +40,9 @@ parser.add_argument(
     help="Use a samba file system (i.e. a data store) instead of the local filesystem.",
 )
 parser.add_argument(
-    "--extractor_class", default="LAZExtractor", type=str, help=("Name of class of Extractor to use."), choices=EXTRACTORS_LIBRARY.keys()
+    "--extractor_class", default="LAZExtractor", type=str, help="Name of class of Extractor to use.", choices=EXTRACTORS_LIBRARY.keys()
 )
+parser.add_argument("--num_jobs", default=1, type=int, help="Number of processes for extraction.")
 
 
 def run_extraction(args):
@@ -51,10 +54,20 @@ def run_extraction(args):
     log.info(f"EXTRACTOR CLASS: {args.extractor_class}")
     if args.extractor_class == "LAZExtractor":
         extractor: Extractor = LAZExtractor(
-            log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, use_samba=args.samba_filesystem
+            log=log,
+            sampling_path=args.sampling_path,
+            dataset_root_path=args.dataset_root_path,
+            use_samba=args.samba_filesystem,
+            num_jobs=args.num_jobs,
         )
-    elif args.extractor_class == "OrthoimagesExtractor":
-        extractor: Extractor = OrthoimagesExtractor(log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path)
+    elif args.extractor_class == "BDOrthoTodayExtractor":
+        extractor: Extractor = BDOrthoTodayExtractor(
+            log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, num_jobs=args.num_jobs
+        )
+    elif args.extractor_class == "BDOrthoVintageExtractor":
+        extractor: Extractor = BDOrthoVintageExtractor(
+            log=log, sampling_path=args.sampling_path, dataset_root_path=args.dataset_root_path, num_jobs=args.num_jobs
+        )
     else:
         raise ValueError(f"Extractor {args.extractor_class} is unknown. See argparse choices with --help.")
     extractor.extract()

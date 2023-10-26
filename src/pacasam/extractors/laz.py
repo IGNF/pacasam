@@ -51,7 +51,7 @@ import smbclient
 from mpire import WorkerPool
 from tqdm import tqdm
 from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
-from pacasam.extractors.extractor import Extractor, check_all_files_exist_anywhere, format_new_patch_path
+from pacasam.extractors.extractor import Extractor, check_all_files_exist, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
 
 FILE_PATH_COLNAME = "file_path"  # path to LAZ for extraction e.g. "/path/to/file.LAZ"
@@ -67,10 +67,10 @@ class LAZExtractor(Extractor):
 
     patch_suffix: str = ".laz"
 
-    def __init__(self, log: logging.Logger, sampling_path: Path, dataset_root_path: Path, use_samba: bool = False, num_jobs: int = 1):
-        super().__init__(log, sampling_path, dataset_root_path, use_samba=use_samba, num_jobs=num_jobs)
+    def __init__(self, log: logging.Logger, sampling_path: Path, dataset_root_path: Path, num_jobs: int = 1):
+        super().__init__(log, sampling_path, dataset_root_path, num_jobs=num_jobs)
         unique_file_paths = self.sampling[FILE_PATH_COLNAME].unique()
-        check_all_files_exist_anywhere(unique_file_paths, self.use_samba)
+        check_all_files_exist(unique_file_paths)
 
     def extract(self) -> None:
         """Performs extraction and colorization to a laz dataset.
@@ -108,11 +108,7 @@ class LAZExtractor(Extractor):
                 continue
 
             if not cloud:
-                if self.use_samba:
-                    with smbclient.open_file(single_file_path, mode="rb") as open_single_file:
-                        cloud = laspy.read(open_single_file)
-                else:
-                    cloud = laspy.read(single_file_path)
+                cloud = laspy.read(single_file_path)
             tmp_patch: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, cloud.header, patch_bounds)
             # Use given srid if possible, else pdaltools will infer it from the LAZ file.
             srid = getattr(patch_info, SRID_COLNAME, None)

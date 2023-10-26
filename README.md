@@ -143,7 +143,7 @@ make extract_toy_laz_data_in_parallel_from_parts  # multiprocessessing via GNU-p
 ```
 
 Passons maintenant à une extraction depuis un sampling Lipac.
-Si les chemins vers les fichiers LAZ correspondent à un data store Samba, il faut préciser vos informations de connexion via les variables d'environnement `SAMBA_USERNAME` (au format username@domain) et `SAMBA_PASSWORD`.
+Dans Lipac, les chemins vers les fichiers LAZ correspondent à un data store Samba. **Ces chemins seront modifiés dynamiquement en faisant l'hypothèse d'un montage en local du store à l'emplacement suivant** : `/mnt/store-lidarhd/`.
 
 Pour lancer l'extraction de façon parallélisée à partir du sampling "Triple" à l'emplacement par défaut, sur 45 coeurs:
 
@@ -155,7 +155,6 @@ DATASET_ROOT_PATH="/var/data/${USER}/pacasam_extractions/laz_dataset/" \
 python ./src/pacasam/run_extraction.py \
 			--sampling_path ${SAMPLING_PATH} \
 			--dataset_root_path ${DATASET_ROOT_PATH} \
-            --samba_filesystem \
             --num_jobs 45
 ```
 

@@ -22,13 +22,6 @@ SAMPLING_PARTS_DIR ?= /tmp/sampling_parts/  # Où diviser le sampling en n parti
 DATASET_ROOT_PATH ?= /var/data/${USER}/pacasam_extractions/laz_dataset/  # Où extraire le jeu de données.
 PARALLEL_EXTRACTION_JOBS ?= "75%"  # Niveau de parallélisation. Un entier ou un pourcentage des cpu.
 
-USE_SAMBA ?=  # Passer à valeur non nulle si fichiers LAZ dans un store.
-ifneq ($(strip $(USE_SAMBA)),)
-    # Utiliser store samba filesystem
-	USE_SAMBA := --samba_filesystem
-endif
-
-
 help:
 	@echo "Makefile"
 	@echo "------------------------------------"
@@ -127,7 +120,6 @@ _run_extraction_in_parallel_from_parts:
 			"python ./src/pacasam/run_extraction.py \
 			--sampling_path {} \
 			--dataset_root_path ${DATASET_ROOT_PATH} \
-			${USE_SAMBA} \
 			&& rm {}"
 
 # EXTRACTION ON TOY DATA

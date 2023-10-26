@@ -3,22 +3,8 @@ import tempfile
 from pathlib import Path
 import geopandas as gpd
 from pacasam.extractors.laz import FILE_PATH_COLNAME
-from pacasam.prepare_parallel_extraction import get_stem_from_any_file_format, split_sampling_by_file
+from pacasam.prepare_parallel_extraction import  split_sampling_by_file
 from conftest import NUM_TEST_FILES
-
-
-def test_get_stem_from_any_file_format_unix():
-    file_path = "/path/to/file.txt"
-    expected_stem = "file"
-    result = get_stem_from_any_file_format(file_path)
-    assert result == expected_stem
-
-
-def test_get_stem_from_any_file_format_samba():
-    file_path = r"\\store.ign.fr\store-lidarhd\file.laz"
-    expected_stem = "file"
-    result = get_stem_from_any_file_format(file_path)
-    assert result == expected_stem
 
 
 def test_split_sampling_by_file():

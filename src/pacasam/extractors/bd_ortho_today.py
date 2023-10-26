@@ -28,7 +28,7 @@ from mpire import WorkerPool
 class BDOrthoTodayExtractor(Extractor):
     """Extract a dataset of Infrared-R-G-B data patches (4 bands TIFF) from the BD Ortho Web Map Service.
 
-    Note: band are ordered by wavelenght, inspired by the TreeSatAI (https://zenodo.org/records/6780578) ordering
+    Note: band are ordered by wavelength, inspired by the TreeSatAI (https://zenodo.org/records/6780578) ordering
     since this extractor was primarly designed to extract datset for forest classification.
 
     See: https://geoservices.ign.fr/services-web-experts-ortho

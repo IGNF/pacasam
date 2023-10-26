@@ -63,7 +63,7 @@ class BDOrthoTodayExtractor(Extractor):
             tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=self.patch_suffix, prefix="extracted_patch")
             self.collate_rgbnir_and_save(tmp_ortho_rgb.name, tmp_ortho_nir.name, tmp_patch)
             tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(tmp_patch.name, tiff_patch_path)
+            shutil.copy(tmp_patch.name, tiff_patch_path)
 
     def get_orthoimages_for_patch(self, patch_bounds: tuple, srid: str, tmp_ortho_rgb: str, tmp_ortho_nir: str):
         """Request RGB and NIR-Color orthoimages,"""

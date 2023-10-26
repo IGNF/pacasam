@@ -118,7 +118,7 @@ class LAZExtractor(Extractor):
             srid = getattr(patch_info, SRID_COLNAME, None)
             colorize_single_patch(nocolor_patch=Path(tmp_patch.name), colorized_patch=Path(tmp_patch.name), srid=srid)
             colorized_patch.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(tmp_patch.name, colorized_patch)
+            shutil.copy(tmp_patch.name, colorized_patch)
 
 
 def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_bounds) -> tempfile._TemporaryFileWrapper:

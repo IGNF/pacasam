@@ -100,7 +100,7 @@ class BDOrthoVintageExtractor(Extractor):
                 tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=self.patch_suffix, prefix="extracted_patch")
                 collate_rgbnir_and_save(options, rvb_arr, irc_arr, tmp_patch)
                 tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.move(tmp_patch.name, tiff_patch_path)
+                shutil.copy(tmp_patch.name, tiff_patch_path)
 
 
 def extract_patch_as_geotiffs(src_orthoimagery: DatasetReader, patch_geometry: Tuple, num_pixels: int):

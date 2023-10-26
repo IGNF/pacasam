@@ -47,7 +47,6 @@ import laspy
 from laspy import LasData, LasHeader
 from pdaltools.color import color
 from geopandas import GeoDataFrame
-import smbclient
 from mpire import WorkerPool
 from tqdm import tqdm
 from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME

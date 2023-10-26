@@ -1,12 +1,9 @@
 import logging
-import os
 from pathlib import Path
 from typing import Iterable
 from geopandas import GeoDataFrame
 import geopandas as gpd
 from shapely import Polygon
-import smbclient
-from tqdm import tqdm
 
 
 ZFILL_MAX_PATCH_NUMBER = 7  # patch id consistent below 10M patches (i.e. up to 9_999_999 patches)

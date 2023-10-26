@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 import geopandas as gpd
 from pacasam.extractors.laz import FILE_PATH_COLNAME
-from pacasam.prepare_parallel_extraction import  split_sampling_by_file
+from pacasam.prepare_parallel_extraction import split_sampling_by_file
 from conftest import NUM_TEST_FILES
 
 

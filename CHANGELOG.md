@@ -1,5 +1,8 @@
 # main
 
+### 0.11.0
+- Get rid of complex smbprotocol in favor of a store-lidarhd always mounted under /mnt/ for Lipac data.
+
 ### 0.10.3
 - fix: Use shutil.copy instead of shutil.move to avoid invalid cross-device link error.
 

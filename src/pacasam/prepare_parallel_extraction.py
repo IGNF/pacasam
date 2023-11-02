@@ -62,14 +62,9 @@ def split_sampling_by_file(sampling_path: Path, sampling_parts_dir: Path, parts_
 
 def save_single_file_sampling(sampling_parts_dir, single_file_path, single_file_sampling, parts_colname: str, sampling_suffix: str = ".gpkg"):
     """Select the patches of a single data file, and save them as a single file sampling."""
-    sampling_part_filename = sampling_parts_dir / Path(get_stem_from_any_file_format(single_file_path)).with_suffix(sampling_suffix)
+    stem = Path(single_file_path).stem
+    sampling_part_filename = (sampling_parts_dir / stem).with_suffix(sampling_suffix)
     single_file_sampling.to_file(sampling_part_filename)
-
-
-def get_stem_from_any_file_format(file_path: str):
-    """Get the stem from both normal unix-like paths and Samba-like paths (where separator is a backslash)."""
-    file_path_unix_format = str(file_path).replace("\\", "/")
-    return Path(file_path_unix_format.split("/")[-1]).stem
 
 
 if __name__ == "__main__":

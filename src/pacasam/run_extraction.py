@@ -38,12 +38,6 @@ parser.add_argument(
     "-d", "--dataset_root_path", default=None, type=lambda p: Path(p).absolute(), help="Path where to extract dataset. Created if needed."
 )
 parser.add_argument(
-    "--samba_filesystem",
-    default=False,
-    action="store_true",
-    help="Use a samba file system (i.e. a data store) instead of the local filesystem.",
-)
-parser.add_argument(
     "--extractor_class", default="LAZExtractor", type=str, help="Name of class of Extractor to use.", choices=EXTRACTORS_LIBRARY.keys()
 )
 parser.add_argument("--num_jobs", default=1, type=int, help="Number of processes for extraction.")
@@ -62,7 +56,6 @@ def run_extraction(args):
             log=log,
             sampling_path=args.sampling_path,
             dataset_root_path=args.dataset_root_path,
-            use_samba=args.samba_filesystem,
             num_jobs=args.num_jobs,
         )
     elif args.extractor_class == "BDOrthoTodayExtractor":

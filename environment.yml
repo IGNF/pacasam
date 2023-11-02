@@ -23,7 +23,6 @@ dependencies:
   - black-jupyter  # code formatting
   - tqdm # pretty progress bars
   - mpire  # parallelization
-  - smbprotocol=1.10.*  # to read file in a Samba store - see. https://pypi.org/project/smbprotocol/
   # --------- linters --------- #
   - pre-commit # hooks for applying linters on commit
   - isort # import sorting

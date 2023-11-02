@@ -5,7 +5,7 @@ import laspy
 import pytest
 import requests
 from pacasam.extractors.extractor import (
-    check_all_files_exist_in_default_filesystem,
+    check_all_files_exist,
     check_sampling_format,
     load_sampling,
 )
@@ -35,12 +35,12 @@ RANDOM_INT = 55
 def test_check_files_accessibility():
     # Test when all files exist - we test this with this module's own path.
     file_paths = [LEFTY, RIGHTY]
-    check_all_files_exist_in_default_filesystem(file_paths)
+    check_all_files_exist(file_paths)
 
     # Test when some files do not exist
     file_paths = [LEFTY, "fake_non_existing_filetxt", RIGHTY]
     with pytest.raises(FileNotFoundError):
-        check_all_files_exist_in_default_filesystem(file_paths)
+        check_all_files_exist(file_paths)
 
 
 def test_check_sampling_format(tiny_synthetic_sampling):

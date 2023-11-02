@@ -1,5 +1,6 @@
 import logging
 import os
+from pathlib import Path, PureWindowsPath
 from typing import Generator
 
 import pandas as pd
@@ -20,6 +21,7 @@ class LiPaCConnector(Connector):
     """Connector to interface with the Lidar-Patch-Catalogue database and perform queries."""
 
     lambert_93_crs = 2154
+    mounted_store_path = "/mnt"
 
     def __init__(
         self,
@@ -88,14 +90,14 @@ class LiPaCConnector(Connector):
         gdf = gdf.set_crs(self.lambert_93_crs)
         gdf = gdf.sort_values(by=PATCH_ID_COLNAME)
         gdf = gdf.drop_duplicates(subset=PATCH_ID_COLNAME)
-        gdf[FILE_PATH_COLNAME] = gdf[FILE_PATH_COLNAME].apply(convert_samba_path_to_mounted_path)
+        gdf[FILE_PATH_COLNAME] = gdf[FILE_PATH_COLNAME].apply(self.convert_samba_path_to_mounted_path)
         return gdf
 
-
-def convert_samba_path_to_mounted_path(samba_path):
-    """Convert Samba path to its mounted path, expected to be under /mnt/store-lidarhd/."""
-    mounted_path = samba_path.replace("\\", "/").replace("//", "/").replace("store.ign.fr", "mnt")
-    return mounted_path
+    def convert_samba_path_to_mounted_path(self, samba_path):
+        """Convert Samba path to its mounted path, expected to be under /mnt/store-lidarhd/."""
+        relative_path = PureWindowsPath(samba_path).relative_to(PureWindowsPath("//store.ign.fr"))
+        mounted_path = Path(self.mounted_store_path) / relative_path
+        return mounted_path
 
 
 def filter_lipac_patches_on_split(db: GeoDataFrame, test_colname: str, desired_split: SPLIT_POSSIBLE_VALUES):

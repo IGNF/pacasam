@@ -1,5 +1,8 @@
 # main
 
+### 0.11.1
+- Get rid of VS Code configurations.
+
 ### 0.11.0
 - Get rid of complex smbprotocol in favor of a store-lidarhd always mounted under /mnt/ for Lipac data.
 

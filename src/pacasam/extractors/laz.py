@@ -49,7 +49,7 @@ from pdaltools.color import color
 from geopandas import GeoDataFrame
 from mpire import WorkerPool
 from tqdm import tqdm
-from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
+from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.extractor import Extractor, check_all_files_exist, format_new_patch_path
 from pacasam.samplers.sampler import SPLIT_COLNAME
 
@@ -94,10 +94,8 @@ class LAZExtractor(Extractor):
         cloud = None
         for patch_info in single_file_sampling.itertuples():
             patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
-            file_id = getattr(patch_info, FILE_ID_COLNAME)
             colorized_patch: Path = format_new_patch_path(
                 dataset_root_path=self.dataset_root_path,
-                file_id=file_id,
                 patch_id=getattr(patch_info, PATCH_ID_COLNAME),
                 split=getattr(patch_info, SPLIT_COLNAME),
                 patch_suffix=self.patch_suffix,

@@ -15,6 +15,7 @@ from pacasam.extractors.laz import FILE_PATH_COLNAME
 from pacasam.samplers.sampler import PATCH_ID_COLNAME, SPLIT_POSSIBLE_VALUES
 
 TEST_COLNAME_IN_LIPAC = "test"
+ZFILL_MAX_PATCH_NUMBER = 9  # to make patch id of consistent length up to 999_999_999 patches.
 
 
 class LiPaCConnector(Connector):
@@ -88,6 +89,7 @@ class LiPaCConnector(Connector):
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
         gdf = gdf.sort_values(by=PATCH_ID_COLNAME)
         gdf = gdf.drop_duplicates(subset=PATCH_ID_COLNAME)
+        gdf[PATCH_ID_COLNAME] = gdf[PATCH_ID_COLNAME].apply(lambda pid: str(pid).zfill(ZFILL_MAX_PATCH_NUMBER))
         gdf[FILE_PATH_COLNAME] = gdf[FILE_PATH_COLNAME].apply(self.convert_samba_path_to_mounted_path)
         return gdf
 

@@ -1,5 +1,9 @@
 # main
 
+### 0.11.3
+- LAZ patches now have format {SPLIT}-{patch_id}.laz, ignoring file_id, for coherence with imagery extractors.
+- fix: Rewrite LiPaC's convert_samba_path_to_mounted_path due to inexplicable regression of the method.
+
 ### 0.11.2
 - Do not set crs of LiPaC since n>1 distinct SRIDs might be used in the future.
 

@@ -1,5 +1,5 @@
 """
-This module provides functions to extract patches of orthoimages from a sampling geopackage and save them as .jp2 (JPEG2000) files
+This module provides functions to extract patches of orthoimages from a sampling geopackage and save them as .tiff files
 Behavior is similar to the one described in `laz.py`, with output structured as:
 
 dataset_root_path/
@@ -10,8 +10,9 @@ dataset_root_path/
 ├── test/
 │   ├── TEST-{patch_id}.tiff
 
-Requirements in the sampling are a bit different: in addition to patch_id, srid (optionnal), geometry, split,
-we need rgb_file and irc_file, which are path to the orthoimages (jp2 files, typically 1km x 1km, but may be larger).
+Requirements in the sampling are a bit different: in addition to `patch_id`, `srid` (optionnal), `geometry`, `split`,
+we need `rgb_file` and `irc_file`, which are path to the orthoimages (typically jp2 files, typically 1km x 1km but may be larger).
+The patches are expected to be fully included in the indicated file. If this is not the case, consider indicating a vrt file instead.
 
 """
 
@@ -39,9 +40,6 @@ class BDOrthoVintageExtractor(Extractor):
 
     Note: band are ordered by wavelenght, inspired by the TreeSatAI (https://zenodo.org/records/6780578) ordering
     since this extractor was primarly designed to extract datset for forest classification.
-
-    Environment variables:
-      - BD_ORTHO_VINTAGE_VRT_DIR: path to a directory with subdirs irc and rgb, containing VRTs for each BD ORtho vintage (e.g. D01)
 
     """
 

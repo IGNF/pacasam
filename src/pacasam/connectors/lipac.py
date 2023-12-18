@@ -10,7 +10,7 @@ from geopandas import GeoDataFrame
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
-from pacasam.connectors.connector import GEOMETRY_COLNAME, Connector
+from pacasam.connectors.connector import GEOMETRY_COLNAME, FILE_ID_COLNAME, Connector
 from pacasam.extractors.laz import FILE_PATH_COLNAME
 from pacasam.samplers.sampler import PATCH_ID_COLNAME, SPLIT_POSSIBLE_VALUES
 
@@ -89,7 +89,9 @@ class LiPaCConnector(Connector):
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
         gdf = gdf.sort_values(by=PATCH_ID_COLNAME)
         gdf = gdf.drop_duplicates(subset=PATCH_ID_COLNAME)
-        gdf[PATCH_ID_COLNAME] = gdf[PATCH_ID_COLNAME].apply(lambda pid: str(pid).zfill(ZFILL_MAX_PATCH_NUMBER))
+        gdf[PATCH_ID_COLNAME] = gdf[PATCH_ID_COLNAME, FILE_ID_COLNAME].apply(
+            lambda row: f"{row[FILE_ID_COLNAME]}-{str(row[PATCH_ID_COLNAME]).zfill(ZFILL_MAX_PATCH_NUMBER)}", axis=1
+        )
         gdf[FILE_PATH_COLNAME] = gdf[FILE_PATH_COLNAME].apply(self.convert_samba_path_to_mounted_path)
         return gdf
 

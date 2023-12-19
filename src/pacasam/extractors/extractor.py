@@ -17,6 +17,8 @@ class Extractor:
     if they do not yet exist, and extraction operations are atomic at the patch level.
     """
 
+    patch_suffix: str
+
     def __init__(self, log: logging.Logger, sampling_path: Path, dataset_root_path: Path, num_jobs: int = 1):
         """Initializes the extractor. Always loads the sampling with sanity checks on format."""
         self.log = log
@@ -28,6 +30,13 @@ class Extractor:
 
     def extract(self):
         raise NotImplementedError("Abstract class.")
+
+    def make_new_patch_path(self, patch_id: int, split: str) -> Path:
+        """Get path to save patch data, creating directories if needed."""
+        newdir: Path = self.dataset_root_path / split
+        newdir.mkdir(parents=True, exist_ok=True)
+        patch_path = newdir / f"{split.upper()}-{patch_id}{self.patch_suffix}"
+        return patch_path
 
 
 # READING SAMPLINGS
@@ -76,21 +85,3 @@ def raise_explicit_FileNotFoundError(files_not_found):
         files_not_found = files_not_found[:5] + ["..."] + files_not_found[-5:]
     files_not_found_str = "\n".join(files_not_found)
     raise FileNotFoundError(f"Expected files to exist and be accessible: \n{files_not_found_str}")
-
-
-# WRITING
-
-
-# TODO: move to laz.py since this is specific to laz extraction.
-def format_new_patch_path(dataset_root_path: Path, patch_id: int, split: str, patch_suffix: str) -> Path:
-    """Formats the path to save the patch data. Creates dataset dir and split subdir(s) as needed.
-    Format is /{dataset_root_path}/{split}/{SPLIT}-{zfilled patch_id}.laz
-
-    The suffix is not infered from input data for consistency across extractions, for instance when
-    there are both las and laz files.
-
-    """
-    dir_to_save_patch: Path = dataset_root_path / split
-    dir_to_save_patch.mkdir(parents=True, exist_ok=True)
-    patch_path = dir_to_save_patch / f"{split.upper()}-{patch_id}{patch_suffix}"  # noqa
-    return patch_path

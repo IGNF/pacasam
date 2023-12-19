@@ -89,7 +89,7 @@ class LiPaCConnector(Connector):
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
         gdf = gdf.sort_values(by=PATCH_ID_COLNAME)
         gdf = gdf.drop_duplicates(subset=PATCH_ID_COLNAME)
-        gdf[PATCH_ID_COLNAME] = gdf[PATCH_ID_COLNAME, FILE_ID_COLNAME].apply(
+        gdf[PATCH_ID_COLNAME] = gdf[[PATCH_ID_COLNAME, FILE_ID_COLNAME]].apply(
             lambda row: f"{row[FILE_ID_COLNAME]}-{str(row[PATCH_ID_COLNAME]).zfill(ZFILL_MAX_PATCH_NUMBER)}", axis=1
         )
         gdf[FILE_PATH_COLNAME] = gdf[FILE_PATH_COLNAME].apply(self.convert_samba_path_to_mounted_path)
@@ -97,9 +97,8 @@ class LiPaCConnector(Connector):
 
     def convert_samba_path_to_mounted_path(self, samba_path):
         """Convert Samba path to its mounted path, expected to be under /mnt/store-lidarhd/."""
-        relative_path = PureWindowsPath(samba_path).relative_to(PureWindowsPath("//store.ign.fr"))
-        mounted_path = Path(self.mounted_store_path) / relative_path
-        return mounted_path
+        mounted_path = PureWindowsPath(samba_path).as_posix().replace("//store.ign.fr", self.mounted_store_path)
+        return Path(mounted_path)
 
 
 def filter_lipac_patches_on_split(db: GeoDataFrame, test_colname: str, desired_split: SPLIT_POSSIBLE_VALUES):

@@ -1,5 +1,8 @@
 # main
 
+### 0.11.2
+- Do not set crs of LiPaC since n>1 distinct SRIDs might be used in the future.
+
 ### 0.11.1
 - Get rid of VS Code configurations.
 

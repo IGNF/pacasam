@@ -20,7 +20,6 @@ TEST_COLNAME_IN_LIPAC = "test"
 class LiPaCConnector(Connector):
     """Connector to interface with the Lidar-Patch-Catalogue database and perform queries."""
 
-    lambert_93_crs = 2154
     mounted_store_path = "/mnt"
 
     def __init__(
@@ -87,7 +86,6 @@ class LiPaCConnector(Connector):
             chunksize=max_chunksize_for_postgis_extraction,
         )
         gdf: gpd.GeoDataFrame = pd.concat(chunks)
-        gdf = gdf.set_crs(self.lambert_93_crs)
         gdf = gdf.sort_values(by=PATCH_ID_COLNAME)
         gdf = gdf.drop_duplicates(subset=PATCH_ID_COLNAME)
         gdf[FILE_PATH_COLNAME] = gdf[FILE_PATH_COLNAME].apply(self.convert_samba_path_to_mounted_path)

@@ -124,7 +124,7 @@ def toy_sampling_file_for_BDOrthoVintageExtractor(toy_sampling_file) -> tempfile
 def synthetic_connector() -> SyntheticConnector:
     """Synthetic connector to a (very tiny) fake database."""
     connector_class = CONNECTORS_LIBRARY.get("SyntheticConnector")
-    connector = connector_class(log=None, binary_descriptors_prevalence=[0.1], db_size=10, split="train")
+    connector = connector_class(log=None, binary_descriptors_prevalence=[0.1], db_size=20, split="train")
     return connector
 
 

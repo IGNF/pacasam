@@ -101,9 +101,9 @@ def test_lefty_and_righty_color_are_white_and_equal(cloud_path):
 
     """
     lefty = laspy.read(cloud_path)
-    assert np.array_equal(lefty.red, np.full_like(lefty.red, fill_value=WHITE_COLOR_VALUE))
-    assert np.array_equal(lefty.red, lefty.green)
-    assert np.array_equal(lefty.red, lefty.blue)
+    assert np.array_equal(lefty.Red, np.full_like(lefty.Red, fill_value=WHITE_COLOR_VALUE))
+    assert np.array_equal(lefty.Red, lefty.Green)
+    assert np.array_equal(lefty.Red, lefty.Blue)
 
 
 @pytest.mark.geoportail

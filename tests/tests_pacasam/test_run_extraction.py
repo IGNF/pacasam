@@ -13,11 +13,6 @@ import glob
 # Parallelization needs to be tested first, else there is some issue with laspy.read
 # trying without success to open the cloud that was previously opened successfully in single processing.
 def test_run_extraction_laz(toy_sampling_file, num_jobs):
-    if num_jobs == "2":
-        pytest.skip(
-            "We cannot test multiprocessing for this extractor due to a PDAL error "
-            "when using pdal info (pdaltools/color.py), an error that only happens during CICD."
-        )
     with tempfile.TemporaryDirectory(prefix=f"num_jobs_{num_jobs}_") as tmp_output_path:
         args = parser.parse_args(
             args=[

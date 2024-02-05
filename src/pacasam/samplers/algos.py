@@ -77,6 +77,7 @@ def normalize_df(df: DataFrame, columns: List[str], normalization="standardizati
 
     # 2/3 Normalize columns to define a meaningful distance between histogram patches.
 
+    df.loc[:, columns] = df.loc[:, columns].astype(float)  # from int to float to avoid incompatible type warnings
     if normalization == "standardization":
         df.loc[:, columns] = (df.loc[:, columns] - df.loc[:, columns].mean()) / (df.loc[:, columns].std() + EPSILON)
     else:

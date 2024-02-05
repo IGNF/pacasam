@@ -97,12 +97,18 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
 
 @pytest.fixture(scope="session")
 def toy_sampling_file_for_BDOrthoVintageExtractor(toy_sampling_file) -> tempfile._TemporaryFileWrapper:
-    """Returns a temporary file of a toy sampling (geopackage) adapted to BDORthoVintageExtractor"""
+    """Returns a temporary file of a toy sampling (geopackage) adapted to BDORthoVintageExtractor.
+
+    This test illustrates that BDOrthoVintageExtractor accepts any rasterio-compatible raster format.
+    """
     sampling = gpd.read_file(toy_sampling_file.name)
     sampling = sampling[sampling["file_path"].str.contains("left")]
     sampling = sampling.drop(columns=["file_path", "file_id"])
-    sampling[BDOrthoVintageExtractor.dept_column] = "D30"
-    sampling[BDOrthoVintageExtractor.year_column] = 2021
+    sampling[BDOrthoVintageExtractor.rgb_column] = "tests/data/bd_ortho_vintage/rgb/D30-2021.vrt"
+    sampling[BDOrthoVintageExtractor.irc_column] = [
+        "tests/data/bd_ortho_vintage/irc/792000_6272000-50mx100m-left-patch-0000000.tiff",
+        "tests/data/bd_ortho_vintage/irc/792000_6272000-50mx100m-left-patch-0000001.tiff",
+    ]
 
     toy_sampling_tmp_file = tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="toy_sampling_file_for_BDOrthoVintageExtractor")
     sampling.to_file(toy_sampling_tmp_file)

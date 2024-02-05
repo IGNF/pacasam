@@ -1,5 +1,5 @@
 """
-This module provides functions to extract patches of orthoimages from a sampling geopackage and save them as .jp2 (JPEG2000) files
+This module provides functions to extract patches of orthoimages from a sampling geopackage and save them as .tiff files
 Behavior is similar to the one described in `laz.py`, with output structured as:
 
 dataset_root_path/
@@ -10,8 +10,9 @@ dataset_root_path/
 ├── test/
 │   ├── TEST-{patch_id}.tiff
 
-Requirements in the sampling are a bit different: in addition to patch_id, srid (optionnal), geometry, split,
-we need rgb_file and irc_file, which are path to the orthoimages (jp2 files, typically 1km x 1km, but may be larger).
+Requirements in the sampling are a bit different: in addition to `patch_id`, `srid` (optionnal), `geometry`, `split`,
+we need `rgb_file` and `irc_file`, which are path to the orthoimages (typically jp2 files, typically 1km x 1km but may be larger).
+The patches are expected to be fully included in the indicated file. If this is not the case, consider indicating a vrt file instead.
 
 """
 
@@ -40,33 +41,24 @@ class BDOrthoVintageExtractor(Extractor):
     Note: band are ordered by wavelenght, inspired by the TreeSatAI (https://zenodo.org/records/6780578) ordering
     since this extractor was primarly designed to extract datset for forest classification.
 
-    Environment variables:
-      - BD_ORTHO_VINTAGE_VRT_DIR: path to a directory with subdirs irc and rgb, containing VRTs for each BD ORtho vintage (e.g. D01)
-
     """
 
     patch_suffix: str = ".tiff"
-    dept_column: str = "french_department_id_imagery"
-    year_column: str = "year_imagery"
+    rgb_column: str = "rgb_file"
+    irc_column: str = "irc_file"
     pixel_per_meter: int = 5
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
-        vintages_vrt_dir = os.getenv("BD_ORTHO_VINTAGE_VRT_DIR")
-        if not vintages_vrt_dir:
-            raise ValueError("You should define where BD ORtho VRTs are with env variable `BD_ORTHO_VINTAGE_VRT_DIR`")
-
         iterable_of_args = []
-        for (dept, year), single_vintage in self.sampling.groupby([self.dept_column, self.year_column]):
-            rvb_vrt = Path(vintages_vrt_dir) / "rvb" / f"{dept}-{year}.vrt"
-            irc_vrt = Path(vintages_vrt_dir) / "irc" / f"{dept}-{year}.vrt"
-            iterable_of_args.append((rvb_vrt, irc_vrt, single_vintage))
+        for (rgb_file, irc_file), single_imagery in self.sampling.groupby([self.rgb_column, self.irc_column]):
+            iterable_of_args.append((rgb_file, irc_file, single_imagery))
 
         with WorkerPool(n_jobs=self.num_jobs) as pool:
-            pool.map(self.extract_from_single_vintage, iterable_of_args, progress_bar=True)
+            pool.map(self.extract_from_single_file, iterable_of_args, progress_bar=True)
 
-    def extract_from_single_vintage(self, rvb_vrt, irc_vrt, single_file_sampling: GeoDataFrame):
-        with rasterio.open(rvb_vrt) as rvb, rasterio.open(irc_vrt) as irc:
+    def extract_from_single_file(self, rgb_file, irc_file, single_file_sampling: GeoDataFrame):
+        with rasterio.open(rgb_file) as rgb, rasterio.open(irc_file) as irc:
             for patch_info in single_file_sampling.itertuples():
                 split = getattr(patch_info, SPLIT_COLNAME)
                 patch_id = getattr(patch_info, PATCH_ID_COLNAME)
@@ -80,15 +72,15 @@ class BDOrthoVintageExtractor(Extractor):
                 height = bbox[3] - bbox[1]
                 assert width == height  # squares only
                 width_pixels = int(self.pixel_per_meter * width)
-                rvb_arr = extract_patch_as_geotiffs(rvb, patch_geometry, width_pixels)
+                rgb_arr = extract_patch_as_geotiffs(rgb, patch_geometry, width_pixels)
                 irc_arr = extract_patch_as_geotiffs(irc, patch_geometry, width_pixels)
                 image_resolution = 1 / self.pixel_per_meter
                 options = {
                     "driver": "GTiff",
                     "count": 4,
-                    "dtype": rvb_arr.dtype,
+                    "dtype": rgb_arr.dtype,
                     "transform": Affine(image_resolution, 0, bbox[0], 0, -image_resolution, bbox[3]),
-                    "crs": rvb.crs,
+                    "crs": rgb.crs,
                     "width": width_pixels,
                     "height": width_pixels,
                     "compress": "DEFLATE",
@@ -97,7 +89,7 @@ class BDOrthoVintageExtractor(Extractor):
                     "nodata": None,
                 }
                 tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=self.patch_suffix, prefix="extracted_patch")
-                collate_rgbnir_and_save(options, rvb_arr, irc_arr, tmp_patch)
+                collate_rgbnir_and_save(options, rgb_arr, irc_arr, tmp_patch)
                 tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(tmp_patch.name, tiff_patch_path)
 
@@ -108,14 +100,14 @@ def extract_patch_as_geotiffs(src_orthoimagery: DatasetReader, patch_geometry: T
     return clipped_dataset
 
 
-def collate_rgbnir_and_save(meta, rvb_arr: np.ndarray, irc_arr: np.ndarray, tiff_patch_path: Path):
+def collate_rgbnir_and_save(meta, rgb_arr: np.ndarray, irc_arr: np.ndarray, tiff_patch_path: Path):
     """Collate RGB and NIR arrays and save to a new geotiff."""
     with rasterio.open(tiff_patch_path, "w", **meta) as dst:
         dst.write(irc_arr[0], 1)
         dst.set_band_description(1, "Infrared")
-        dst.write(rvb_arr[0], 2)
+        dst.write(rgb_arr[0], 2)
         dst.set_band_description(2, "Red")
-        dst.write(rvb_arr[1], 3)
+        dst.write(rgb_arr[1], 3)
         dst.set_band_description(3, "Green")
-        dst.write(rvb_arr[2], 4)
+        dst.write(rgb_arr[2], 4)
         dst.set_band_description(4, "Blue")

@@ -1,5 +1,8 @@
 # main
 
+## 0.12.0
+- BDOrthoVintageExtractor: does not assume the use of VRT but instead relies on specified rgb_file and irc_file
+
 ### 0.11.3
 - LAZ patches now have format {SPLIT}-{patch_id}.laz, ignoring file_id, for coherence with imagery extractors.
 - fix: Rewrite LiPaC's convert_samba_path_to_mounted_path due to inexplicable regression of the method.

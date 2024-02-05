@@ -39,7 +39,7 @@ sys.path.append(str(root_dir / "tests"))
 
 from pacasam.utils import CONNECTORS_LIBRARY
 from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME
-from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.laz import FILE_PATH_COLNAME
 from pacasam.extractors.bd_ortho_vintage import BDOrthoVintageExtractor
 from pacasam.connectors.synthetic import SyntheticConnector
@@ -82,6 +82,7 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
                 "792000_6272000-50mx100m-right",
             ],
             SPLIT_COLNAME: ["train", "val", "train", "val"],
+            SRID_COLNAME: [2154, 2154, 2154, 2154],
         },
         crs="EPSG:2154",
     )

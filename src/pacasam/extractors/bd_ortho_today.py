@@ -50,8 +50,7 @@ class BDOrthoTodayExtractor(Extractor):
 
         split = getattr(patch_info, SPLIT_COLNAME)
         patch_id = getattr(patch_info, PATCH_ID_COLNAME)
-        dir_to_save_patch: Path = self.dataset_root_path / split
-        tiff_patch_path = dir_to_save_patch / f"{split.upper()}-{patch_id}{self.patch_suffix}"
+        tiff_patch_path: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
         if tiff_patch_path.exists():
             return
         patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds

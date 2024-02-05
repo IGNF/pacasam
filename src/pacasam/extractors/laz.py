@@ -49,8 +49,8 @@ from pdaltools.color import color
 from geopandas import GeoDataFrame
 from mpire import WorkerPool
 from tqdm import tqdm
-from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
-from pacasam.extractors.extractor import Extractor, check_all_files_exist, format_new_patch_path
+from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
+from pacasam.extractors.extractor import Extractor, check_all_files_exist
 from pacasam.samplers.sampler import SPLIT_COLNAME
 
 FILE_PATH_COLNAME = "file_path"  # path to LAZ for extraction e.g. "/path/to/file.LAZ"
@@ -94,14 +94,9 @@ class LAZExtractor(Extractor):
         cloud = None
         for patch_info in single_file_sampling.itertuples():
             patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
-            file_id = getattr(patch_info, FILE_ID_COLNAME)
-            colorized_patch: Path = format_new_patch_path(
-                dataset_root_path=self.dataset_root_path,
-                file_id=file_id,
-                patch_id=getattr(patch_info, PATCH_ID_COLNAME),
-                split=getattr(patch_info, SPLIT_COLNAME),
-                patch_suffix=self.patch_suffix,
-            )
+            patch_id = getattr(patch_info, PATCH_ID_COLNAME)
+            split = getattr(patch_info, SPLIT_COLNAME)
+            colorized_patch: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
 
             if colorized_patch.exists():
                 continue

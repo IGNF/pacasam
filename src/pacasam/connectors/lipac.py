@@ -10,7 +10,7 @@ from geopandas import GeoDataFrame
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
-from pacasam.connectors.connector import GEOMETRY_COLNAME, Connector
+from pacasam.connectors.connector import GEOMETRY_COLNAME, FILE_ID_COLNAME, Connector
 from pacasam.extractors.laz import FILE_PATH_COLNAME
 from pacasam.samplers.sampler import PATCH_ID_COLNAME, SPLIT_POSSIBLE_VALUES
 
@@ -93,8 +93,7 @@ class LiPaCConnector(Connector):
 
     def convert_samba_path_to_mounted_path(self, samba_path):
         """Convert Samba path to its mounted path, expected to be under /mnt/store-lidarhd/."""
-        relative_path = PureWindowsPath(samba_path).relative_to(PureWindowsPath("//store.ign.fr"))
-        mounted_path = Path(self.mounted_store_path) / relative_path
+        mounted_path = PureWindowsPath(samba_path).as_posix().replace("//store.ign.fr", self.mounted_store_path)
         return mounted_path
 
 

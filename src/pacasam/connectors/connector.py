@@ -6,7 +6,7 @@ from geopandas import GeoDataFrame
 
 GEOMETRY_COLNAME = "geometry"  # Shapely geometry (note: only rectangular shapes aligend with x/y are supported)
 PATCH_ID_COLNAME = "patch_id"  # Unique identifier to each patch
-FILE_ID_COLNAME = "file_id"  # Unique identifier to each file.
+FILE_ID_COLNAME = "file_id"  # Unique identifier to each file. Samplers heavily rely on this to perform stratification at the file level.
 
 # Optionally : if SRID_COLNAME is given in the sampling, the specified srid will be used during extractions.
 # NB: elsewise, it is infered from the data when possible; alternatively, the DEFAULT_SRID from extractor.py is used.

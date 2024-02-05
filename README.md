@@ -138,8 +138,7 @@ Pour tester l'extraction sur le jeu de données de test, lancer
 ```bash
 conda activate pacasam
 make extract_toy_laz_data
-make extract_toy_laz_data_in_parallel  # multiprocessessing via MPIRE --> méthode à privilégier
-make extract_toy_laz_data_in_parallel_from_parts  # multiprocessessing via GNU-parallel
+make extract_toy_laz_data_in_parallel  # multiprocessessing via MPIRE
 ```
 
 Passons maintenant à une extraction depuis un sampling Lipac.
@@ -174,16 +173,23 @@ Pour les volumes de données Lidar HD (base LiPaC) :
 
 ### Tests
 
-Pour lancer les tests de façon parallélisée, en excluant les tests lents et ceux nécessitant les flux (instables) du géoportail :
-```bash
-make tests_no_geoportail_no_slow
-```
-
 Pour lancer tous les tests de façon parallélisée:
 ```bash
 make tests
 ```
+
+Pour séparer l'exécution des tests lents ou nécessitant les flux (instables) du géoportail, de ceux plus rapides :
+```bash
+make tests_geoportail_or_slow
+make tests_quick
+```
+
 NB: un timeout d'une minute est appliqué aux tests impliquant le géoportail.
+
+Pour lancer uniqumeent les tests de sampling à partir de Lidar Patch Catalogue:
+```bash
+make tests_lipac
+```
 
 ### Performances & Limites
 

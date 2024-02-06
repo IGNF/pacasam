@@ -35,7 +35,7 @@ from geopandas import GeoDataFrame
 
 RGB_COLNAME = "rgb_file"
 IRC_COLNAME = "irc_file"
-
+BDORTHO_PIXELS_PER_METER = 5
 
 class BDOrthoVintageExtractor(Extractor):
     """Extract a dataset of Infrared-R-G-B data patches (4 bands TIFF) from a BD Ortho file system.
@@ -46,7 +46,6 @@ class BDOrthoVintageExtractor(Extractor):
     """
 
     patch_suffix: str = ".tiff"
-    pixel_per_meter: int = 5
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
@@ -66,7 +65,7 @@ class BDOrthoVintageExtractor(Extractor):
                 if tiff_patch_path.exists():
                     continue
                 patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
-                tmp_patch = extract_rgbnir_patch_as_tmp_file(rgb_open, irc_open, self.pixel_per_meter, patch_geometry)
+                tmp_patch = extract_rgbnir_patch_as_tmp_file(rgb_open, irc_open, BDORTHO_PIXELS_PER_METER, patch_geometry)
                 tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(tmp_patch.name, tiff_patch_path)
 

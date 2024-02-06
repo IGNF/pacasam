@@ -45,11 +45,14 @@ import tempfile
 from typing import Optional, Union
 import laspy
 from laspy import LasData, LasHeader
+import pdal
 from pdaltools.color import color
 from geopandas import GeoDataFrame
 from mpire import WorkerPool
+import rasterio
 from tqdm import tqdm
 from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
+from pacasam.extractors.bd_ortho_vintage import BDORTHO_PIXELS_PER_METER, IRC_COLNAME, RGB_COLNAME, extract_rgbnir_patch_as_tmp_file
 from pacasam.extractors.extractor import Extractor, check_all_files_exist
 from pacasam.samplers.sampler import SPLIT_COLNAME
 
@@ -77,11 +80,11 @@ class LAZExtractor(Extractor):
         Uses pandas groupby to handle both single-file and multiple-file samplings.
 
         """
+        # mpire does argument unpacking, see https://github.com/sybrenjansen/mpire/issues/29#issuecomment-984559662.
+        iterable_of_args = [
+            (single_file_path, single_file_sampling) for single_file_path, single_file_sampling in self.sampling.groupby(FILE_PATH_COLNAME)
+        ]
         if self.num_jobs > 1:
-            # mpire does argument unpacking, see https://github.com/sybrenjansen/mpire/issues/29#issuecomment-984559662.
-            iterable_of_args = [
-                (single_file_path, single_file_sampling) for single_file_path, single_file_sampling in self.sampling.groupby(FILE_PATH_COLNAME)
-            ]
             with WorkerPool(n_jobs=self.num_jobs) as pool:
                 pool.map(self._extract_from_single_file, iterable_of_args, progress_bar=True)
         else:
@@ -93,7 +96,8 @@ class LAZExtractor(Extractor):
         """Extract all patches from a single file based on its sampling."""
         cloud = None
         for patch_info in single_file_sampling.itertuples():
-            patch_bounds = getattr(patch_info, GEOMETRY_COLNAME).bounds
+            patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
+            patch_bounds = patch_geometry.bounds
             patch_id = getattr(patch_info, PATCH_ID_COLNAME)
             split = getattr(patch_info, SPLIT_COLNAME)
             colorized_patch: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
@@ -103,12 +107,28 @@ class LAZExtractor(Extractor):
 
             if not cloud:
                 cloud = laspy.read(single_file_path)
-            tmp_patch: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, cloud.header, patch_bounds)
+            tmp_laz: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, cloud.header, patch_bounds)
+
             # Use given srid if possible, else pdaltools will infer it from the LAZ file.
             srid = getattr(patch_info, SRID_COLNAME, None)
-            colorize_single_patch(nocolor_patch=Path(tmp_patch.name), colorized_patch=Path(tmp_patch.name), srid=srid)
+            rgb_file = getattr(patch_info, RGB_COLNAME, None)
+            irc_file = getattr(patch_info, IRC_COLNAME, None)
+            if rgb_file and irc_file:
+                # colorize from orthoimagery files
+                with rasterio.open(rgb_file) as rgb_open, rasterio.open(irc_file) as irc_open:
+                    tmp_rgbnir = extract_rgbnir_patch_as_tmp_file(rgb_open, irc_open, BDORTHO_PIXELS_PER_METER, patch_geometry)
+                pipeline = pdal.Reader.las(filename=tmp_laz.name)
+                pipeline |= pdal.Filter.colorization(
+                    raster=tmp_rgbnir.name, dimensions="Red:1:256.0, Green:2:256.0, Blue:3:256.0, Infrared:4:256.0"
+                )
+                pipeline |= pdal.Writer.las(filename=tmp_laz.name, extra_dims="all", minor_version="4", dataformat_id="8", forward="all")
+                pipeline.execute()
+            else:
+                # colorize from https://data.geopf.fr/wms-r/
+                # TODO: simplify signature...
+                colorize_single_patch(nocolor_patch=Path(tmp_laz.name), colorized_patch=Path(tmp_laz.name), srid=srid)
             colorized_patch.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy(tmp_patch.name, colorized_patch)
+            shutil.copy(tmp_laz.name, colorized_patch)
 
 
 def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_bounds) -> tempfile._TemporaryFileWrapper:

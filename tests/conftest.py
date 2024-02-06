@@ -41,7 +41,7 @@ from pacasam.utils import CONNECTORS_LIBRARY
 from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME
 from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.laz import FILE_PATH_COLNAME
-from pacasam.extractors.bd_ortho_vintage import IRC_COLNAME, RGB_COLNAME, BDOrthoVintageExtractor
+from pacasam.extractors.bd_ortho_vintage import IRC_COLNAME, RGB_COLNAME
 from pacasam.connectors.synthetic import SyntheticConnector
 
 
@@ -97,21 +97,20 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
 
 
 @pytest.fixture(scope="session")
-def toy_sampling_file_for_BDOrthoVintageExtractor(toy_sampling_file) -> tempfile._TemporaryFileWrapper:
+def toy_sampling_file_with_orthoimagery_filepaths(toy_sampling_file) -> tempfile._TemporaryFileWrapper:
     """Returns a temporary file of a toy sampling (geopackage) adapted to BDORthoVintageExtractor.
 
     This test illustrates that BDOrthoVintageExtractor accepts any rasterio-compatible raster format.
     """
     sampling = gpd.read_file(toy_sampling_file.name)
     sampling = sampling[sampling["file_path"].str.contains("left")]
-    sampling = sampling.drop(columns=["file_path", "file_id"])
     sampling[RGB_COLNAME] = "tests/data/bd_ortho_vintage/rgb/D30-2021.vrt"
     sampling[IRC_COLNAME] = [
         "tests/data/bd_ortho_vintage/irc/792000_6272000-50mx100m-left-patch-0000000.tiff",
         "tests/data/bd_ortho_vintage/irc/792000_6272000-50mx100m-left-patch-0000001.tiff",
     ]
 
-    toy_sampling_tmp_file = tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="toy_sampling_file_for_BDOrthoVintageExtractor")
+    toy_sampling_tmp_file = tempfile.NamedTemporaryFile(suffix=".gpkg", prefix="toy_sampling_file_with_orthoimagery_filepaths")
     sampling.to_file(toy_sampling_tmp_file)
 
     # Note: Uncomment to update the saved gpkg.

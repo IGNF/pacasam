@@ -34,6 +34,8 @@ from mpire import WorkerPool
 
 from geopandas import GeoDataFrame
 
+RGB_COLNAME = "rgb_file"
+IRC_COLNAME = "irc_file"
 
 class BDOrthoVintageExtractor(Extractor):
     """Extract a dataset of Infrared-R-G-B data patches (4 bands TIFF) from a BD Ortho file system.
@@ -44,14 +46,12 @@ class BDOrthoVintageExtractor(Extractor):
     """
 
     patch_suffix: str = ".tiff"
-    rgb_column: str = "rgb_file"
-    irc_column: str = "irc_file"
     pixel_per_meter: int = 5
 
     def extract(self) -> None:
         """Download the orthoimages dataset."""
         iterable_of_args = []
-        for (rgb_file, irc_file), single_imagery in self.sampling.groupby([self.rgb_column, self.irc_column]):
+        for (rgb_file, irc_file), single_imagery in self.sampling.groupby([RGB_COLNAME, IRC_COLNAME]):
             iterable_of_args.append((rgb_file, irc_file, single_imagery))
 
         with WorkerPool(n_jobs=self.num_jobs) as pool:

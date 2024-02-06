@@ -65,33 +65,38 @@ class BDOrthoVintageExtractor(Extractor):
                 tiff_patch_path: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
                 if tiff_patch_path.exists():
                     continue
-
                 patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
-                bbox = patch_geometry.bounds
-                width = bbox[2] - bbox[0]
-                height = bbox[3] - bbox[1]
-                assert width == height  # squares only
-                width_pixels = int(self.pixel_per_meter * width)
-                rgb_arr = extract_patch_as_geotiffs(rgb, patch_geometry, width_pixels)
-                irc_arr = extract_patch_as_geotiffs(irc, patch_geometry, width_pixels)
-                image_resolution = 1 / self.pixel_per_meter
-                options = {
-                    "driver": "GTiff",
-                    "count": 4,
-                    "dtype": rgb_arr.dtype,
-                    "transform": Affine(image_resolution, 0, bbox[0], 0, -image_resolution, bbox[3]),
-                    "crs": rgb.crs,
-                    "width": width_pixels,
-                    "height": width_pixels,
-                    "compress": "DEFLATE",
-                    "tiled": False,
-                    "bigtiff": "IF_SAFER",
-                    "nodata": None,
-                }
-                tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=self.patch_suffix, prefix="extracted_patch")
-                collate_rgbnir_and_save(options, rgb_arr, irc_arr, tmp_patch)
+                tmp_patch = extract_rgbnir_patch_as_tmp_file(rgb, irc, self.pixel_per_meter, patch_geometry)
                 tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy(tmp_patch.name, tiff_patch_path)
+
+
+def extract_rgbnir_patch_as_tmp_file(rgb, irc, pixel_per_meter, patch_geometry):
+    """Extract both rgb and irc patch images and collate them into a temporary file."""
+    bbox = patch_geometry.bounds
+    width = bbox[2] - bbox[0]
+    height = bbox[3] - bbox[1]
+    assert width == height  # squares only
+    width_pixels = int(pixel_per_meter * width)
+    rgb_arr = extract_patch_as_geotiffs(rgb, patch_geometry, width_pixels)
+    irc_arr = extract_patch_as_geotiffs(irc, patch_geometry, width_pixels)
+    image_resolution = 1 / pixel_per_meter
+    options = {
+        "driver": "GTiff",
+        "count": 4,
+        "dtype": rgb_arr.dtype,
+        "transform": Affine(image_resolution, 0, bbox[0], 0, -image_resolution, bbox[3]),
+        "crs": rgb.crs,
+        "width": width_pixels,
+        "height": width_pixels,
+        "compress": "DEFLATE",
+        "tiled": False,
+        "bigtiff": "IF_SAFER",
+        "nodata": None,
+    }
+    tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=".tiff", prefix="extracted_patch")
+    collate_rgbnir_and_save(options, rgb_arr, irc_arr, tmp_patch)
+    return tmp_patch
 
 
 def extract_patch_as_geotiffs(src_orthoimagery: DatasetReader, patch_geometry: Tuple, num_pixels: int):

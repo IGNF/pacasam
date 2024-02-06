@@ -1,6 +1,6 @@
 import logging
 import os
-from pathlib import Path, PureWindowsPath
+from pathlib import PureWindowsPath
 from typing import Generator
 
 import pandas as pd
@@ -11,7 +11,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.engine import URL
 from pacasam.connectors.connector import GEOMETRY_COLNAME, Connector
-from pacasam.extractors.bd_ortho_vintage import IRC_COLNAME, RGB_COLNAME, BDOrthoVintageExtractor
+from pacasam.extractors.bd_ortho_vintage import IRC_COLNAME, RGB_COLNAME
 from pacasam.extractors.laz import FILE_PATH_COLNAME
 from pacasam.samplers.sampler import PATCH_ID_COLNAME, SPLIT_POSSIBLE_VALUES
 

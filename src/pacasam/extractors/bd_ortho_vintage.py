@@ -17,7 +17,6 @@ The patches are expected to be fully included in the indicated file. If this is 
 """
 
 
-import os
 from pathlib import Path
 import shutil
 import tempfile
@@ -36,6 +35,7 @@ from geopandas import GeoDataFrame
 
 RGB_COLNAME = "rgb_file"
 IRC_COLNAME = "irc_file"
+
 
 class BDOrthoVintageExtractor(Extractor):
     """Extract a dataset of Infrared-R-G-B data patches (4 bands TIFF) from a BD Ortho file system.

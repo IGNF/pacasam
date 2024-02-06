@@ -13,7 +13,7 @@ Use of tempfile:
     The name is accessed with `temp_file_object.name`.
 
 Use pytest-timeout:
-    Colorization of small patch is usually almost instantaneous. But sometimes IGN geoportail is unstable
+    Colorization of small patch is usually almost instantaneous. But sometimes IGN geoplateforme is unstable
     and in those cases a a few retries are performed in decomp_and_color (every 15 seconds).
     Ref on pytest-timeout: https://pytest-with-eric.com/pytest-best-practices/pytest-timeout/
 

@@ -52,7 +52,7 @@ jobs:
 
     - name: Test with pytests - slow tests or test requesting geoportal.
       run: |
-        make tests_geoportail_or_slow
+        make tests_geoplateforme_or_slow
 
     - name: Finish the workflow anyway.
       run: echo "Workflow is still validated even if the previous step is not successful."

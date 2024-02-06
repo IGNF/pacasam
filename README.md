@@ -180,7 +180,7 @@ make tests
 
 Pour séparer l'exécution des tests lents ou nécessitant les flux (instables) du géoportail, de ceux plus rapides :
 ```bash
-make tests_geoportail_or_slow
+make tests_geoplateforme_or_slow
 make tests_quick
 ```
 

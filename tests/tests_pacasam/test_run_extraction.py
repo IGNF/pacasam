@@ -8,7 +8,7 @@ import glob
 
 @pytest.mark.timeout(60)
 @pytest.mark.slow
-@pytest.mark.geoportail
+@pytest.mark.geoplateforme
 @pytest.mark.parametrize("num_jobs", ["2", "1"])
 # Parallelization needs to be tested first, else there is some issue with laspy.read
 # trying without success to open the cloud that was previously opened successfully in single processing.
@@ -33,7 +33,7 @@ def test_run_extraction_laz(toy_sampling_file, num_jobs):
 
 @pytest.mark.timeout(60)
 @pytest.mark.slow
-@pytest.mark.geoportail
+@pytest.mark.geoplateforme
 @pytest.mark.parametrize("num_jobs", ["1", "2"])
 def test_run_extraction_bd_ortho_today(toy_sampling_file, num_jobs):
     with tempfile.TemporaryDirectory() as tmp_output_path:

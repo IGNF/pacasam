@@ -26,6 +26,6 @@ filterwarnings = [
 # TODO: find the right path
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "geoportail: marks tests that request the (often unreliable) geoportail.gouv.fr",
+    "geoplateforme: marks tests that request the (often unreliable) https://data.geopf.fr",
     "lipac: marks tests that request Lidar-Patch-Catalogue, accessible only within IGN network." 
 ]

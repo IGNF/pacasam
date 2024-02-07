@@ -47,7 +47,6 @@ jobs:
     - name: Test with pytest - quick tests only
       run: |
         # Run tests using a special makefile target that multithread them.
-        # make tests
         make tests_quick
 
     - name: Test with pytests - slow tests or test requesting geoportal.

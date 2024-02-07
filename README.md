@@ -31,7 +31,7 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
 - **Extractor**: créeent un jeu de données à partir d'un sampling.
     - `LAZExtractor` : extraction et colorisation (orthoimages RGB+Infrarouge) de patches de Lidar (format LAZ).
     - `BDOrthoTodayExtractor` : extraction de patches d'orthoimages Infrarouge+RGB à partir de la Géoplateforme (format TIFF).
-    - `BDOrthoTodayVIntage` : extraction de patches d'orthoimages Infrarouge+RGB à partir de sources raster RGB et IRC PDAL-compatibles (format TIFF).
+    - `BDOrthoTodayVintage` : extraction de patches d'orthoimages Infrarouge+RGB à partir de sources raster RGB et IRC PDAL-compatibles (format TIFF).
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-train.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val/test pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`.
 

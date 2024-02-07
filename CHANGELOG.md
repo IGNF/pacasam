@@ -1,5 +1,8 @@
 # main
 
+## 0.14.0
+- LAZExtractor supports colorization via sources files (rgb_file + irc_file) in addition to the Géoplateforme WMS.
+
 ## 0.13.0
 - Update ign-pdal-tools to V1.5 to remove the conflict between 'mpire' and 'subprocess' when coloring point clouds.
 - Remove all mentions of geopackage splitting for file-level parallelism, to prefer MPIRE parallelism.

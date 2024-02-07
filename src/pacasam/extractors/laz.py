@@ -73,6 +73,11 @@ class LAZExtractor(Extractor):
         super().__init__(log, sampling_path, dataset_root_path, num_jobs=num_jobs)
         unique_file_paths = self.sampling[FILE_PATH_COLNAME].unique()
         check_all_files_exist(unique_file_paths)
+        if RGB_COLNAME not in self.sampling or IRC_COLNAME not in self.sampling:
+            self.log.warning(
+                "Colorization of point cloud will use the Géoplateforme orthoimagery WMS. "
+                "To colorize from files, sampling must contain columns {RGB_COLNAME} and {IRC_COLNAME}"
+            )
 
     def extract(self) -> None:
         """Performs extraction and colorization to a laz dataset.

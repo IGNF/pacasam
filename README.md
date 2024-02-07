@@ -186,7 +186,7 @@ make tests_quick
 
 NB: un timeout d'une minute est appliqué aux tests impliquant le géoportail.
 
-Pour lancer uniqumeent les tests de sampling à partir de Lidar Patch Catalogue:
+Pour lancer uniquement les tests de sampling à partir de Lidar Patch Catalogue:
 ```bash
 make tests_lipac
 ```

@@ -106,7 +106,10 @@ def extract_patch_as_geotiffs(src_orthoimagery: DatasetReader, patch_geometry: T
 
 
 def collate_rgbnir_and_save(meta, rgb_arr: np.ndarray, irc_arr: np.ndarray, tiff_patch_path: Path):
-    """Collate RGB and NIR arrays and save to a new geotiff."""
+    """Collate RGB and NIR arrays and save to a new geotiff.
+
+    Order is I, R, G, B following bandwiths. Is this order is modified, be sure to update LAZ colorization accordingly.
+    """
     with rasterio.open(tiff_patch_path, "w", **meta) as dst:
         dst.write(irc_arr[0], 1)
         dst.set_band_description(1, "Infrared")

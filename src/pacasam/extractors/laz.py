@@ -124,7 +124,7 @@ class LAZExtractor(Extractor):
                     tmp_rgbnir = extract_rgbnir_patch_as_tmp_file(rgb_open, irc_open, BDORTHO_PIXELS_PER_METER, patch_geometry)
                 pipeline = pdal.Reader.las(filename=tmp_laz.name)
                 pipeline |= pdal.Filter.colorization(
-                    raster=tmp_rgbnir.name, dimensions="Red:1:256.0, Green:2:256.0, Blue:3:256.0, Infrared:4:256.0"
+                    raster=tmp_rgbnir.name, dimensions="Infrared:1:256.0, Red:2:256.0, Green:3:256.0, Blue:4:256.0"
                 )
                 pipeline |= pdal.Writer.las(filename=tmp_laz.name, extra_dims="all", minor_version="4", dataformat_id="8", forward="all")
                 pipeline.execute()

@@ -37,6 +37,7 @@ RGB_COLNAME = "rgb_file"
 IRC_COLNAME = "irc_file"
 BDORTHO_PIXELS_PER_METER = 5
 
+
 class BDOrthoVintageExtractor(Extractor):
     """Extract a dataset of Infrared-R-G-B data patches (4 bands TIFF) from a BD Ortho file system.
 

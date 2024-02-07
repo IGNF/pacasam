@@ -16,7 +16,7 @@ dataset_root_path/
 from pathlib import Path
 import shutil
 import tempfile
-from pdaltools.color import retry, download_image_from_geoportail
+from pdaltools.color import retry, download_image_from_geoplateforme
 from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.extractor import Extractor, DEFAULT_SRID_LAMBERT93
 from pacasam.samplers.sampler import SPLIT_COLNAME
@@ -68,11 +68,11 @@ class BDOrthoTodayExtractor(Extractor):
         """Request RGB and NIR-Color orthoimages,"""
         xmin, ymin, xmax, ymax = patch_bounds
 
-        download_image_from_geoportail_retrying = retry(7, 15, 2)(download_image_from_geoportail)
-        download_image_from_geoportail_retrying(
+        download_image_from_geoplateforme_retrying = retry(7, 15, 2)(download_image_from_geoplateforme)
+        download_image_from_geoplateforme_retrying(
             srid, "ORTHOIMAGERY.ORTHOPHOTOS", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_rgb, self.timeout_second
         )
-        download_image_from_geoportail_retrying(
+        download_image_from_geoplateforme_retrying(
             srid, "ORTHOIMAGERY.ORTHOPHOTOS.IRC", xmin, ymin, xmax, ymax, self.pixel_per_meter, tmp_ortho_nir, self.timeout_second
         )
 

@@ -101,12 +101,12 @@ def test_lefty_and_righty_color_are_white_and_equal(cloud_path):
 
     """
     lefty = laspy.read(cloud_path)
-    assert np.array_equal(lefty.red, np.full_like(lefty.red, fill_value=WHITE_COLOR_VALUE))
-    assert np.array_equal(lefty.red, lefty.green)
-    assert np.array_equal(lefty.red, lefty.blue)
+    assert np.array_equal(lefty.Red, np.full_like(lefty.Red, fill_value=WHITE_COLOR_VALUE))
+    assert np.array_equal(lefty.Red, lefty.Green)
+    assert np.array_equal(lefty.Red, lefty.Blue)
 
 
-@pytest.mark.geoportail
+@pytest.mark.geoplateforme
 @pytest.mark.timeout(60)
 @pytest.mark.parametrize("cloud_path", [Path(LEFTY), Path(RIGHTY)])
 @pytest.mark.parametrize("srid", [2154, 0, None])
@@ -128,7 +128,7 @@ def test_colorize_single_patch(cloud_path, srid):
             assert not np.array_equal(cloud[dim], np.full_like(cloud[dim], fill_value=0))
 
 
-@pytest.mark.geoportail
+@pytest.mark.geoplateforme
 @pytest.mark.timeout(60)
 def test_colorize_with_bad_srid_raises_error():
     with tempfile.NamedTemporaryFile(suffix=".LAZ", prefix="copy_of_test_data_") as tmp_copy:

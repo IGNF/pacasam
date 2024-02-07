@@ -30,8 +30,8 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
     - **`CopySampler`**: un objet permettant la copie complète de la base de données.
 - **Extractor**: créeent un jeu de données à partir d'un sampling.
     - `LAZExtractor` : extraction et colorisation (orthoimages RGB+Infrarouge) de patches de Lidar (format LAZ).
-    - `BDOrthoTodayExtractor` : extraction de patches d'orthoimages Infrarouge+RGB à partir du Géoportail (format TIFF).
-    - `BDOrthoTodayVIntage` : extraction de patches d'orthoimages Infrarouge+RGB à partir de VRTs listant des millésimes DEPARTEMENT-ANNEE (format TIFF).
+    - `BDOrthoTodayExtractor` : extraction de patches d'orthoimages Infrarouge+RGB à partir de la Géoplateforme (format TIFF).
+    - `BDOrthoTodayVintage` : extraction de patches d'orthoimages Infrarouge+RGB à partir de sources raster RGB et IRC PDAL-compatibles (format TIFF).
 
 Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{ConnectorName}-{SamplingName}-train.gpkg`, contenant l'échantillon de vignettes. L'ensemble des champs de la base de données définis via la requête SQL sont présents. S'y ajoutent une variable `split` définissant le jeu de train/val/test pour un futur apprentissage, et une variable `sampler` précisant le sampler impliqué pour chaque vignette. Des statistiques descriptives sont également disponibles au format csv sous le chemin `outputs/samplings/{ConnectorName}-{SamplingName}-stats/`.
 
@@ -138,8 +138,7 @@ Pour tester l'extraction sur le jeu de données de test, lancer
 ```bash
 conda activate pacasam
 make extract_toy_laz_data
-make extract_toy_laz_data_in_parallel  # multiprocessessing via MPIRE --> méthode à privilégier
-make extract_toy_laz_data_in_parallel_from_parts  # multiprocessessing via GNU-parallel
+make extract_toy_laz_data_in_parallel  # multiprocessessing via MPIRE
 ```
 
 Passons maintenant à une extraction depuis un sampling Lipac.
@@ -174,16 +173,23 @@ Pour les volumes de données Lidar HD (base LiPaC) :
 
 ### Tests
 
-Pour lancer les tests de façon parallélisée, en excluant les tests lents et ceux nécessitant les flux (instables) du géoportail :
-```bash
-make tests_no_geoportail_no_slow
-```
-
 Pour lancer tous les tests de façon parallélisée:
 ```bash
 make tests
 ```
-NB: un timeout d'une minute est appliqué aux tests impliquant le géoportail.
+
+Pour séparer l'exécution des tests lents ou nécessitant les flux (instables) de la géoplateforme, de ceux plus rapides :
+```bash
+make tests_geoplateforme_or_slow
+make tests_quick
+```
+
+NB: un timeout d'une minute est appliqué aux tests impliquant la Géoplateforme.
+
+Pour lancer uniquement les tests de sampling à partir de Lidar Patch Catalogue:
+```bash
+make tests_lipac
+```
 
 ### Performances & Limites
 

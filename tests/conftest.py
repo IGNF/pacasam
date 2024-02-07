@@ -13,7 +13,7 @@ Use of tempfile:
     The name is accessed with `temp_file_object.name`.
 
 Use pytest-timeout:
-    Colorization of small patch is usually almost instantaneous. But sometimes IGN geoportail is unstable
+    Colorization of small patch is usually almost instantaneous. But sometimes IGN geoplateforme is unstable
     and in those cases a a few retries are performed in decomp_and_color (every 15 seconds).
     Ref on pytest-timeout: https://pytest-with-eric.com/pytest-best-practices/pytest-timeout/
 
@@ -39,7 +39,7 @@ sys.path.append(str(root_dir / "tests"))
 
 from pacasam.utils import CONNECTORS_LIBRARY
 from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME
-from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME
+from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.laz import FILE_PATH_COLNAME
 from pacasam.extractors.bd_ortho_vintage import BDOrthoVintageExtractor
 from pacasam.connectors.synthetic import SyntheticConnector
@@ -82,6 +82,7 @@ def toy_sampling_file() -> tempfile._TemporaryFileWrapper:
                 "792000_6272000-50mx100m-right",
             ],
             SPLIT_COLNAME: ["train", "val", "train", "val"],
+            SRID_COLNAME: [2154, 2154, 2154, 2154],
         },
         crs="EPSG:2154",
     )
@@ -124,7 +125,7 @@ def toy_sampling_file_for_BDOrthoVintageExtractor(toy_sampling_file) -> tempfile
 def synthetic_connector() -> SyntheticConnector:
     """Synthetic connector to a (very tiny) fake database."""
     connector_class = CONNECTORS_LIBRARY.get("SyntheticConnector")
-    connector = connector_class(log=None, binary_descriptors_prevalence=[0.1], db_size=10, split="train")
+    connector = connector_class(log=None, binary_descriptors_prevalence=[0.1], db_size=20, split="train")
     return connector
 
 

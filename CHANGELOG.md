@@ -1,13 +1,11 @@
 # main
 
-<<<<<<< HEAD
-## 0.12.0
-- BDOrthoVintageExtractor: does not assume the use of VRT but instead relies on specified rgb_file and irc_file
-=======
 ## 0.13.0
 - Update ign-pdal-tools to V1.5 to remove the conflict between 'mpire' and 'subprocess' when coloring point clouds.
 - Remove all mentions of geopackage splitting for file-level parallelism, to prefer MPIRE parallelism.
->>>>>>> 2af05aa (Version update to 1.13)
+
+## 0.12.0
+- BDOrthoVintageExtractor: does not assume the use of VRT but instead relies on specified rgb_file and irc_file
 
 ### 0.11.3
 - LAZ patches now have format {SPLIT}-{patch_id}.laz, ignoring file_id, for coherence with imagery extractors.

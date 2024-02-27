@@ -1,17 +1,17 @@
 # PACASAM - CHANGELOG
 
 # 1.0.0
-- LAZExtractor supports colorization via sources files (rgb_file + irc_file) in addition to the Géoplateforme WMS.
+- `LAZExtractor` supports colorization via sources files (rgb_file + irc_file) in addition to the Géoplateforme WMS.
 
 ## 0.13.0
 - Update ign-pdal-tools to V1.5 to remove the conflict between 'mpire' and 'subprocess' when coloring point clouds.
 - Remove all mentions of geopackage splitting for file-level parallelism, to prefer MPIRE parallelism.
 
 ## 0.12.0
-- BDOrthoVintageExtractor: does not assume the use of VRT but instead relies on specified rgb_file and irc_file
+- `BDOrthoVintageExtractor`: does not assume the use of VRT but instead relies on specified rgb_file and irc_file
 
 ### 0.11.3
-- LAZ patches now have format {SPLIT}-{patch_id}.laz, ignoring file_id, for coherence with imagery extractors.
+- LAZ patches now have format `{SPLIT}-{patch_id}.laz`, ignoring file_id, for coherence with imagery extractors.
 - fix: Rewrite LiPaC's convert_samba_path_to_mounted_path due to inexplicable regression of the method.
 
 ### 0.11.2
@@ -52,7 +52,7 @@
 - Update ign-pdal-tools version dependency to avoid cluttered /tmp/ folder.
 
 ## 0.9.0
-- Implement the BDOrthoTodayExtractor
+- Implement the `BDOrthoTodayExtractor`
 
 ## 0.8.0
 - Keep only patches that are in France using the new LiPaC attribute VIGNETTE.EN_FRANCE
@@ -80,4 +80,4 @@
 
 ## 0.5.0
 - Semantic Versionning in _python.py file
-- CHANGELOG.md
+- `CHANGELOG.md`

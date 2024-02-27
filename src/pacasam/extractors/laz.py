@@ -120,8 +120,7 @@ class LAZExtractor(Extractor):
             irc_file = getattr(patch_info, IRC_COLNAME, None)
             if rgb_file and irc_file:
                 # colorize from orthoimagery files
-                with rasterio.open(rgb_file) as rgb_open, rasterio.open(irc_file) as irc_open:
-                    tmp_rgbnir = extract_rgbnir_patch_as_tmp_file(rgb_open, irc_open, BDORTHO_PIXELS_PER_METER, patch_geometry)
+                tmp_rgbnir = extract_rgbnir_patch_as_tmp_file(rgb_file, irc_file, BDORTHO_PIXELS_PER_METER, patch_geometry)
                 pipeline = pdal.Reader.las(filename=tmp_laz.name)
                 pipeline |= pdal.Filter.colorization(
                     raster=tmp_rgbnir.name, dimensions="Infrared:1:256.0, Red:2:256.0, Green:3:256.0, Blue:4:256.0"

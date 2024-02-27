@@ -58,28 +58,28 @@ class BDOrthoVintageExtractor(Extractor):
             pool.map(self.extract_from_single_file, iterable_of_args, progress_bar=True)
 
     def extract_from_single_file(self, rgb_file, irc_file, single_file_sampling: GeoDataFrame):
-        with rasterio.open(rgb_file) as rgb_open, rasterio.open(irc_file) as irc_open:
-            for patch_info in single_file_sampling.itertuples():
-                split = getattr(patch_info, SPLIT_COLNAME)
-                patch_id = getattr(patch_info, PATCH_ID_COLNAME)
-                tiff_patch_path: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
-                if tiff_patch_path.exists():
-                    continue
-                patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
-                tmp_patch = extract_rgbnir_patch_as_tmp_file(rgb_open, irc_open, BDORTHO_PIXELS_PER_METER, patch_geometry)
-                tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy(tmp_patch.name, tiff_patch_path)
+        for patch_info in single_file_sampling.itertuples():
+            split = getattr(patch_info, SPLIT_COLNAME)
+            patch_id = getattr(patch_info, PATCH_ID_COLNAME)
+            tiff_patch_path: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
+            if tiff_patch_path.exists():
+                continue
+            patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
+            tmp_patch = extract_rgbnir_patch_as_tmp_file(rgb_file, irc_file, BDORTHO_PIXELS_PER_METER, patch_geometry)
+            tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy(tmp_patch.name, tiff_patch_path)
 
 
-def extract_rgbnir_patch_as_tmp_file(rgb_open, irc_open, pixel_per_meter, patch_geometry):
+def extract_rgbnir_patch_as_tmp_file(rgb_file, irc_file, pixel_per_meter, patch_geometry):
     """Extract both rgb and irc patch images and collate them into a temporary file."""
-    bbox = patch_geometry.bounds
-    width = bbox[2] - bbox[0]
-    height = bbox[3] - bbox[1]
-    assert width == height  # squares only
-    width_pixels = int(pixel_per_meter * width)
-    rgb_arr = extract_patch_as_geotiffs(rgb_open, patch_geometry, width_pixels)
-    irc_arr = extract_patch_as_geotiffs(irc_open, patch_geometry, width_pixels)
+    with rasterio.open(rgb_file) as rgb_open, rasterio.open(irc_file) as irc_open:
+        bbox = patch_geometry.bounds
+        width = bbox[2] - bbox[0]
+        height = bbox[3] - bbox[1]
+        assert width == height  # squares only
+        width_pixels = int(pixel_per_meter * width)
+        rgb_arr = extract_patch_as_geotiffs(rgb_open, patch_geometry, width_pixels)
+        irc_arr = extract_patch_as_geotiffs(irc_open, patch_geometry, width_pixels)
     image_resolution = 1 / pixel_per_meter
     options = {
         "driver": "GTiff",

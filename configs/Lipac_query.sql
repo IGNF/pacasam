@@ -20,7 +20,9 @@ La requête :
 - Obtient le SRID du bloc après avoir fait le lien avec le BLOC via la DALLE.
 - Filtre les dalles à exclures après avoir fait le lien avec les JEU_DE_DALLES via la DALLE.
 
-*/ WITH FICHIER_LIDAR_REFERENCE AS
+*/ 
+
+WITH FICHIER_LIDAR_REFERENCE AS
   (SELECT FICHIER_LIDAR.ID,
           VERSION_DE_REFERENCE,
           CHEMIN_DALLES AS FILE_PATH,

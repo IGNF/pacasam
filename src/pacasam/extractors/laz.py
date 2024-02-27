@@ -89,13 +89,8 @@ class LAZExtractor(Extractor):
         iterable_of_args = [
             (single_file_path, single_file_sampling) for single_file_path, single_file_sampling in self.sampling.groupby(FILE_PATH_COLNAME)
         ]
-        if self.num_jobs > 1:
-            with WorkerPool(n_jobs=self.num_jobs) as pool:
-                pool.map(self._extract_from_single_file, iterable_of_args, progress_bar=True)
-        else:
-            # Option to use without MPIRE, since it can have bad interaction with pdal.
-            for single_file_path, single_file_sampling in tqdm(self.sampling.groupby(FILE_PATH_COLNAME)):
-                self._extract_from_single_file(single_file_path, single_file_sampling)
+        with WorkerPool(n_jobs=self.num_jobs) as pool:
+            pool.map(self._extract_from_single_file, iterable_of_args, progress_bar=True)
 
     def _extract_from_single_file(self, single_file_path: Path, single_file_sampling: GeoDataFrame):
         """Extract all patches from a single file based on its sampling."""

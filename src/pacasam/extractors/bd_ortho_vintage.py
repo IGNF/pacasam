@@ -17,7 +17,6 @@ The patches are expected to be fully included in the indicated file. If this is 
 """
 
 
-import os
 from pathlib import Path
 import shutil
 import tempfile
@@ -34,6 +33,10 @@ from mpire import WorkerPool
 
 from geopandas import GeoDataFrame
 
+RGB_COLNAME = "rgb_file"
+IRC_COLNAME = "irc_file"
+BDORTHO_PIXELS_PER_METER = 5
+
 
 class BDOrthoVintageExtractor(Extractor):
     """Extract a dataset of Infrared-R-G-B data patches (4 bands TIFF) from a BD Ortho file system.
@@ -44,54 +47,55 @@ class BDOrthoVintageExtractor(Extractor):
     """
 
     patch_suffix: str = ".tiff"
-    rgb_column: str = "rgb_file"
-    irc_column: str = "irc_file"
-    pixel_per_meter: int = 5
 
     def extract(self) -> None:
-        """Download the orthoimages dataset."""
-        iterable_of_args = []
-        for (rgb_file, irc_file), single_imagery in self.sampling.groupby([self.rgb_column, self.irc_column]):
-            iterable_of_args.append((rgb_file, irc_file, single_imagery))
-
+        """Extract the orthoimages dataset."""
+        # mpire does argument unpacking, see https://github.com/sybrenjansen/mpire/issues/29#issuecomment-984559662.
+        iterable_of_args = [(patch_info,) for _, patch_info in self.sampling.iterrows()]
         with WorkerPool(n_jobs=self.num_jobs) as pool:
-            pool.map(self.extract_from_single_file, iterable_of_args, progress_bar=True)
+            pool.map(self.extract_single_patch, iterable_of_args, progress_bar=True)
 
-    def extract_from_single_file(self, rgb_file, irc_file, single_file_sampling: GeoDataFrame):
-        with rasterio.open(rgb_file) as rgb, rasterio.open(irc_file) as irc:
-            for patch_info in single_file_sampling.itertuples():
-                split = getattr(patch_info, SPLIT_COLNAME)
-                patch_id = getattr(patch_info, PATCH_ID_COLNAME)
-                tiff_patch_path: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
-                if tiff_patch_path.exists():
-                    continue
+    def extract_single_patch(self, patch_info):
+        split = getattr(patch_info, SPLIT_COLNAME)
+        patch_id = getattr(patch_info, PATCH_ID_COLNAME)
+        tiff_patch_path: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
+        if tiff_patch_path.exists():
+            return
+        patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
+        rgb_file = getattr(patch_info, RGB_COLNAME)
+        irc_file = getattr(patch_info, IRC_COLNAME)
+        tmp_patch = extract_rgbnir_patch_as_tmp_file(rgb_file, irc_file, BDORTHO_PIXELS_PER_METER, patch_geometry)
+        tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(tmp_patch.name, tiff_patch_path)
 
-                patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
-                bbox = patch_geometry.bounds
-                width = bbox[2] - bbox[0]
-                height = bbox[3] - bbox[1]
-                assert width == height  # squares only
-                width_pixels = int(self.pixel_per_meter * width)
-                rgb_arr = extract_patch_as_geotiffs(rgb, patch_geometry, width_pixels)
-                irc_arr = extract_patch_as_geotiffs(irc, patch_geometry, width_pixels)
-                image_resolution = 1 / self.pixel_per_meter
-                options = {
-                    "driver": "GTiff",
-                    "count": 4,
-                    "dtype": rgb_arr.dtype,
-                    "transform": Affine(image_resolution, 0, bbox[0], 0, -image_resolution, bbox[3]),
-                    "crs": rgb.crs,
-                    "width": width_pixels,
-                    "height": width_pixels,
-                    "compress": "DEFLATE",
-                    "tiled": False,
-                    "bigtiff": "IF_SAFER",
-                    "nodata": None,
-                }
-                tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=self.patch_suffix, prefix="extracted_patch")
-                collate_rgbnir_and_save(options, rgb_arr, irc_arr, tmp_patch)
-                tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy(tmp_patch.name, tiff_patch_path)
+
+def extract_rgbnir_patch_as_tmp_file(rgb_file, irc_file, pixel_per_meter, patch_geometry):
+    """Extract both rgb and irc patch images and collate them into a temporary file."""
+    with rasterio.open(rgb_file) as rgb_open, rasterio.open(irc_file) as irc_open:
+        bbox = patch_geometry.bounds
+        width = bbox[2] - bbox[0]
+        height = bbox[3] - bbox[1]
+        assert width == height  # squares only
+        width_pixels = int(pixel_per_meter * width)
+        rgb_arr = extract_patch_as_geotiffs(rgb_open, patch_geometry, width_pixels)
+        irc_arr = extract_patch_as_geotiffs(irc_open, patch_geometry, width_pixels)
+    image_resolution = 1 / pixel_per_meter
+    options = {
+        "driver": "GTiff",
+        "count": 4,
+        "dtype": rgb_arr.dtype,
+        "transform": Affine(image_resolution, 0, bbox[0], 0, -image_resolution, bbox[3]),
+        "crs": rgb_open.crs,
+        "width": width_pixels,
+        "height": width_pixels,
+        "compress": "DEFLATE",
+        "tiled": False,
+        "bigtiff": "IF_SAFER",
+        "nodata": None,
+    }
+    tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=".tiff", prefix="extracted_patch")
+    collate_rgbnir_and_save(options, rgb_arr, irc_arr, tmp_patch)
+    return tmp_patch
 
 
 def extract_patch_as_geotiffs(src_orthoimagery: DatasetReader, patch_geometry: Tuple, num_pixels: int):
@@ -101,7 +105,10 @@ def extract_patch_as_geotiffs(src_orthoimagery: DatasetReader, patch_geometry: T
 
 
 def collate_rgbnir_and_save(meta, rgb_arr: np.ndarray, irc_arr: np.ndarray, tiff_patch_path: Path):
-    """Collate RGB and NIR arrays and save to a new geotiff."""
+    """Collate RGB and NIR arrays and save to a new geotiff.
+
+    Order is I, R, G, B following bandwiths. If this order is modified, be sure to update LAZ colorization accordingly.
+    """
     with rasterio.open(tiff_patch_path, "w", **meta) as dst:
         dst.write(irc_arr[0], 1)
         dst.set_band_description(1, "Infrared")

@@ -49,25 +49,24 @@ class BDOrthoVintageExtractor(Extractor):
     patch_suffix: str = ".tiff"
 
     def extract(self) -> None:
-        """Download the orthoimages dataset."""
-        iterable_of_args = []
-        for (rgb_file, irc_file), single_imagery in self.sampling.groupby([RGB_COLNAME, IRC_COLNAME]):
-            iterable_of_args.append((rgb_file, irc_file, single_imagery))
-
+        """Extract the orthoimages dataset."""
+        # mpire does argument unpacking, see https://github.com/sybrenjansen/mpire/issues/29#issuecomment-984559662.
+        iterable_of_args = [(patch_info,) for _, patch_info in self.sampling.iterrows()]
         with WorkerPool(n_jobs=self.num_jobs) as pool:
-            pool.map(self.extract_from_single_file, iterable_of_args, progress_bar=True)
+            pool.map(self.extract_single_patch, iterable_of_args, progress_bar=True)
 
-    def extract_from_single_file(self, rgb_file, irc_file, single_file_sampling: GeoDataFrame):
-        for patch_info in single_file_sampling.itertuples():
-            split = getattr(patch_info, SPLIT_COLNAME)
-            patch_id = getattr(patch_info, PATCH_ID_COLNAME)
-            tiff_patch_path: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
-            if tiff_patch_path.exists():
-                continue
-            patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
-            tmp_patch = extract_rgbnir_patch_as_tmp_file(rgb_file, irc_file, BDORTHO_PIXELS_PER_METER, patch_geometry)
-            tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy(tmp_patch.name, tiff_patch_path)
+    def extract_single_patch(self, patch_info):
+        split = getattr(patch_info, SPLIT_COLNAME)
+        patch_id = getattr(patch_info, PATCH_ID_COLNAME)
+        tiff_patch_path: Path = self.make_new_patch_path(patch_id=patch_id, split=split)
+        if tiff_patch_path.exists():
+            return
+        patch_geometry = getattr(patch_info, GEOMETRY_COLNAME)
+        rgb_file = getattr(patch_info, RGB_COLNAME)
+        irc_file = getattr(patch_info, IRC_COLNAME)
+        tmp_patch = extract_rgbnir_patch_as_tmp_file(rgb_file, irc_file, BDORTHO_PIXELS_PER_METER, patch_geometry)
+        tiff_patch_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(tmp_patch.name, tiff_patch_path)
 
 
 def extract_rgbnir_patch_as_tmp_file(rgb_file, irc_file, pixel_per_meter, patch_geometry):

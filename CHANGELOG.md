@@ -1,6 +1,6 @@
-# main
+# PACASAM - CHANGELOGS
 
-## 0.14.0
+# 1.0.0
 - LAZExtractor supports colorization via sources files (rgb_file + irc_file) in addition to the Géoplateforme WMS.
 
 ## 0.13.0

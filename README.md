@@ -22,7 +22,7 @@ Un sampling se lance au moyen d'un fichier de configuration, et via les objets s
     - `SyntheticConnector`: création d'un GeoDataFrame synthétique, composé de tuiles répartie dans une grille arbitraire, pour effectuer des tests rapidements.
     - `GeopandasConnector`: lecture d'un format compatible avec `geopandas` (geopackage, shapefile...). Usage typique : lecture d'un sampling antérieur, pour l'échantillonner encore plus.
 - **Sampler**: interrogent les objets `Connector` suivant la configuration pour sélectionner des tuiles (patches) par leur identifiant, et qui définissent à la volée le split train/test.
-    - `TargettedSampler`: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale. NB: Si usage de ce sampler en isolation, la taille du jeu de données en sortie n'est pas garantie.
+    - `TargettedSampler`: atteinte séquentielle des contraintes de prévalence pour chaque descritpteur. Répartition spatiale optimale. La sélection est completée par un sampling spatial pour atteindre le nombre de patches voulu.
     - `OutliersSampler`:  détection des scènes les plus atypiques, via un clustering HDBSCAN (i.e. histogrammes standardisés des classes).
     - `DiversitySampler`: couverture par Farthest Point Sampling de l'espace des descripteurs (i.e. histogrammes standardisés ou quantilisés des classes).
     - `SpatialSampler`: complétion aléatoire pour atteindre une taille de jeu de données cible. Répartition spatiale optimale.

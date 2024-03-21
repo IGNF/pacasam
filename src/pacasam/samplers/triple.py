@@ -10,7 +10,7 @@ class TripleSampler(Sampler):
     """Succession of Targetted, Diversity, and Completion sampling."""
 
     def get_patches(self) -> pd.Series:
-        ts = TargettedSampler(connector=self.connector, sampling_config=self.cf, log=self.log)
+        ts = TargettedSampler(connector=self.connector, sampling_config=self.cf, log=self.log, complete_with_spatial_sampling=False)
         targetted = ts.get_patches()
         targetted = ts.drop_duplicates_by_id_and_log_sampling_attrition(targetted)
 

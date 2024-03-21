@@ -58,7 +58,8 @@ OutliersSampler:
     cluster_selection_method: eom
 
 TargettedSampler:
-  # nom_du_critère_pour_les_logs:
+
+  # Critères de sélection des cibles suit le schéma :
   #   target_min_samples_proportion: float. Proportion minimale cible dans le jeu de données final.
   # Nota: minuscules attendues pour les noms de colonnes.
   targets:

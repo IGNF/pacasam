@@ -21,7 +21,6 @@ addopts = "--cov src/pacasam/ --cov-report html"
 
 filterwarnings = [
     "ignore::pandas.errors.SettingWithCopyWarning",
-    "ignore::UserWarning"
 ]
 # TODO: find the right path
 markers = [

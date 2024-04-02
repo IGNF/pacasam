@@ -1,4 +1,5 @@
 import logging
+import warnings
 import geopandas as gpd
 import pandas as pd
 from typing import Dict
@@ -19,7 +20,7 @@ class TargettedSampler(Sampler):
         self,
         connector: Connector,
         sampling_config: Dict,
-        log: logging.Logger = logging.getLogger(__name__),
+        log: logging.Logger = logging.getLogger(),
         complete_with_spatial_sampling: bool = True,
     ):
         self.complete_with_spatial_sampling = complete_with_spatial_sampling
@@ -37,9 +38,9 @@ class TargettedSampler(Sampler):
         self.log.info(f"{self.name}: N={len(selection)} distinct patches selected to match TargettedSampler requirements.")
 
         if len(selection) > self.cf["target_total_num_patches"]:
-            self.log.warning(
+            warnings.warn(
                 f"Selected more than the desired total of N={self.cf['target_total_num_patches']}."
-                "If this is not desired, please reconsider your targets."
+                "If this is not desired, please reconsider your targets.",
             )
         elif self.complete_with_spatial_sampling:
             num_patches_to_complete = self.cf["target_total_num_patches"] - len(selection)

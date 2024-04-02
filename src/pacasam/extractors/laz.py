@@ -37,7 +37,6 @@ Read and check the sampling geopackage:
 
 """
 
-
 import logging
 from pathlib import Path
 import shutil
@@ -49,8 +48,6 @@ import pdal
 from pdaltools.color import color
 from geopandas import GeoDataFrame
 from mpire import WorkerPool
-import rasterio
-from tqdm import tqdm
 from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.bd_ortho_vintage import BDORTHO_PIXELS_PER_METER, IRC_COLNAME, RGB_COLNAME, extract_rgbnir_patch_as_tmp_file
 from pacasam.extractors.extractor import Extractor, check_all_files_exist

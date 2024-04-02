@@ -16,7 +16,6 @@ The patches are expected to be fully included in the indicated file. If this is 
 
 """
 
-
 from pathlib import Path
 import shutil
 import tempfile
@@ -30,8 +29,6 @@ from rasterio import DatasetReader
 from rasterio import Affine
 from rasterio.mask import mask
 from mpire import WorkerPool
-
-from geopandas import GeoDataFrame
 
 RGB_COLNAME = "rgb_file"
 IRC_COLNAME = "irc_file"

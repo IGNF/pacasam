@@ -36,7 +36,7 @@ sys.path.append(str(root_dir / "src"))
 sys.path.append(str(root_dir / "tests"))
 
 
-from pacasam.utils import CONNECTORS_LIBRARY, load_sampling_config, setup_custom_logger
+from pacasam.utils import load_sampling_config, setup_custom_logger
 from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME
 from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.laz import FILE_PATH_COLNAME

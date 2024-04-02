@@ -1,7 +1,6 @@
 import pytest
 from pacasam.samplers.targetted import TargettedSampler
 from pacasam.utils import load_sampling_config
-import geopandas as gpd
 
 
 def test_targetted_sampler_with_and_without_spatial_completion(synthetic_connector, session_logger):

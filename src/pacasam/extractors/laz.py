@@ -42,6 +42,7 @@ from pathlib import Path
 import shutil
 import tempfile
 from typing import Optional, Union
+import warnings
 import laspy
 from laspy import LasData, LasHeader
 import pdal
@@ -71,7 +72,7 @@ class LAZExtractor(Extractor):
         unique_file_paths = self.sampling[FILE_PATH_COLNAME].unique()
         check_all_files_exist(unique_file_paths)
         if RGB_COLNAME not in self.sampling or IRC_COLNAME not in self.sampling:
-            self.log.warning(
+            warnings.warns(
                 "Colorization of point cloud will use the Géoplateforme orthoimagery WMS. "
                 "To colorize from files, sampling must contain columns {RGB_COLNAME} and {IRC_COLNAME}"
             )

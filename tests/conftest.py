@@ -36,7 +36,7 @@ sys.path.append(str(root_dir / "src"))
 sys.path.append(str(root_dir / "tests"))
 
 
-from pacasam.utils import CONNECTORS_LIBRARY, setup_custom_logger
+from pacasam.utils import CONNECTORS_LIBRARY, load_sampling_config, setup_custom_logger
 from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME
 from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.laz import FILE_PATH_COLNAME
@@ -121,9 +121,9 @@ def toy_sampling_file_with_orthoimagery_filepaths(toy_sampling_file) -> tempfile
 
 @pytest.fixture(scope="session")
 def synthetic_connector() -> SyntheticConnector:
-    """Synthetic connector to a (very tiny) fake database."""
-    connector_class = CONNECTORS_LIBRARY.get("SyntheticConnector")
-    connector = connector_class(log=None, binary_descriptors_prevalence=[0.1], db_size=20, split="train")
+    """Synthetic connector to a fake database."""
+    conf = load_sampling_config("configs/Synthetic.yml")
+    connector = SyntheticConnector(log=None, **conf["connector_kwargs"])
     return connector
 
 

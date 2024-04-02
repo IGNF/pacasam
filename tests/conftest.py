@@ -135,3 +135,8 @@ def synthetic_sampling(synthetic_connector: SyntheticConnector) -> GeoDataFrame:
     synthetic_connector.db[FILE_PATH_COLNAME] = str(Path(LEFTY).resolve())
     synthetic_connector.db[SAMPLER_COLNAME] = np.random.choice(["sampler_1", "sampler_2"], size=len(synthetic_connector.db))
     return synthetic_connector.db
+
+
+@pytest.fixture(scope="session")
+def session_logger():
+    return setup_custom_logger()

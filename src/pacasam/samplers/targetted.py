@@ -5,8 +5,9 @@ import pandas as pd
 from typing import Dict
 from pacasam.connectors.connector import FILE_ID_COLNAME, Connector, PATCH_ID_COLNAME
 from pacasam.samplers.algos import sample_with_stratification
-from pacasam.samplers.sampler import Sampler
+from pacasam.samplers.sampler import Sampler, SPLIT_COLNAME
 from pacasam.samplers.spatial import SpatialSampler
+from math import floor
 
 
 class TargettedSampler(Sampler):
@@ -43,11 +44,17 @@ class TargettedSampler(Sampler):
                 "If this is not desired, please reconsider your targets.",
             )
         elif self.complete_with_spatial_sampling:
-            num_patches_to_complete = self.cf["target_total_num_patches"] - len(selection)
+            # Complete with spatial sampling and achieve the desired fraction of validation set
+            num_patches_to_add = self.cf["target_total_num_patches"] - len(selection)
+            final_num_patches_in_validation = floor(self.cf["frac_validation_set"] * self.cf["target_total_num_patches"])
+            num_patches_to_add_in_validation = final_num_patches_in_validation - len(selection[selection[SPLIT_COLNAME] == "val"])
+            self.cf["frac_validation_set"] = num_patches_to_add_in_validation / num_patches_to_add
+
+            # Complete with spatial sampling
             ss = SpatialSampler(connector=self.connector, sampling_config=self.cf, log=self.log)
-            completion = ss.get_patches(num_to_sample=num_patches_to_complete, current_selection_ids=selection[PATCH_ID_COLNAME])
+            completion = ss.get_patches(num_to_sample=num_patches_to_add, current_selection_ids=selection[PATCH_ID_COLNAME])
             selection = pd.concat([selection, completion])
-            self.log.info(f"{self.name}: completed targetted sampling with N={num_patches_to_complete} additional patches.")
+            self.log.info(f"{self.name}: completed targetted sampling with N={num_patches_to_add} additional patches.")
 
         return selection
 

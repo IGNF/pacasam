@@ -43,9 +43,9 @@ def test_check_files_accessibility():
         check_all_files_exist(file_paths)
 
 
-def test_check_sampling_format(tiny_synthetic_sampling):
+def test_check_sampling_format(synthetic_sampling):
     # test the check function on a tiny synthetic sampling that we now is compliant
-    sampling = tiny_synthetic_sampling
+    sampling = synthetic_sampling
     check_sampling_format(sampling)
 
     # bad type

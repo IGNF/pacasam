@@ -1,4 +1,3 @@
-import logging
 import tempfile
 import pytest
 import geopandas as gpd

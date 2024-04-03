@@ -1,5 +1,8 @@
 # PACASAM - CHANGELOG
 
+# 1.1.1
+- Ignore false positive warning when writing to a temporary `gpkg` file using `geopandas`.
+
 # 1.1.0
 - `TargettedSampler` is completed by `SpatialSampler` to reach target num of patches and target validation proportion.
 

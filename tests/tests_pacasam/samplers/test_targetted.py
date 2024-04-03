@@ -18,6 +18,7 @@ def test_targetted_sampler_with_and_without_spatial_completion(synthetic_connect
     sampler = TargettedSampler(connector=synthetic_connector, sampling_config=conf, log=session_logger, complete_with_spatial_sampling=False)
     selection = sampler.get_patches()
     assert set(selection.sampler.unique()) == {"TargettedSampler"}
+    assert 0 < len(selection)
     assert len(selection) < conf["target_total_num_patches"]
 
 

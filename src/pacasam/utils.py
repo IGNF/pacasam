@@ -23,8 +23,7 @@ LOGGING_FORMATTER = logging.Formatter(fmt="%(asctime)s %(levelname)-8s %(message
 def setup_custom_logger():
     logging.captureWarnings(True)
     log = logging.getLogger()
-    log.setLevel(logging.DEBUG)
-    log.propagate = False
+    log.setLevel(logging.INFO)
     screen_handler = logging.StreamHandler(stream=sys.stdout)
     screen_handler.setFormatter(LOGGING_FORMATTER)
     log.addHandler(screen_handler)

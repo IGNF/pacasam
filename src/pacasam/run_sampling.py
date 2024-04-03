@@ -18,7 +18,6 @@ from pacasam._version import __version__
 repo = git.Repo(search_parent_directories=True)
 sha = repo.head.object.hexsha  # Git SHA to track the exact version of the code.
 load_dotenv()
-log = setup_custom_logger()
 
 # PARAMETERS
 parser = argparse.ArgumentParser()
@@ -29,7 +28,7 @@ parser.add_argument("--output_path", default=None)
 
 
 def run_sampling(args):
-    # config_file = Path("configs/Lipac.yml")
+    log = setup_custom_logger()
     task_name = f"{args.connector_class}-{args.sampler_class}"
     args.output_path = args.output_path if args.output_path is not None else f"outputs/samplings/{task_name}/"
     args.output_path = Path(args.output_path).absolute()

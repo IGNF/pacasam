@@ -18,7 +18,6 @@ from pacasam._version import __version__
 
 repo = git.Repo(search_parent_directories=True)
 sha = repo.head.object.hexsha  # Git SHA to track the exact version of the code.
-log = setup_custom_logger()
 
 # PARAMETERS
 
@@ -44,6 +43,7 @@ parser.add_argument("--num_jobs", default=1, type=int, help="Number of processes
 
 
 def run_extraction(args):
+    log = setup_custom_logger()
     set_log_text_handler(log, args.dataset_root_path)
     log.info("Extraction of a dataset using pacasam (https://github.com/IGNF/pacasam).\n")
     log.info(f"Pacasam version is {__version__} at commit https://github.com/IGNF/pacasam/tree/{sha}.\n")

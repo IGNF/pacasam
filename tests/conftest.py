@@ -19,7 +19,6 @@ Use pytest-timeout:
 
 """
 
-
 from pathlib import Path
 import tempfile
 import sys
@@ -37,7 +36,7 @@ sys.path.append(str(root_dir / "src"))
 sys.path.append(str(root_dir / "tests"))
 
 
-from pacasam.utils import CONNECTORS_LIBRARY
+from pacasam.utils import load_sampling_config, setup_custom_logger
 from pacasam.samplers.sampler import SAMPLER_COLNAME, SPLIT_COLNAME
 from pacasam.connectors.connector import FILE_ID_COLNAME, GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.laz import FILE_PATH_COLNAME
@@ -122,17 +121,22 @@ def toy_sampling_file_with_orthoimagery_filepaths(toy_sampling_file) -> tempfile
 
 @pytest.fixture(scope="session")
 def synthetic_connector() -> SyntheticConnector:
-    """Synthetic connector to a (very tiny) fake database."""
-    connector_class = CONNECTORS_LIBRARY.get("SyntheticConnector")
-    connector = connector_class(log=None, binary_descriptors_prevalence=[0.1], db_size=20, split="train")
+    """Synthetic connector to a fake database."""
+    conf = load_sampling_config("configs/Synthetic.yml")
+    connector = SyntheticConnector(log=None, **conf["connector_kwargs"])
     return connector
 
 
 @pytest.fixture()
-def tiny_synthetic_sampling(synthetic_connector: SyntheticConnector) -> GeoDataFrame:
+def synthetic_sampling(synthetic_connector: SyntheticConnector) -> GeoDataFrame:
     """Very tiny synthetic database with the columns that make it a sampling."""
     # Add the necessary elements to turn the db into a sampling
     synthetic_connector.db[SPLIT_COLNAME] = np.random.choice(["train", "val", "test"], size=len(synthetic_connector.db), p=[0.5, 0.25, 0.25])
     synthetic_connector.db[FILE_PATH_COLNAME] = str(Path(LEFTY).resolve())
     synthetic_connector.db[SAMPLER_COLNAME] = np.random.choice(["sampler_1", "sampler_2"], size=len(synthetic_connector.db))
     return synthetic_connector.db
+
+
+@pytest.fixture(scope="session")
+def session_logger():
+    return setup_custom_logger()

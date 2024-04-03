@@ -37,20 +37,18 @@ Read and check the sampling geopackage:
 
 """
 
-
 import logging
 from pathlib import Path
 import shutil
 import tempfile
 from typing import Optional, Union
+import warnings
 import laspy
 from laspy import LasData, LasHeader
 import pdal
 from pdaltools.color import color
 from geopandas import GeoDataFrame
 from mpire import WorkerPool
-import rasterio
-from tqdm import tqdm
 from pacasam.connectors.connector import GEOMETRY_COLNAME, PATCH_ID_COLNAME, SRID_COLNAME
 from pacasam.extractors.bd_ortho_vintage import BDORTHO_PIXELS_PER_METER, IRC_COLNAME, RGB_COLNAME, extract_rgbnir_patch_as_tmp_file
 from pacasam.extractors.extractor import Extractor, check_all_files_exist
@@ -74,7 +72,7 @@ class LAZExtractor(Extractor):
         unique_file_paths = self.sampling[FILE_PATH_COLNAME].unique()
         check_all_files_exist(unique_file_paths)
         if RGB_COLNAME not in self.sampling or IRC_COLNAME not in self.sampling:
-            self.log.warning(
+            warnings.warns(
                 "Colorization of point cloud will use the Géoplateforme orthoimagery WMS. "
                 "To colorize from files, sampling must contain columns {RGB_COLNAME} and {IRC_COLNAME}"
             )

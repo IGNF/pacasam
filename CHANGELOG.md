@@ -1,5 +1,8 @@
 # PACASAM - CHANGELOG
 
+# 1.1.0
+- `TargettedSampler` is completed by `SpatialSampler` to reach target num of patches and target validation proportion.
+
 # 1.0.0
 - `LAZExtractor` supports colorization via sources files (rgb_file + irc_file) in addition to the Géoplateforme WMS.
 

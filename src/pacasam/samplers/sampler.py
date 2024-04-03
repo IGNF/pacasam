@@ -26,7 +26,7 @@ class Sampler:
         self,
         connector: Connector,
         sampling_config: Dict,
-        log: logging.Logger = logging.getLogger(__name__),
+        log: logging.Logger = logging.getLogger(),
     ):
         self.name: str = self.__class__.__name__
         self.connector = connector

@@ -1,4 +1,3 @@
-import logging
 import tempfile
 import pytest
 import geopandas as gpd
@@ -8,8 +7,6 @@ from pacasam.run_sampling import parser
 from pacasam.samplers.random import RandomSampler
 from pacasam.samplers.sampler import Sampler
 from pacasam.utils import SAMPLERS_LIBRARY
-
-log = logging.getLogger(__name__)
 
 
 def _run_sampling_by_args(sampler_class, output_path, connector_class, config_file):
@@ -61,14 +58,14 @@ def test_run_sampling_on_lipac(sampler_class):
         assert all(c in sampling for c in Sampler.sampling_schema)
 
 
-def test_sampling_again_from_a_previous_sampling(toy_sampling_file):
+def test_sampling_again_from_a_previous_sampling(toy_sampling_file, session_logger):
     """Test sampling from a previous sampling output (geopackage)"""
     TWO_PATCHES_REMAIN_AFTER_SAMPLING = 2
-    connector = GeopandasConnector(log=log, gpd_database_path=toy_sampling_file.name, split="any")
+    connector = GeopandasConnector(log=session_logger, gpd_database_path=toy_sampling_file.name, split="any")
     sampler = RandomSampler(
         connector=connector,
         sampling_config={"target_total_num_patches": TWO_PATCHES_REMAIN_AFTER_SAMPLING, "frac_validation_set": 0},
-        log=log,
+        log=session_logger,
     )
     # Perform sampling
     selection: gpd.GeoDataFrame = sampler.get_patches()

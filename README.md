@@ -1,4 +1,4 @@
-# (Work In Progress) PACASAM: Patch Catalogue Sampling
+# PACASAM: Patch Catalog Sampling
 Le module `pacasam` permet le sous-échantillonnage et l'extraction de patches de données géographiques, pour la création d'un jeu de données d'apprentissages profond.
 
 ## Contenu

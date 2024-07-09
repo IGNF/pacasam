@@ -41,13 +41,6 @@ Le processus de sampling sauvegarde un geopackage dans `outputs/samplings/{Conne
 ## Schéma et Illustrations
 
 <details>
-<summary><h4>Schéma : cas des données Lidar HD</h4></summary>
-
-![](img/Global_Process.excalidraw.png)
-
-</details>
-
-<details>
 <summary><h4>Illustrations QGIS - Echantillonnage par TripleSampler</h4></summary>
 
 - A partir de 40 dalles voisines, c'est-à-dire 16000 patches en tout, 893 patches sont échantillonnées, soit environ 6% de la zone.

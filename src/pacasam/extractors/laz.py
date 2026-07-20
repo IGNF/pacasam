@@ -105,6 +105,7 @@ class LAZExtractor(Extractor):
 
             if not cloud:
                 cloud = laspy.read(single_file_path)
+                cloud.header.global_encoding.wkt = True
             tmp_laz: tempfile._TemporaryFileWrapper = extract_single_patch_from_LasData(cloud, cloud.header, patch_bounds)
 
             # Use given srid if possible, else pdaltools will infer it from the LAZ file.
@@ -125,7 +126,7 @@ class LAZExtractor(Extractor):
                 # TODO: simplify signature...
                 colorize_single_patch(nocolor_patch=Path(tmp_laz.name), colorized_patch=Path(tmp_laz.name), srid=srid)
             colorized_patch.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy(tmp_laz.name, colorized_patch)
+            shutil.copyfile(tmp_laz.name, colorized_patch)
 
 
 def extract_single_patch_from_LasData(cloud: LasData, header: LasHeader, patch_bounds) -> tempfile._TemporaryFileWrapper:

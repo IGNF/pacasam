@@ -91,7 +91,7 @@ def extract_rgbnir_patch_as_tmp_file(rgb_file, irc_file, pixel_per_meter, patch_
         "nodata": None,
     }
     tmp_patch: tempfile._TemporaryFileWrapper = tempfile.NamedTemporaryFile(suffix=".tiff", prefix="extracted_patch")
-    collate_rgbnir_and_save(options, rgb_arr, irc_arr, tmp_patch)
+    collate_rgbnir_and_save(options, rgb_arr, irc_arr, tmp_patch.name)
     return tmp_patch
 
 
